@@ -1,50 +1,40 @@
 import 'package:tempest/game_elements/level/tile/tile_main_line.dart';
+import 'package:vector_math/vector_math.dart';
 
-class Positioned {
-  /// Horizontal coordinate
-  double x;
+typedef Positionable = Vector3;
 
-  /// Vertical coordinate
-  double y;
+extension PositionFunctions on Positionable {
+  static Positionable median(Positionable first, Positionable second) => first
+    ..add(second)
+    ..scale(0.5);
 
-  /// Depth coordinate
-  double z;
-  Positioned(this.x, this.y, this.z);
-  Positioned.from(Positioned other) : this(other.x, other.y, other.z);
-
-  static Positioned median(Positioned first, Positioned second) {
-    return Positioned((first.x + second.x) / 2, (first.y + second.y) / 2, (first.z + second.z) / 2);
-  }
-
-  static Positioned positionWithFraction(Positioned first, Positioned second, double fraction) {
-    throw UnimplementedError();
-  }
-
-  Positioned operator +(Positioned other) {
-    return Positioned(x + other.x, y + other.y, z + other.z);
+  static Positionable positionWithFraction(Positionable first, Positionable second, double fraction) {
+    return first + ((second - first) * fraction);
   }
 }
 
-class LevelPositioned extends Positioned {
-  Positioned levelPivot;
-  Positioned offsetPosition;
-  LevelPositioned(this.levelPivot, this.offsetPosition)
-      : super(
-          levelPivot.x + offsetPosition.x,
-          levelPivot.y + offsetPosition.y,
-          levelPivot.z + offsetPosition.z,
-        );
+///This position should be applied to everything that exist in the level and should be connected to level pivot
+///
+/// For example [tile.points]
+class LevelPositioned extends Positionable {
+  Positionable levelPivot;
+  Positionable offsetPosition;
+  LevelPositioned(this.levelPivot, this.offsetPosition) : super.zero() {
+    setFrom(levelPivot + offsetPosition);
+  }
 }
 
-class TilePositioned extends Positioned {
+///This position should be applied to everything that exist on tiles
+///
+///For example [player], [enemies], [shots]
+class TilePositioned extends Positionable {
   TileMainLine tileMainLine;
   double depthFraction;
-  Positioned? offset;
-  TilePositioned(this.tileMainLine, this.depthFraction, {this.offset})
-      : super.from(Positioned.positionWithFraction(
-              tileMainLine.close,
-              tileMainLine.far,
-              depthFraction,
-            ) +
-            (offset ?? Positioned(0, 0, 0)));
+  Positionable? offset;
+  TilePositioned(this.tileMainLine, this.depthFraction, {this.offset}) : super.zero() {
+    setFrom(
+      PositionFunctions.positionWithFraction(tileMainLine.close, tileMainLine.far, depthFraction) +
+          (offset ?? Positionable(0, 0, 0)),
+    );
+  }
 }

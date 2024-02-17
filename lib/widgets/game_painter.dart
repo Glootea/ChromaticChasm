@@ -1,14 +1,22 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
-class GamePainter extends CustomPainter {
+import 'package:flutter/material.dart';
+import 'package:tempest/game_elements/level/level.dart';
+
+class GamePainter extends CustomPainter with ChangeNotifier {
   Listenable? repaint;
-  GamePainter({this.repaint}) : super(repaint: repaint);
+  GamePainter({this.repaint}) : super(repaint: repaint) {
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      level.activeTile = timer.tick % level.tiles.length;
+      notifyListeners();
+    });
+  }
+  final level = Level1();
+
   @override
   void paint(Canvas canvas, Size size) {
-    print("Painted frame");
-    // canvas.drawRect(Rect.largest, Paint()..color = Colors.blue);
     canvas.drawColor(Colors.black, BlendMode.src);
-    // TODO: implement paint
+    level.show(canvas);
   }
 
   @override
