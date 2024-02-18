@@ -13,12 +13,16 @@ abstract mixin class Drawable {
   ///Must call some variation of [super.draw] to appear on canvas
   void show(Canvas canvas);
 
-  @mustCallSuper
   void drawLooped(Canvas canvas, List<Positionable> points, Paint paint) {
     final offsets = _project2D(points);
     for (int i = 0; i < offsets.length; i++) {
       canvas.drawLine(offsets[i], offsets[(i + 1) % offsets.length], paint);
     }
+  }
+
+  void drawCircle(Canvas canvas, Positionable point, Paint paint) {
+    final offsets = _project2D([point]);
+    canvas.drawCircle(offsets[0], 5, paint);
   }
 
   Offset _convert3DToOffset(Positionable point) {

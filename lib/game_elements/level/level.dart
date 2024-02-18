@@ -4,25 +4,20 @@ import 'package:tempest/game_elements/base_classes/positionable.dart';
 import 'package:tempest/game_elements/level/tile/level_tile.dart';
 import 'package:tempest/game_elements/base_classes/movable.dart';
 
-sealed class Level extends ChangeNotifier with Drawable {
+sealed class Level with Drawable {
   ///Default [pivot] is [Movable(0, 0, 50)]
   Movable pivot;
 
   ///Whether player can move from last tile to first or vice versa
   bool circlular;
+
+  /// Should be in non clock wise order, starting from 12 o'clock. First [tile.x] must be < 0
   List<LevelTile> tiles;
 
   Level(this.pivot, this.tiles, this.circlular);
 
   /// Tile where pleyer is. It has different color
   late int activeTile = tiles.length ~/ 2;
-  set setActiveTile(int value) {
-    activeTile = value % tiles.length;
-    notifyListeners();
-  }
-
-  //TODO: implement incremental movement to target tile
-  late int targetTile = tiles.length ~/ 2;
 
   /// [points] must be in range -100 to 100 in both x and y. [depth] prefered to be around 1000
   Level.fromPoints(Movable pivot, List<Positionable> points, double depth, bool circlular)
@@ -54,6 +49,7 @@ sealed class Level extends ChangeNotifier with Drawable {
 class Level1 extends Level {
   static final Movable _level1Pivot = Movable(0, 0, 50);
   static final List<Positionable> _level1Points = [
+    Positionable(-0, -100, 0),
     Positionable(-140, -50, 0),
     Positionable(-125, -25, 0),
     Positionable(-100, 0, 0),
@@ -68,5 +64,5 @@ class Level1 extends Level {
     Positionable(125, -25, 0),
     Positionable(140, -50, 0),
   ];
-  Level1() : super.fromPoints(_level1Pivot, _level1Points, 1000, false);
+  Level1() : super.fromPoints(_level1Pivot, _level1Points, 1000, true);
 }

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 class GamePainterClipper extends CustomClipper<Rect> {
-  Size size;
-  GamePainterClipper(this.size);
+  Size gameSize;
+  GamePainterClipper(this.gameSize);
   @override
-  Rect getClip(Size _) {
-    return Rect.fromLTWH(0, 0, size.width, size.height);
+  Rect getClip(Size size) {
+    return Rect.fromLTWH(0, 0, gameSize.width, gameSize.height);
   }
 
   @override

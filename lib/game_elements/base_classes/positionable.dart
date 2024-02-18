@@ -41,6 +41,7 @@ class LevelPositionable extends Positionable {
 class TilePositionable extends Positionable {
   TileMainLine tileMainLine;
   double depthFraction;
+  double widthFraction = 0.5;
   Positionable? offset;
   TilePositionable(this.tileMainLine, this.depthFraction, {this.offset}) : super.zero() {
     setFrom(
