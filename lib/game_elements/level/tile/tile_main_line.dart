@@ -1,4 +1,4 @@
-import 'package:tempest/game_elements/base_classes/positioned.dart';
+import 'package:tempest/game_elements/base_classes/positionable.dart';
 
 class TileMainLine {
   final Positionable close;

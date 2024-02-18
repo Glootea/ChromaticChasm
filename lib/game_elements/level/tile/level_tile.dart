@@ -1,6 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
-import 'package:tempest/game_elements/base_classes/positioned.dart';
+import 'package:tempest/game_elements/base_classes/positionable.dart';
 import 'package:tempest/game_elements/level/tile/tile_main_line.dart';
 
 class LevelTile with Drawable {
@@ -19,6 +21,7 @@ class LevelTile with Drawable {
     return _mainLine!;
   }
 
+  /// [Points] are in order: left near, left far, right far, right near
   LevelTile(this.pivot, this.points) {
     assert(points.length == 4);
   }
@@ -34,6 +37,16 @@ class LevelTile with Drawable {
     ..strokeWidth = Drawable.strokeWidth;
 
   List<Positionable> get preparePoints => points.map((point) => point + pivot).toList();
+
+  List<double>? _angleRange;
+  List<double> get angleRange => _angleRange ?? _calculateAngleRange();
+  List<double> _calculateAngleRange() {
+    final leftAngle = atan2(points[0].x - pivot.x, points[0].y - pivot.y);
+    final rightAngle = atan2(points[3].x - pivot.x, points[3].y - pivot.y);
+    _angleRange = [leftAngle, rightAngle];
+    return _angleRange!;
+  }
+
   @override
   void show(Canvas canvas) {
     drawLooped(canvas, preparePoints, defaultPaint);

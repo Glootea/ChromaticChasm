@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
-import 'package:tempest/game_elements/base_classes/positioned.dart';
+import 'package:tempest/game_elements/base_classes/positionable.dart';
 import 'package:tempest/game_elements/level/tile/level_tile.dart';
 import 'package:tempest/game_elements/base_classes/movable.dart';
 
@@ -16,6 +16,13 @@ sealed class Level extends ChangeNotifier with Drawable {
 
   /// Tile where pleyer is. It has different color
   late int activeTile = tiles.length ~/ 2;
+  set setActiveTile(int value) {
+    activeTile = value % tiles.length;
+    notifyListeners();
+  }
+
+  //TODO: implement incremental movement to target tile
+  late int targetTile = tiles.length ~/ 2;
 
   /// [points] must be in range -100 to 100 in both x and y. [depth] prefered to be around 1000
   Level.fromPoints(Movable pivot, List<Positionable> points, double depth, bool circlular)

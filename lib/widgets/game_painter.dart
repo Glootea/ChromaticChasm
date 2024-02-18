@@ -1,17 +1,10 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:tempest/game_elements/level/level.dart';
 
-class GamePainter extends CustomPainter with ChangeNotifier {
+class GamePainter extends CustomPainter {
   Listenable? repaint;
-  GamePainter({this.repaint}) : super(repaint: repaint) {
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      level.activeTile = timer.tick % level.tiles.length;
-      notifyListeners();
-    });
-  }
-  final level = Level1();
+  Level level;
+  GamePainter(this.level, {this.repaint}) : super(repaint: repaint);
 
   @override
   void paint(Canvas canvas, Size size) {
