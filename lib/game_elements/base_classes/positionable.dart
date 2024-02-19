@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:tempest/game_elements/level/tile/tile_main_line.dart';
 import 'package:vector_math/vector_math.dart';
 
@@ -10,9 +9,9 @@ extension PositionFunctions on Positionable {
     ..add(second)
     ..scale(0.5);
 
-  static Positionable positionWithFraction(Positionable first, Positionable second, double fraction) {
-    return first + ((second - first) * fraction);
-  }
+  static Positionable positionWithFraction(
+          Positionable first, Positionable second, Positionable pivot, double fraction) =>
+      first + ((second - first) * fraction) + pivot;
 
   Positionable moveRotationPointToOrigin(Positionable pivot) => this - pivot;
   Positionable moveRotationPointBack(Positionable pivot) => this + pivot;
@@ -39,13 +38,14 @@ class LevelPositionable extends Positionable {
 ///
 ///For example [player], [enemies], [shots]
 class TilePositionable extends Positionable {
+  Positionable levelPivot;
   TileMainLine tileMainLine;
   double depthFraction;
   double widthFraction = 0.5;
   Positionable? offset;
-  TilePositionable(this.tileMainLine, this.depthFraction, {this.offset}) : super.zero() {
+  TilePositionable(this.tileMainLine, this.levelPivot, this.depthFraction, {this.offset}) : super.zero() {
     setFrom(
-      PositionFunctions.positionWithFraction(tileMainLine.close, tileMainLine.far, depthFraction) +
+      PositionFunctions.positionWithFraction(tileMainLine.close, tileMainLine.far, levelPivot, depthFraction) +
           (offset ?? Positionable(0, 0, 0)),
     );
   }

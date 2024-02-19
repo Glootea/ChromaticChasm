@@ -3,7 +3,7 @@ import 'package:tempest/game_elements/base_classes/positionable.dart';
 
 abstract mixin class Drawable {
   static late double canvasSize;
-  static const double strokeWidth = 2;
+  static const double strokeWidth = 1;
 
   ///Should be called every time screen settings change. Ment to be used in [build] method of whole app
   static void setCanvasSize(Size size) {
@@ -26,7 +26,7 @@ abstract mixin class Drawable {
   }
 
   Offset _convert3DToOffset(Positionable point) {
-    const distanceToCamera = 100;
+    const distanceToCamera = 500;
     final x = ((distanceToCamera * point.x / (point.z + distanceToCamera)) / 100 / 2 + 0.5) * canvasSize;
     final y = (((distanceToCamera * point.y / (point.z + distanceToCamera)) / 100) / 2 + 0.5) * canvasSize;
     return Offset(x, y);
