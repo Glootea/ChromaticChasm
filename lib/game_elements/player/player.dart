@@ -78,15 +78,26 @@ class Player extends TilePositionable with Transformable, Drawable, ChangeNotifi
   }
 
   /// 1 - right, -1 - left, 0 - stay
-  int _getMoveDirection(int current, int target, int tileCount, bool circular) {
-    if (target == current) return _centralState.compareTo(_currentState);
-    if (circular) {
-      if ((target - current).abs() < tileCount / 2 && target - current < 0 ||
-          (target - current).abs() > tileCount / 2 && target - current > 0) return -1;
-      if ((target - current).abs() < tileCount / 2 && target - current > 0 ||
-          (target - current).abs() > tileCount / 2 && target - current < 0) return 1;
+  int _getMovementCount(int current, int target, int tileCount, bool circular) {
+    final sign = target.compareTo(current);
+    int getLinearTiles() => (_targetTile - level.activeTile).abs();
+    int getCurcularTiles() {
+      final straight = getLinearTiles();
+      final looped = (level.tiles.length - (_targetTile - level.activeTile).abs());
+      return (straight < looped ? straight : -looped);
     }
-    return target.compareTo(current);
+
+    int getCircularDistance() => (getCurcularTiles() * tileStates.length * sign + (_centralState - _currentState));
+    int getLinearDistance() => (getLinearTiles() * tileStates.length * sign + (_centralState - _currentState));
+    // if (target == current) return _currentState - _centralState;
+    return circular ? getCircularDistance() : getLinearDistance();
+    // if ((target - current).abs() < tileCount / 2 && target - current < 0 ||
+    //     (target - current).abs() > tileCount / 2 && target - current > 0) return getDistance(true);
+    // if ((target - current).abs() < tileCount / 2 && target - current > 0 ||
+    //     (target - current).abs() > tileCount / 2 && target - current < 0) return getDistance(true);
+
+    // final direction = target.compareTo(current);
+    // return getDistance(false) * sign;
   }
 
   void _updatePosition(int direction) {
@@ -104,19 +115,17 @@ class Player extends TilePositionable with Transformable, Drawable, ChangeNotifi
   set setTargetTile(int value) {
     if (_targetTile == value) return;
     _targetTile = value % level.tiles.length;
-    _setTimesToMove();
+    _setMovementCount();
     notifyListeners();
   }
 
-  void _setTimesToMove() {
-    int direction = _getMoveDirection(level.activeTile, _targetTile, level.tiles.length, level.circlular);
-    _movementCount =
-        ((_targetTile - level.activeTile).abs() * tileStates.length + (_currentState - _centralState)) * direction;
+  void _setMovementCount() {
     _updatePositionTimer?.cancel();
+    _movementCount = _getMovementCount(level.activeTile, _targetTile, level.tiles.length, level.circlular);
     _updatePositionTimer = Timer.periodic(_timeToMove, (time) {
-      _movementCount -= direction;
       if (_movementCount != 0) {
         _updatePosition(_movementCount.sign);
+        _movementCount -= _movementCount.sign;
       } else {
         _updatePositionTimer?.cancel();
         _updatePositionTimer = null;
