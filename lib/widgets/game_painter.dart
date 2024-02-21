@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:tempest/game_elements/level/level.dart';
+import 'package:tempest/game_elements/player/player.dart';
 
 class GamePainter extends CustomPainter {
   Listenable? repaint;
-  GamePainter({this.repaint}) : super(repaint: repaint);
+  Level level;
+  Player player;
+  GamePainter(this.level, this.player, {this.repaint}) : super(repaint: repaint);
+
   @override
   void paint(Canvas canvas, Size size) {
-    print("Painted frame");
-    // canvas.drawRect(Rect.largest, Paint()..color = Colors.blue);
     canvas.drawColor(Colors.black, BlendMode.src);
-    // TODO: implement paint
+    level.show(canvas);
+    player.show(canvas);
   }
 
   @override

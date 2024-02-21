@@ -1,7 +1,7 @@
-import 'package:tempest/game_elements/base_classes/positioned.dart';
+import 'package:tempest/game_elements/base_classes/positionable.dart';
 
 class TileMainLine {
-  final Positioned close;
-  final Positioned far;
+  final Positionable close;
+  final Positionable far;
   const TileMainLine(this.close, this.far);
 }
