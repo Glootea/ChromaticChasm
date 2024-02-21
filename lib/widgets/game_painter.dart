@@ -11,7 +11,6 @@ class GamePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     canvas.drawColor(Colors.black, BlendMode.src);
-
     level.show(canvas);
     player.show(canvas);
   }

@@ -91,4 +91,10 @@ class _MyAppState extends State<MyApp> with ChangeNotifier {
       )),
     );
   }
+
+  @override
+  void dispose() {
+    player.dispose();
+    super.dispose();
+  }
 }

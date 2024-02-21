@@ -15,6 +15,7 @@ extension PositionFunctions on Positionable {
 
   Positionable moveRotationPointToOrigin(Positionable pivot) => this - pivot;
   Positionable moveRotationPointBack(Positionable pivot) => this + pivot;
+
   Positionable rotateXAroundOrigin(double angle) =>
       Matrix3(1, 0, 0, 0, cos(angle), -sin(angle), 0, sin(angle), cos(angle)).transformed(this);
   Positionable rotateYAroundOrigin(double angle) =>
