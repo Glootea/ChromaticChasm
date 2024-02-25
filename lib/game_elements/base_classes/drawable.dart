@@ -12,7 +12,6 @@ abstract mixin class Drawable {
 
   ///Must call some variation of [super.draw] to appear on canvas
   void show(Canvas canvas);
-
   void drawLooped(Canvas canvas, List<Positionable> points, Paint paint) {
     final offsets = _project2D(points);
     for (int i = 0; i < offsets.length; i++) {

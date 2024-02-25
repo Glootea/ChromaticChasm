@@ -4,13 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
 import 'package:tempest/game_elements/base_classes/transfromable.dart';
-import 'package:tempest/game_elements/level/level.dart';
 import 'package:tempest/helpers/positionable_extension.dart';
 import '../level/tile/level_tile.dart';
 
 class Player extends TilePositionable with Transformable, Drawable, ChangeNotifier {
-  Level level;
-  Player(this.level, {super.offset}) : super(level.tiles[level.activeTile].mainLine, level.pivot, 0);
+  Player(super.level, super.tileNumber);
 
   ///Time to move from one [tileStates] to another
   ///
@@ -89,15 +87,8 @@ class Player extends TilePositionable with Transformable, Drawable, ChangeNotifi
 
     int getCircularDistance() => (getCurcularTiles() * tileStates.length * sign + (_centralState - _currentState));
     int getLinearDistance() => (getLinearTiles() * tileStates.length * sign + (_centralState - _currentState));
-    // if (target == current) return _currentState - _centralState;
-    return circular ? getCircularDistance() : getLinearDistance();
-    // if ((target - current).abs() < tileCount / 2 && target - current < 0 ||
-    //     (target - current).abs() > tileCount / 2 && target - current > 0) return getDistance(true);
-    // if ((target - current).abs() < tileCount / 2 && target - current > 0 ||
-    //     (target - current).abs() > tileCount / 2 && target - current < 0) return getDistance(true);
 
-    // final direction = target.compareTo(current);
-    // return getDistance(false) * sign;
+    return circular ? getCircularDistance() : getLinearDistance();
   }
 
   void _updatePosition(int direction) {
@@ -124,6 +115,7 @@ class Player extends TilePositionable with Transformable, Drawable, ChangeNotifi
     _movementCount = _getMovementCount(level.activeTile, _targetTile, level.tiles.length, level.circlular);
     _updatePositionTimer = Timer.periodic(_timeToMove, (time) {
       if (_movementCount != 0) {
+        // print("Position updated");
         _updatePosition(_movementCount.sign);
         _movementCount -= _movementCount.sign;
       } else {
