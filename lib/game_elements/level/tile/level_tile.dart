@@ -52,11 +52,16 @@ class LevelTile with Drawable {
     ..strokeWidth = Drawable.strokeWidth;
 
   @override
-  void show(Canvas canvas) {
+  void show(Canvas canvas, DateTime frameTimestamp) {
     drawLooped(canvas, preparePoints, defaultPaint);
   }
 
   void showActive(Canvas canvas) {
     drawLooped(canvas, preparePoints, activePaint);
+  }
+
+  double get angle {
+    final delta = points.last - points.first;
+    return atan2(delta.x, delta.y) - pi / 2;
   }
 }
