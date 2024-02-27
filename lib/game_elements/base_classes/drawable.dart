@@ -24,15 +24,23 @@ abstract mixin class Drawable {
     }
   }
 
+  void drawStraight(Canvas canvas, List<Positionable> points, Paint paint) {
+    final offsets = _project2D(points);
+    for (int i = 0; i < offsets.length - 1; i++) {
+      canvas.drawLine(offsets[i], offsets[i + 1], paint);
+    }
+  }
+
   void drawCircle(Canvas canvas, Positionable point, Paint paint) {
     final offsets = _project2D([point]);
     canvas.drawCircle(offsets[0], 5, paint);
   }
 
   Offset _convert3DToOffset(Positionable point) {
-    const distanceToCamera = 500;
-    final x = ((distanceToCamera * point.x / (point.z + distanceToCamera)) / 100 / 2 + 0.5) * canvasSize;
-    final y = (((distanceToCamera * point.y / (point.z + distanceToCamera)) / 100) / 2 + 0.5) * canvasSize;
+    const distanceToCamera = 0.0000000001;
+    final x = ((distanceToCamera * point.x / (point.z + distanceToCamera)) / (distanceToCamera * 4) + 0.5) * canvasSize;
+    final y =
+        (((distanceToCamera * point.y / (point.z + distanceToCamera)) / (distanceToCamera * 4)) + 0.5) * canvasSize;
     return Offset(x, y);
   }
 

@@ -5,9 +5,7 @@ import 'package:vector_math/vector_math.dart';
 typedef Positionable = Vector3;
 
 extension PositionFunctions on Positionable {
-  static Positionable median(Positionable first, Positionable second) => first
-    ..add(second)
-    ..scale(0.5);
+  static Positionable median(Positionable first, Positionable second) => (first + second) * 0.5;
 
   static Positionable positionWithFraction(
           Positionable first, Positionable second, Positionable pivot, double fraction) =>

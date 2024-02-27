@@ -1,4 +1,5 @@
 import 'dart:developer' as dev;
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
@@ -24,18 +25,35 @@ class PlayingState extends GameState {
   PlayingState(this.level, this.player, this.enemies, this.shots);
   PlayingState.create(this.level)
       : player = Player(level, level.tiles.length ~/ 2),
-        enemies = [],
+        enemies = [Spider(level, 4)],
         shots = [];
   @override
   void onFireButtonPressed() => shots.add(Shot(level, level.activeTile));
 
   @override
   void draw(Canvas canvas) {
+    if (_random.nextInt(180) == 0) {
+      enemies.add(Spider(level, _random.nextInt(level.tiles.length)));
+    }
     final frameTimestamp = DateTime.now();
     if (_direction != null) throttler.throttle(() => player.moveTargetTile(_direction!));
     level.show(canvas, frameTimestamp);
     for (int i = 0; i < enemies.length; i++) {
       final enemy = enemies[i];
+      for (int j = 0; j < shots.length; j++) {
+        final shot = shots[j];
+        if (enemy.checkShotHit(shot)) {
+          shots.removeAt(j);
+          if (enemy.checkDead) {
+            enemies.removeAt(i);
+            continue;
+          }
+        }
+      }
+      if (enemy.disappear) {
+        enemies.removeAt(i);
+        continue;
+      }
       enemy.show(canvas, frameTimestamp);
     }
 
@@ -71,6 +89,7 @@ class PlayingState extends GameState {
     throw Exception("Tile no found");
   }
 
+  final Random _random = Random();
   final throttler = Throttler(const Duration(milliseconds: Drawable.syncTime * 4));
   int? _direction;
   @override

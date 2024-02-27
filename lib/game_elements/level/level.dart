@@ -58,7 +58,7 @@ sealed class Level with Drawable {
 class Level1 extends Level {
   static final Movable _level1Pivot = Movable(0, 0, 50);
   static final List<Positionable> _level1Points = [
-    Positionable(-0, -60, 0),
+    // Positionable(-0, -60, 0),
     Positionable(-90, -40, 0),
     Positionable(-75, -20, 0),
     Positionable(-60, 0, 0),
@@ -73,5 +73,5 @@ class Level1 extends Level {
     Positionable(75, -20, 0),
     Positionable(90, -40, 0),
   ];
-  Level1() : super.fromPoints(_level1Pivot, _level1Points, 2000, true);
+  Level1() : super.fromPoints(_level1Pivot, _level1Points, 200, false);
 }
