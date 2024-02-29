@@ -2,11 +2,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
-import 'package:tempest/helpers/positionable_extension.dart';
+import 'package:tempest/game_elements/level/level.dart';
+import 'package:tempest/helpers/positionable_list_extension.dart';
 import '../level/tile/level_tile.dart';
 
 class Player extends TilePositionable with Drawable {
   Player(super.level, super.tileNumber);
+  Player.create(Level level) : this(level, level.tiles.length ~/ 2);
 
   ///Time to move from one [tileStates] to another
   ///

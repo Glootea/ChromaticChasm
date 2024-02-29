@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
-import 'package:tempest/helpers/positionable_extension.dart';
+import 'package:tempest/helpers/positionable_list_extension.dart';
 
 class Shot extends TilePositionable with Drawable {
   Shot(super.level, super.tileNumber, {super.depthFraction = 0});

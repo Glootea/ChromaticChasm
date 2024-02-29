@@ -1,12 +1,15 @@
+import 'dart:async';
 import 'dart:developer' as dev;
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
+import 'package:tempest/game_elements/base_classes/positionable.dart';
 import 'package:tempest/game_elements/enemies/enemy.dart';
 import 'package:tempest/game_elements/level/level.dart';
 import 'package:tempest/game_elements/player/player.dart';
 import 'package:tempest/game_elements/shot.dart';
+import 'package:tempest/helpers/easing.dart';
 import 'package:tempest/helpers/throttler.dart';
 
 sealed class GameState {
@@ -14,6 +17,47 @@ sealed class GameState {
   void onAngleChanged(double angle);
   KeyEventResult onKeyboardEvent(KeyEvent event);
   void draw(Canvas canvas);
+  StreamController<GameState> setStateStream;
+  GameState(this.setStateStream);
+}
+
+class LevelAppearState extends GameState {
+  final Level level;
+
+  late final DateTime _startTime;
+  LevelAppearState(super.setStateStream, this.level) {
+    _startTime = DateTime.now();
+  }
+  static const Duration _levelAppearTime = Duration(seconds: 3);
+  static final Positionable _startPivot = Positionable(0, 0, 5000);
+  late final Positionable _targetPivot = Positionable.copy(level.pivot);
+
+  @override
+  void draw(Canvas canvas) {
+    final frameTimestamp = DateTime.now();
+    double timeFracton =
+        (frameTimestamp.difference(_startTime).inMilliseconds / _levelAppearTime.inMilliseconds).easeInOutCubic;
+    if (timeFracton >= 1) {
+      setStateStream.add(PlayingState.create(setStateStream, level));
+      timeFracton = 1;
+    }
+
+    final position =
+        PositionFunctions.positionWithFraction(_startPivot, _targetPivot, Positionable.zero(), timeFracton);
+    level.pivot.setFrom(position);
+    level.show(canvas, frameTimestamp);
+  }
+
+  @override
+  void onAngleChanged(double angle) {}
+
+  @override
+  void onFireButtonPressed() {}
+
+  @override
+  KeyEventResult onKeyboardEvent(KeyEvent event) {
+    return KeyEventResult.handled;
+  }
 }
 
 class PlayingState extends GameState {
@@ -22,8 +66,8 @@ class PlayingState extends GameState {
   final List<Enemy> enemies;
   final List<Shot> shots;
 
-  PlayingState(this.level, this.player, this.enemies, this.shots);
-  PlayingState.create(this.level)
+  PlayingState(super.setStateStream, this.level, this.player, this.enemies, this.shots);
+  PlayingState.create(super.setStateStream, this.level)
       : player = Player(level, level.tiles.length ~/ 2),
         enemies = [Spider(level, 4)],
         shots = [];

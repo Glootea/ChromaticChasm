@@ -4,7 +4,6 @@ import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:provider/provider.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
 import 'package:tempest/game_elements/level/level.dart';
-import 'package:tempest/game_state.dart';
 import 'package:tempest/game_state_provider.dart';
 import 'package:tempest/widgets/game_painter.dart';
 import 'package:tempest/widgets/game_painter_clipper.dart';
@@ -13,7 +12,7 @@ void main() {
   runApp(MaterialApp(
       theme: ThemeData.dark(),
       home: ChangeNotifierProvider(
-        create: (context) => GameStateProvider(PlayingState.create(Level.getRandomLevel())),
+        create: (context) => GameStateProvider.create(),
         child: const MyApp(),
       )));
 }

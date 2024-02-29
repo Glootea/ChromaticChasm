@@ -1,14 +1,12 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
 import 'package:tempest/game_elements/level/tile/level_tile.dart';
-import 'package:tempest/game_elements/base_classes/movable.dart';
 
 sealed class Level with Drawable {
   ///Default [pivot] is [Movable(0, 0, 50)]
-  Movable pivot;
+  Positionable pivot;
 
   ///Whether player can move from last tile to first or vice versa
   final bool circlular;
@@ -22,7 +20,7 @@ sealed class Level with Drawable {
   late int activeTile = tiles.length ~/ 2;
 
   /// [points] must be in range -100 to 100 in both x and y. [depth] prefered to be around 1000
-  Level.fromPoints(Movable pivot, List<Positionable> points, double depth, bool circlular)
+  Level.fromPoints(Positionable pivot, List<Positionable> points, double depth, bool circlular)
       : this(pivot, _pointsToTiles(pivot, points, depth, circlular), circlular);
 
   @override
@@ -56,7 +54,7 @@ sealed class Level with Drawable {
 }
 
 class Level1 extends Level {
-  static final Movable _level1Pivot = Movable(0, 0, 50);
+  static final Positionable _level1Pivot = Positionable(0, 0, 50);
   static final List<Positionable> _level1Points = [
     // Positionable(-0, -60, 0),
     Positionable(-90, -40, 0),
