@@ -15,16 +15,18 @@ abstract mixin class Drawable {
   }
 
   ///Must call some variation of [super.draw] to appear on canvas
-  void show(Canvas canvas, DateTime frameTimestamp);
+  ///
+  ///Also should call [update] if needed
+  void updateAndShow(Canvas canvas, DateTime frameTimestamp);
 
-  void drawLooped(Canvas canvas, List<Positionable> points, Paint paint) {
+  void drawLoopedLines(Canvas canvas, List<Positionable> points, Paint paint) {
     final offsets = _project2D(points);
     for (int i = 0; i < offsets.length; i++) {
       canvas.drawLine(offsets[i], offsets[(i + 1) % offsets.length], paint);
     }
   }
 
-  void drawStraight(Canvas canvas, List<Positionable> points, Paint paint) {
+  void drawLines(Canvas canvas, List<Positionable> points, Paint paint) {
     final offsets = _project2D(points);
     for (int i = 0; i < offsets.length - 1; i++) {
       canvas.drawLine(offsets[i], offsets[i + 1], paint);
@@ -48,18 +50,20 @@ abstract mixin class Drawable {
     return list.map((point) => _convert3DToOffset(point)).toList();
   }
 
-  List<Positionable> getRotatedLocalPoints(List<Positionable> points, double angle) =>
-      _rotateZ(Positionable.zero(), points, angle);
-
   bool get avoidRedraw => DateTime.now().difference(lastFrameTimestamp).inMilliseconds < syncTime;
 
-  List<Positionable> _rotateX(Positionable pivot, List<Positionable> points, double angle) => points
+  ///Rotates all points around pivot by angle. If points are in local coordinates, [pivot] = Positionable.zero()
+  List<Positionable> rotateX(Positionable pivot, List<Positionable> points, double angle) => points
       .map((point) => point.moveRotationPointToOrigin(pivot).rotateXAroundOrigin(angle).moveRotationPointBack(pivot))
       .toList();
-  List<Positionable> _rotateY(Positionable pivot, List<Positionable> points, double angle) => points
+
+  ///Rotates all points around pivot by angle. If points are in local coordinates, [pivot] = Positionable.zero()
+  List<Positionable> rotateY(Positionable pivot, List<Positionable> points, double angle) => points
       .map((point) => point.moveRotationPointToOrigin(pivot).rotateYAroundOrigin(angle).moveRotationPointBack(pivot))
       .toList();
-  List<Positionable> _rotateZ(Positionable pivot, List<Positionable> points, double angle) => points
+
+  ///Rotates all points around pivot by angle. If points are in local coordinates, [pivot] = Positionable.zero()
+  List<Positionable> rotateZ(Positionable pivot, List<Positionable> points, double angle) => points
       .map((point) => point.moveRotationPointToOrigin(pivot).rotateZAroundOrigin(angle).moveRotationPointBack(pivot))
       .toList();
 }

@@ -1,72 +1,91 @@
 import 'package:flutter/material.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
+import 'package:tempest/game_elements/level/tile/level_tile.dart';
+import 'package:tempest/game_elements/player/player.dart';
 import 'package:tempest/game_elements/shot.dart';
 
 sealed class Enemy extends TilePositionable with Drawable {
   Enemy(super.level, super.tileNumber, {super.depthFraction = 1});
-  int life = 1;
-  @override
-  void show(Canvas canvas, DateTime frameTimestamp);
 
-  bool checkPlayerHit() {
-    // TODO: implement
-    return false;
-  }
-
-  bool checkShotHit(Shot shot) {
-    final hit = shot.tileNumber == tileNumber && (shot.depthFraction - depthFraction).abs() < 0.05;
-    if (hit) life -= 1;
+  bool checkPlayerHit(Player player) {
+    final hit = player.tileNumber == tileNumber && depthFraction <= 0.02;
     return hit;
   }
 
-  bool get checkDead => life <= 0;
+  ///Returns number of shot, that hit this enemy
+  ///
+  ///Returns null if no shot hit
+  int? shotHitNumber(List<Shot> shots) {
+    for (int i = 0; i < shots.length; i++) {
+      final shot = shots[i];
+      final hit = shot.tileNumber == tileNumber && (shot.depthFraction - depthFraction).abs() < 0.05;
+      if (hit) {
+        _lifes -= 1;
+        return i;
+      }
+    }
+    return null;
+  }
+
+  int _lifes = 1;
+  bool get checkDead => _lifes <= 0;
+
   void updatePosition(DateTime frameTimestamp);
+
   bool get disappear;
 }
 
 class Spider extends Enemy {
   Spider(super.level, super.tileNumber);
-  Positionable get _leftPoint => PositionFunctions.positionWithFraction(
-      level.tiles[tileNumber].points[0], level.tiles[tileNumber].points[1], level.pivot, depthFraction);
-  Positionable get _rightPoint => PositionFunctions.positionWithFraction(
-      level.tiles[tileNumber].points[3], level.tiles[tileNumber].points[2], level.pivot, depthFraction);
-  Positionable get _middlePoint => PositionFunctions.median(_leftPoint, _rightPoint);
-  List<List<Positionable>> get points => [
+
+  LevelTile get tile => level.tiles[tileNumber];
+
+  Positionable get _leftPointGlobal =>
+      PositionFunctions.positionWithFraction(tile.leftNearPointGlobal, tile.leftFarPointGlobal, depthFraction);
+  Positionable get _rightPointGlobal =>
+      PositionFunctions.positionWithFraction(tile.rightNearPointGlobal, tile.rightFarPointGlobal, depthFraction);
+  Positionable get _middlePointGlobal => PositionFunctions.median(_leftPointGlobal, _rightPointGlobal);
+
+  ///Points depend on global [tile] points coordinates, so no more rotation is needed, unless rotation around [tile]
+  List<List<Positionable>> get linesToDrawGlobal => [
         [
-          _leftPoint + Positionable(0, 0, -5),
-          PositionFunctions.median(_leftPoint, _middlePoint)..add(Positionable(0, -5, -2.5)),
-          _middlePoint,
-          PositionFunctions.median(_rightPoint, _middlePoint)..add(Positionable(0, -5, -2.5)),
-          _rightPoint + Positionable(0, 0, -5)
+          _leftPointGlobal + Positionable(0, 0, -5),
+          PositionFunctions.median(_leftPointGlobal, _middlePointGlobal) + Positionable(0, -5, -2.5),
+          _middlePointGlobal,
+          PositionFunctions.median(_rightPointGlobal, _middlePointGlobal) + Positionable(0, -5, -2.5),
+          _rightPointGlobal + Positionable(0, 0, -5)
         ],
         [
-          _leftPoint,
-          PositionFunctions.median(_leftPoint, _middlePoint)..add(Positionable(0, -5, 0)),
-          _middlePoint,
-          PositionFunctions.median(_rightPoint, _middlePoint)..add(Positionable(0, -5, 0)),
-          _rightPoint
+          _leftPointGlobal,
+          PositionFunctions.median(_leftPointGlobal, _middlePointGlobal) + Positionable(0, -5, 0),
+          _middlePointGlobal,
+          PositionFunctions.median(_rightPointGlobal, _middlePointGlobal) + Positionable(0, -5, 0),
+          _rightPointGlobal
         ],
         [
-          _leftPoint + Positionable(0, 0, 5),
-          PositionFunctions.median(_leftPoint, _middlePoint)..add(Positionable(0, -5, 2.5)),
-          _middlePoint,
-          PositionFunctions.median(_rightPoint, _middlePoint)..add(Positionable(0, -5, 2.5)),
-          _rightPoint + Positionable(0, 0, 5)
+          _leftPointGlobal + Positionable(0, 0, 5),
+          PositionFunctions.median(_leftPointGlobal, _middlePointGlobal) + Positionable(0, -5, 2.5),
+          _middlePointGlobal,
+          PositionFunctions.median(_rightPointGlobal, _middlePointGlobal) + Positionable(0, -5, 2.5),
+          _rightPointGlobal + Positionable(0, 0, 5)
         ],
       ];
-  static final Paint paint = Paint()
+
+  static final Paint _paint = Paint()
     ..color = Colors.red
     ..strokeWidth = Drawable.strokeWidth;
+
   @override
-  void show(Canvas canvas, DateTime frameTimestamp) {
+  void updateAndShow(Canvas canvas, DateTime frameTimestamp) {
     updatePosition(frameTimestamp);
-    for (final element in points) {
-      drawStraight(canvas, element, paint);
+    for (final line in linesToDrawGlobal) {
+      drawLines(canvas, line, _paint);
     }
   }
 
   static const _speed = 0.005;
+
   @override
   void updatePosition(DateTime frameTimestamp) {
     depthFraction -= _speed * (frameTimestamp.difference(lastFrameTimestamp).inMilliseconds / Drawable.syncTime);

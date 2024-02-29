@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
-import 'package:tempest/helpers/positionable_extension.dart';
+import 'package:tempest/helpers/positionable_list_extension.dart';
 import '../level/tile/level_tile.dart';
 
 class Player extends TilePositionable with Drawable {
@@ -46,13 +46,15 @@ class Player extends TilePositionable with Drawable {
       Positionable(-7, 0, 0),
     ],
   ];
-  late final int _centralState =
-      (tileStates.length / 2).floor(); //TODO: rewrite to getter for skin(with different tileStates.length) support
+  late final int _centralState = (tileStates.length / 2).floor();
   late int _currentState = _centralState;
 
   LevelTile get activeTile => level.tiles[tileNumber];
   late int _targetTile = level.tiles.length ~/ 2;
 
+  ///Counter of movement calculated at the time target tile is set
+  ///
+  ///Positive value means player is moving right, negative - left
   int _movementCount = 0;
 
   static final paint = Paint()
@@ -60,14 +62,17 @@ class Player extends TilePositionable with Drawable {
     ..strokeWidth = Drawable.strokeWidth;
 
   @override
-  void show(Canvas canvas, DateTime frameTimestamp) {
+  void updateAndShow(Canvas canvas, DateTime frameTimestamp) {
     double getWidthFraction() => (_currentState + 1) / (tileStates.length + 1);
 
     _updatePosition(_movementCount.sign, frameTimestamp);
     final pivot = PositionFunctions.positionWithFraction(
-        activeTile.points.first, activeTile.points.last, level.pivot, getWidthFraction());
-    final points = getRotatedLocalPoints(tileStates[_currentState], activeTile.angle).toGlobal(pivot);
-    drawLooped(canvas, points, paint);
+      activeTile.leftNearPointGlobal,
+      activeTile.rightNearPointGlobal,
+      getWidthFraction(),
+    );
+    final points = rotateZ(Positionable.zero(), tileStates[_currentState], activeTile.angle).toGlobal(pivot);
+    drawLoopedLines(canvas, points, paint);
   }
 
   /// 1 - right, -1 - left, 0 - stay

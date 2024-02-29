@@ -26,11 +26,11 @@ sealed class Level with Drawable {
       : this(pivot, _pointsToTiles(pivot, points, depth, circlular), circlular);
 
   @override
-  void show(Canvas canvas, DateTime frameTimestamp) {
+  void updateAndShow(Canvas canvas, DateTime frameTimestamp) {
     lastFrameTimestamp = frameTimestamp;
     for (int i = 0; i < tiles.length; i++) {
       if (i != activeTile) {
-        tiles[i].show(canvas, frameTimestamp);
+        tiles[i].updateAndShow(canvas, frameTimestamp);
       }
       tiles[activeTile].showActive(canvas);
     }
