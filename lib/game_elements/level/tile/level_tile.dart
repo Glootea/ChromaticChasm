@@ -6,11 +6,12 @@ import 'package:tempest/game_elements/base_classes/positionable.dart';
 import 'package:tempest/game_elements/level/tile/tile_main_line.dart';
 
 class LevelTile with Drawable {
-  Positionable pivot;
-  List<Positionable> points;
+  ValueNotifier<Positionable> pivot;
+  List<Positionable> _localPoints;
+  List<Positionable> globalPoints;
 
   ///The line where most enemies are move/exist
-  TileMainLine get mainLine => _mainLine ?? _getMainLine;
+  TileMainLine get mainLine => _getMainLine;
   TileMainLine? _mainLine;
 
   TileMainLine get _getMainLine {
@@ -21,26 +22,32 @@ class LevelTile with Drawable {
     return _mainLine!;
   }
 
+  static List<Positionable> toGlobalPoints(List<Positionable> points, Positionable pivot) =>
+      points.map((point) => point + pivot).toList();
+
   /// [Points] are in order: left near, left far, right far, right near. All points must be
-  LevelTile(this.pivot, List<Positionable> _points) : points = _points.map((point) => point + pivot).toList() {
-    assert(points.length == 4);
+  LevelTile(this.pivot, this._localPoints) : globalPoints = toGlobalPoints(_localPoints, pivot.value) {
+    pivot.addListener(() {
+      globalPoints = toGlobalPoints(_localPoints, pivot.value);
+    });
+    assert(_localPoints.length == 4);
   }
 
   ///Construct levelTile from 2 close points(in local coordinates) relative to pivot. Also gets depth to place far points
-  LevelTile.from(Positionable pivot, Positionable left, Positionable rigth, double depth)
+  LevelTile.from(ValueNotifier<Positionable> pivot, Positionable left, Positionable rigth, double depth)
       : this(pivot, [left, left + Positionable(0, 0, depth), rigth + Positionable(0, 0, depth), rigth]);
 
   List<double>? _angleRange;
   List<double> get angleRange => _angleRange ?? _calculateAngleRange();
-  Positionable get leftNearPointGlobal => points[0];
-  Positionable get leftFarPointGlobal => points[1];
-  Positionable get rightFarPointGlobal => points[2];
-  Positionable get rightNearPointGlobal => points[3];
+  Positionable get leftNearPointGlobal => globalPoints[0];
+  Positionable get leftFarPointGlobal => globalPoints[1];
+  Positionable get rightFarPointGlobal => globalPoints[2];
+  Positionable get rightNearPointGlobal => globalPoints[3];
 
   ///Used to determine if joystick points at this tile
   List<double> _calculateAngleRange() {
-    final leftAngle = atan2(points[0].x - pivot.x, points[0].y - pivot.y);
-    final rightAngle = atan2(points[3].x - pivot.x, points[3].y - pivot.y);
+    final leftAngle = atan2(globalPoints[0].x - pivot.value.x, globalPoints[0].y - pivot.value.y);
+    final rightAngle = atan2(globalPoints[3].x - pivot.value.x, globalPoints[3].y - pivot.value.y);
     _angleRange = [leftAngle, rightAngle];
     return _angleRange!;
   }
@@ -55,15 +62,15 @@ class LevelTile with Drawable {
 
   @override
   void updateAndShow(Canvas canvas, DateTime frameTimestamp) {
-    drawLoopedLines(canvas, points, defaultPaint);
+    drawLoopedLines(canvas, globalPoints, defaultPaint);
   }
 
   void showActive(Canvas canvas) {
-    drawLoopedLines(canvas, points, activePaint);
+    drawLoopedLines(canvas, globalPoints, activePaint);
   }
 
   double get angle {
-    final delta = points.last - points.first;
+    final delta = globalPoints.last - globalPoints.first;
     return atan2(delta.x, delta.y) - pi / 2;
   }
 }

@@ -38,8 +38,12 @@ abstract mixin class Drawable {
     canvas.drawCircle(offsets[0], 5, paint);
   }
 
+  static const distanceToCamera = 0.0000000001;
   Offset _convert3DToOffset(Positionable point) {
-    const distanceToCamera = 0.0000000001;
+    if (point.z <= 0) {
+      point.z = 0.5;
+    }
+
     final x = ((distanceToCamera * point.x / (point.z + distanceToCamera)) / (distanceToCamera * 4) + 0.5) * canvasSize;
     final y =
         (((distanceToCamera * point.y / (point.z + distanceToCamera)) / (distanceToCamera * 4)) + 0.5) * canvasSize;

@@ -68,11 +68,13 @@ class Player extends TilePositionable with Drawable {
     double getWidthFraction() => (_currentState + 1) / (tileStates.length + 1);
 
     _updatePosition(_movementCount.sign, frameTimestamp);
+    final depth =
+        PositionFunctions.positionWithFraction(activeTile.mainLine.close, activeTile.mainLine.far, depthFraction).z;
     final pivot = PositionFunctions.positionWithFraction(
       activeTile.leftNearPointGlobal,
       activeTile.rightNearPointGlobal,
       getWidthFraction(),
-    );
+    )..z += (depth - level.pivot.value.z);
     final points = rotateZ(Positionable.zero(), tileStates[_currentState], activeTile.angle).toGlobal(pivot);
     drawLoopedLines(canvas, points, paint);
   }

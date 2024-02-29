@@ -50,7 +50,7 @@ class TilePositionable extends Positionable {
             level.tiles[tileNumber].mainLine.close,
             level.tiles[tileNumber].mainLine.far,
             depthFraction,
-          ).toGlobal(level.pivot) +
+          ).toGlobal(level.pivot.value) +
           (offset ?? Positionable(0, 0, 0)),
     );
   }

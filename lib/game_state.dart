@@ -30,7 +30,7 @@ class LevelAppearState extends GameState {
   }
   static const Duration _levelAppearTime = Duration(seconds: 3);
   static final Positionable _startPivot = Positionable(0, 0, 5000);
-  late final Positionable _targetPivot = Positionable.copy(level.pivot);
+  late final Positionable _targetPivot = Positionable.copy(level.pivot.value);
 
   @override
   void draw(Canvas canvas) {
@@ -43,7 +43,7 @@ class LevelAppearState extends GameState {
     }
 
     final position = PositionFunctions.positionWithFraction(_startPivot, _targetPivot, timeFracton);
-    level.pivot.setFrom(position);
+    level.pivot.value = position;
     level.updateAndShow(canvas, frameTimestamp);
   }
 
@@ -65,10 +65,12 @@ class PlayingState extends GameState {
   final List<Enemy> enemies;
   final List<Shot> shots;
 
+  int _enemiesToSpawnCount = 5;
+
   PlayingState(super.setStateStream, this.level, this.player, this.enemies, this.shots);
   PlayingState.create(super.setStateStream, this.level)
       : player = Player(level, level.tiles.length ~/ 2),
-        enemies = [Spider(level, 4)],
+        enemies = [],
         shots = [];
 
   @override
@@ -76,9 +78,10 @@ class PlayingState extends GameState {
 
   @override
   void draw(Canvas canvas) {
-    if (_random.nextInt(180) == 0) {
-      enemies.add(Spider(level, _random.nextInt(level.tiles.length)));
+    if (_enemiesToSpawnCount <= 0 && enemies.isEmpty) {
+      setStateStream.add(LevelDisappearState(setStateStream, level, player));
     }
+    _spawnEnemy();
     final frameTimestamp = DateTime.now();
     if (_direction != null) _throttler.throttle(() => player.moveTargetTile(_direction!));
     level.updateAndShow(canvas, frameTimestamp);
@@ -146,6 +149,84 @@ class PlayingState extends GameState {
   final _throttler = Throttler(const Duration(milliseconds: Drawable.syncTime * 4));
   int? _direction;
 
+  @override
+  KeyEventResult onKeyboardEvent(KeyEvent event) {
+    if (event is KeyRepeatEvent) return KeyEventResult.ignored;
+    if (event is KeyDownEvent) {
+      switch (event.logicalKey.keyLabel) {
+        case "A":
+          _direction = -1;
+          break;
+        case "D":
+          _direction = 1;
+          break;
+      }
+    }
+    if (event is KeyUpEvent) _direction = null;
+    return KeyEventResult.handled;
+  }
+
+  void _spawnEnemy() {
+    if (_enemiesToSpawnCount > 0 && _random.nextInt(180) == 0) {
+      enemies.add(Spider(level, _random.nextInt(level.tiles.length)));
+      _enemiesToSpawnCount--;
+    }
+  }
+}
+
+class LevelDisappearState extends GameState {
+  final Level level;
+  final Player player;
+  late final DateTime _startTime;
+  LevelDisappearState(super.setStateStream, this.level, this.player) {
+    _startTime = DateTime.now();
+  }
+  static const Duration _levelDisappearTime = Duration(seconds: 3);
+  late final Positionable _targetPivot = Positionable(0, 0, level.pivot.value.z - level.depth);
+  late final Positionable _startPivot = Positionable.copy(level.pivot.value);
+
+  @override
+  void draw(Canvas canvas) {
+    final frameTimestamp = DateTime.now();
+    double timeFracton =
+        (frameTimestamp.difference(_startTime).inMilliseconds / _levelDisappearTime.inMilliseconds).easeInOutCubic;
+    if (timeFracton >= 1) {
+      setStateStream.add(LevelAppearState(setStateStream, Level.getRandomLevel()));
+      timeFracton = 1;
+    }
+    final position = PositionFunctions.positionWithFraction(_startPivot, _targetPivot, timeFracton);
+    level.pivot.value = position;
+    player.depthFraction = timeFracton;
+    if (_direction != null) _throttler.throttle(() => player.moveTargetTile(_direction!));
+    player.updateAndShow(canvas, frameTimestamp);
+    level.updateAndShow(canvas, frameTimestamp);
+  }
+
+  @override
+  void onAngleChanged(double angle) {
+    player.setTargetTile = _calculateActiveTile(angle);
+  }
+
+  int _calculateActiveTile(double angle) {
+    final tiles = level.tiles;
+    for (int i = 0; i < tiles.length; i++) {
+      final tile = tiles[i];
+      if ((angle <= tile.angleRange.last && angle >= tile.angleRange.first) ||
+          (angle <= tile.angleRange.first && angle >= tile.angleRange.last)) {
+        return i;
+      }
+    }
+    if (angle < tiles.first.angleRange.first) return 0;
+    if (angle >= tiles.last.angleRange.last) return tiles.length - 1;
+    dev.log(angle.toString());
+    dev.log("Tile no found");
+    throw Exception("Tile no found");
+  }
+
+  @override
+  void onFireButtonPressed() {}
+  int? _direction;
+  final _throttler = Throttler(const Duration(milliseconds: Drawable.syncTime * 4));
   @override
   KeyEventResult onKeyboardEvent(KeyEvent event) {
     if (event is KeyRepeatEvent) return KeyEventResult.ignored;
