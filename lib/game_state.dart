@@ -42,10 +42,9 @@ class LevelAppearState extends GameState {
       timeFracton = 1;
     }
 
-    final position =
-        PositionFunctions.positionWithFraction(_startPivot, _targetPivot, Positionable.zero(), timeFracton);
+    final position = PositionFunctions.positionWithFraction(_startPivot, _targetPivot, timeFracton);
     level.pivot.setFrom(position);
-    level.show(canvas, frameTimestamp);
+    level.updateAndShow(canvas, frameTimestamp);
   }
 
   @override
@@ -71,6 +70,7 @@ class PlayingState extends GameState {
       : player = Player(level, level.tiles.length ~/ 2),
         enemies = [Spider(level, 4)],
         shots = [];
+
   @override
   void onFireButtonPressed() => shots.add(Shot(level, level.activeTile));
 
@@ -80,37 +80,45 @@ class PlayingState extends GameState {
       enemies.add(Spider(level, _random.nextInt(level.tiles.length)));
     }
     final frameTimestamp = DateTime.now();
-    if (_direction != null) throttler.throttle(() => player.moveTargetTile(_direction!));
-    level.show(canvas, frameTimestamp);
-    for (int i = 0; i < enemies.length; i++) {
-      final enemy = enemies[i];
-      for (int j = 0; j < shots.length; j++) {
-        final shot = shots[j];
-        if (enemy.checkShotHit(shot)) {
-          shots.removeAt(j);
-          if (enemy.checkDead) {
-            enemies.removeAt(i);
-            continue;
-          }
-        }
-      }
-      if (enemy.disappear) {
-        enemies.removeAt(i);
-        continue;
-      }
-      enemy.show(canvas, frameTimestamp);
-    }
+    if (_direction != null) _throttler.throttle(() => player.moveTargetTile(_direction!));
+    level.updateAndShow(canvas, frameTimestamp);
+    enemyOnNewFrame(canvas, frameTimestamp);
+    shotOnNewFrame(canvas, frameTimestamp);
+    player.updateAndShow(canvas, frameTimestamp);
+  }
 
+  ///All operation on shot, that need to be done during every frame
+  ///
+  ///Contains: [disposeCheck], [show]
+  void shotOnNewFrame(Canvas canvas, DateTime frameTimestamp) {
     for (int i = 0; i < shots.length; i++) {
       final shot = shots[i];
       if (shot.disappear) {
         shots.removeAt(i);
         continue;
       }
-      shot.show(canvas, frameTimestamp);
+      shot.updateAndShow(canvas, frameTimestamp);
     }
+  }
 
-    player.show(canvas, frameTimestamp);
+  ///All operation on enemy, that need to be done during every frame
+  ///
+  ///Contains: [shotHitCheck], [disposeCheck], [show]
+  void enemyOnNewFrame(Canvas canvas, DateTime frameTimestamp) {
+    for (int enemyNum = 0; enemyNum < enemies.length; enemyNum++) {
+      final enemy = enemies[enemyNum];
+      final shotHitNum = enemy.shotHitNumber(shots);
+      if (shotHitNum != null) {
+        enemies.removeAt(enemyNum);
+        shots.removeAt(shotHitNum);
+        continue;
+      }
+      if (enemy.disappear) {
+        enemies.removeAt(enemyNum);
+        continue;
+      }
+      enemy.updateAndShow(canvas, frameTimestamp);
+    }
   }
 
   @override
@@ -120,10 +128,11 @@ class PlayingState extends GameState {
 
   int _calculateActiveTile(double angle) {
     final tiles = level.tiles;
-    for (final tile in tiles) {
+    for (int i = 0; i < tiles.length; i++) {
+      final tile = tiles[i];
       if ((angle <= tile.angleRange.last && angle >= tile.angleRange.first) ||
           (angle <= tile.angleRange.first && angle >= tile.angleRange.last)) {
-        return tiles.indexOf(tile);
+        return i;
       }
     }
     if (angle < tiles.first.angleRange.first) return 0;
@@ -134,21 +143,20 @@ class PlayingState extends GameState {
   }
 
   final Random _random = Random();
-  final throttler = Throttler(const Duration(milliseconds: Drawable.syncTime * 4));
+  final _throttler = Throttler(const Duration(milliseconds: Drawable.syncTime * 4));
   int? _direction;
+
   @override
   KeyEventResult onKeyboardEvent(KeyEvent event) {
-    print(event.logicalKey.keyLabel);
     if (event is KeyRepeatEvent) return KeyEventResult.ignored;
     if (event is KeyDownEvent) {
       switch (event.logicalKey.keyLabel) {
         case "A":
           _direction = -1;
-        // player.moveTargetTile(-1);
-
+          break;
         case "D":
           _direction = 1;
-        // player.moveTargetTile(1);
+          break;
       }
     }
     if (event is KeyUpEvent) _direction = null;

@@ -5,20 +5,32 @@ import 'package:tempest/helpers/positionable_list_extension.dart';
 
 class Shot extends TilePositionable with Drawable {
   Shot(super.level, super.tileNumber, {super.depthFraction = 0});
+
   static const _speed = 0.025;
+
   static final Paint paint = Paint()
     ..color = Colors.red
     ..strokeWidth = Drawable.strokeWidth;
 
   @override
-  void show(Canvas canvas, DateTime frameTimestamp) {
+  void updateAndShow(Canvas canvas, DateTime frameTimestamp) {
     _updatePosition(frameTimestamp);
-    final point = PositionFunctions.positionWithFraction(level.tiles[tileNumber].mainLine.close,
-        level.tiles[tileNumber].mainLine.far, Positionable.zero(), depthFraction);
-    drawLooped(canvas, getRotatedLocalPoints(points, level.tiles[tileNumber].angle).toGlobal(point), paint);
+    final pivotOfShot = PositionFunctions.positionWithFraction(
+      level.tiles[tileNumber].mainLine.close,
+      level.tiles[tileNumber].mainLine.far,
+      depthFraction,
+    );
+    drawLoopedLines(
+        canvas,
+        rotateZ(
+          Positionable.zero(),
+          localPoints,
+          level.tiles[tileNumber].angle,
+        ).toGlobal(pivotOfShot),
+        paint);
   }
 
-  List<Positionable> get points => [
+  List<Positionable> get localPoints => [
         Positionable(-1.5, 0, 0),
         Positionable(-1.5, 0, 5),
         Positionable(-0.5, 0, 7),
@@ -26,6 +38,7 @@ class Shot extends TilePositionable with Drawable {
         Positionable(1.5, 0, 5),
         Positionable(1.5, 0, 0),
       ];
+
   void _updatePosition(DateTime frameTimestamp) {
     depthFraction += _speed * (frameTimestamp.difference(lastFrameTimestamp).inMilliseconds / Drawable.syncTime);
     lastFrameTimestamp = frameTimestamp;

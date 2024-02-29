@@ -15,25 +15,27 @@ class LevelTile with Drawable {
 
   TileMainLine get _getMainLine {
     _mainLine = TileMainLine(
-      PositionFunctions.median(pivot + points[0], pivot + points[3]),
-      PositionFunctions.median(pivot + points[1], points[2]),
+      PositionFunctions.median(leftNearPointGlobal, rightNearPointGlobal),
+      PositionFunctions.median(leftFarPointGlobal, rightFarPointGlobal),
     );
     return _mainLine!;
   }
 
-  /// [Points] are in order: left near, left far, right far, right near
-  LevelTile(this.pivot, this.points) {
+  /// [Points] are in order: left near, left far, right far, right near. All points must be
+  LevelTile(this.pivot, List<Positionable> _points) : points = _points.map((point) => point + pivot).toList() {
     assert(points.length == 4);
   }
 
-  ///Construct levelTile from 2 close points relative to pivot. Also gets depth to place far points
+  ///Construct levelTile from 2 close points(in local coordinates) relative to pivot. Also gets depth to place far points
   LevelTile.from(Positionable pivot, Positionable left, Positionable rigth, double depth)
       : this(pivot, [left, left + Positionable(0, 0, depth), rigth + Positionable(0, 0, depth), rigth]);
 
-  List<Positionable> get preparePoints => points.map((point) => point + pivot).toList();
-
   List<double>? _angleRange;
   List<double> get angleRange => _angleRange ?? _calculateAngleRange();
+  Positionable get leftNearPointGlobal => points[0];
+  Positionable get leftFarPointGlobal => points[1];
+  Positionable get rightFarPointGlobal => points[2];
+  Positionable get rightNearPointGlobal => points[3];
 
   ///Used to determine if joystick points at this tile
   List<double> _calculateAngleRange() {
@@ -52,12 +54,12 @@ class LevelTile with Drawable {
     ..strokeWidth = Drawable.strokeWidth;
 
   @override
-  void show(Canvas canvas, DateTime frameTimestamp) {
-    drawLooped(canvas, preparePoints, defaultPaint);
+  void updateAndShow(Canvas canvas, DateTime frameTimestamp) {
+    drawLoopedLines(canvas, points, defaultPaint);
   }
 
   void showActive(Canvas canvas) {
-    drawLooped(canvas, preparePoints, activePaint);
+    drawLoopedLines(canvas, points, activePaint);
   }
 
   double get angle {

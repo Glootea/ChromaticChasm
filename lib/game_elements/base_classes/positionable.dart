@@ -7,9 +7,9 @@ typedef Positionable = Vector3;
 extension PositionFunctions on Positionable {
   static Positionable median(Positionable first, Positionable second) => (first + second) * 0.5;
 
-  static Positionable positionWithFraction(
-          Positionable first, Positionable second, Positionable pivot, double fraction) =>
-      first + ((second - first) * fraction) + pivot;
+  static Positionable positionWithFraction(Positionable first, Positionable second, double fraction) =>
+      first + ((second - first) * fraction);
+  Positionable toGlobal(Positionable pivot) => this + pivot;
 
   Positionable moveRotationPointToOrigin(Positionable pivot) => this - pivot;
   Positionable moveRotationPointBack(Positionable pivot) => this + pivot;
@@ -46,8 +46,11 @@ class TilePositionable extends Positionable {
   Positionable? offset;
   TilePositionable(this.level, this.tileNumber, {this.depthFraction = 0, this.offset}) : super.zero() {
     setFrom(
-      PositionFunctions.positionWithFraction(level.tiles[tileNumber].mainLine.close,
-              level.tiles[tileNumber].mainLine.far, level.pivot, depthFraction) +
+      PositionFunctions.positionWithFraction(
+            level.tiles[tileNumber].mainLine.close,
+            level.tiles[tileNumber].mainLine.far,
+            depthFraction,
+          ).toGlobal(level.pivot) +
           (offset ?? Positionable(0, 0, 0)),
     );
   }
