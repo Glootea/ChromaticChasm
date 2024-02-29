@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:tempest/game_elements/level/level.dart';
-import 'package:tempest/game_elements/player/player.dart';
+import 'package:tempest/game_state.dart';
 
-class GamePainter extends CustomPainter {
+class GamePainter extends CustomPainter with ChangeNotifier {
   Listenable? repaint;
-  Level level;
-  Player player;
-  GamePainter(this.level, this.player, {this.repaint}) : super(repaint: repaint);
+  GameState state;
+  GamePainter(this.state, {super.repaint});
 
   @override
   void paint(Canvas canvas, Size size) {
     canvas.drawColor(Colors.black, BlendMode.src);
-    level.show(canvas);
-    player.show(canvas);
+    state.draw(canvas);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return this != oldDelegate;
+  bool shouldRepaint(covariant GamePainter oldDelegate) {
+    return hashCode != oldDelegate.hashCode;
   }
 }

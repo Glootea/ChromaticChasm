@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
@@ -9,14 +11,14 @@ sealed class Level with Drawable {
   Movable pivot;
 
   ///Whether player can move from last tile to first or vice versa
-  bool circlular;
+  final bool circlular;
 
   /// Should be in non clock wise order, starting from 12 o'clock. First [tile.x] must be < 0
-  List<LevelTile> tiles;
+  final List<LevelTile> tiles;
 
   Level(this.pivot, this.tiles, this.circlular);
 
-  /// Tile where pleyer is. It has different color
+  /// Tile where player is. It has different color
   late int activeTile = tiles.length ~/ 2;
 
   /// [points] must be in range -100 to 100 in both x and y. [depth] prefered to be around 1000
@@ -24,10 +26,11 @@ sealed class Level with Drawable {
       : this(pivot, _pointsToTiles(pivot, points, depth, circlular), circlular);
 
   @override
-  void show(Canvas canvas) {
+  void updateAndShow(Canvas canvas, DateTime frameTimestamp) {
+    lastFrameTimestamp = frameTimestamp;
     for (int i = 0; i < tiles.length; i++) {
       if (i != activeTile) {
-        tiles[i].show(canvas);
+        tiles[i].updateAndShow(canvas, frameTimestamp);
       }
       tiles[activeTile].showActive(canvas);
     }
@@ -44,12 +47,18 @@ sealed class Level with Drawable {
     }
     return output;
   }
+
+  static final List<Level> _levels = [
+    Level1(),
+  ];
+  static final _random = Random();
+  static Level getRandomLevel() => _levels[_random.nextInt(_levels.length)];
 }
 
 class Level1 extends Level {
   static final Movable _level1Pivot = Movable(0, 0, 50);
   static final List<Positionable> _level1Points = [
-    Positionable(-0, -60, 0),
+    // Positionable(-0, -60, 0),
     Positionable(-90, -40, 0),
     Positionable(-75, -20, 0),
     Positionable(-60, 0, 0),
@@ -64,5 +73,5 @@ class Level1 extends Level {
     Positionable(75, -20, 0),
     Positionable(90, -40, 0),
   ];
-  Level1() : super.fromPoints(_level1Pivot, _level1Points, 2000, true);
+  Level1() : super.fromPoints(_level1Pivot, _level1Points, 200, false);
 }
