@@ -70,6 +70,7 @@ class Player extends TilePositionable with Drawable {
     _updatePosition(_movementCount.sign, frameTimestamp);
     final depth =
         PositionFunctions.positionWithFraction(activeTile.mainLine.close, activeTile.mainLine.far, depthFraction).z;
+    print(depth);
     final pivot = PositionFunctions.positionWithFraction(
       activeTile.leftNearPointGlobal,
       activeTile.rightNearPointGlobal,
@@ -99,7 +100,6 @@ class Player extends TilePositionable with Drawable {
     if (avoidRedraw) return;
     lastFrameTimestamp = frameTimestamp;
     if (_movementCount != 0) {
-      // print("Position updated");
       _currentState += direction;
       if (_currentState == -1) {
         level.activeTile = (level.activeTile + direction) % level.tiles.length;

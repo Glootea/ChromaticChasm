@@ -6,7 +6,8 @@ import 'package:tempest/game_elements/base_classes/positionable.dart';
 import 'package:tempest/game_elements/level/tile/tile_main_line.dart';
 
 class LevelTile with Drawable {
-  ValueNotifier<Positionable> pivot;
+  ValueNotifier<Positionable> _pivotNotifier;
+  Positionable get _pivot => _pivotNotifier.value;
   List<Positionable> _localPoints;
   List<Positionable> globalPoints;
 
@@ -26,9 +27,10 @@ class LevelTile with Drawable {
       points.map((point) => point + pivot).toList();
 
   /// [Points] are in order: left near, left far, right far, right near. All points must be
-  LevelTile(this.pivot, this._localPoints) : globalPoints = toGlobalPoints(_localPoints, pivot.value) {
-    pivot.addListener(() {
-      globalPoints = toGlobalPoints(_localPoints, pivot.value);
+  LevelTile(this._pivotNotifier, this._localPoints)
+      : globalPoints = toGlobalPoints(_localPoints, _pivotNotifier.value) {
+    _pivotNotifier.addListener(() {
+      globalPoints = toGlobalPoints(_localPoints, _pivot);
     });
     assert(_localPoints.length == 4);
   }
@@ -46,8 +48,8 @@ class LevelTile with Drawable {
 
   ///Used to determine if joystick points at this tile
   List<double> _calculateAngleRange() {
-    final leftAngle = atan2(globalPoints[0].x - pivot.value.x, globalPoints[0].y - pivot.value.y);
-    final rightAngle = atan2(globalPoints[3].x - pivot.value.x, globalPoints[3].y - pivot.value.y);
+    final leftAngle = atan2(globalPoints[0].x - _pivot.x, globalPoints[0].y - _pivot.y);
+    final rightAngle = atan2(globalPoints[3].x - _pivot.x, globalPoints[3].y - _pivot.y);
     _angleRange = [leftAngle, rightAngle];
     return _angleRange!;
   }

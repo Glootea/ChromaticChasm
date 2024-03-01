@@ -8,6 +8,8 @@ import 'package:tempest/game_state_provider.dart';
 import 'package:tempest/widgets/game_painter.dart';
 import 'package:tempest/widgets/game_painter_clipper.dart';
 
+//TODO: spider orientation
+//TODO: player flies forward like rocker on level disappear (second half)
 void main() {
   runApp(MaterialApp(
       theme: ThemeData.dark(),
@@ -32,11 +34,12 @@ class _MyAppState extends State<MyApp> with ChangeNotifier {
   @override
   Widget build(BuildContext context) {
     Drawable.setCanvasSize(gamePainterSize);
+
     final gameState = context.read<GameStateProvider>().currentState;
-    return Focus(
-      autofocus: true,
-      onKeyEvent: (node, value) => gameState.onKeyboardEvent(value),
-      child: SafeArea(
+    return SafeArea(
+      child: Focus(
+        autofocus: true,
+        onKeyEvent: (node, event) => gameState.onKeyboardEvent(event),
         child: Scaffold(
             body: Column(
           children: [

@@ -22,10 +22,10 @@ sealed class Level with Drawable {
   late int activeTile = tiles.length ~/ 2;
 
   /// [points] must be in range -100 to 100 in both x and y. [depth] prefered to be around 1000
+  ///
+  /// Do not set [x] coordinate to 0 to prevent angle calculation issues. Use 0.01 instead
   Level.fromPoints(ValueNotifier<Positionable> pivot, List<Positionable> points, double depth, bool circlular)
       : this._(pivot, _pointsToTiles(pivot, points, depth, circlular), depth, circlular);
-
-  Level create();
 
   @override
   void updateAndShow(Canvas canvas, DateTime frameTimestamp) {
@@ -51,27 +51,26 @@ sealed class Level with Drawable {
     return output;
   }
 
-  static final List<Level> _levels = [
-    Level1(),
-  ];
-
   static Level createLevel(int number) {
-    if (number == 0) {
-      return Level1();
+    switch (number) {
+      case 0:
+        return Level1();
+      case 1:
+        return Level2();
+      default:
+        return Level2();
     }
-    return Level1();
   }
 
-  static final _random = Random();
-  static Level getRandomLevel() => _levels[_random.nextInt(_levels.length)].create();
+  static Level getRandomLevel() => createLevel(Random().nextInt(2));
 }
 
+/// V shape
 class Level1 extends Level {
   Level1()
       : super.fromPoints(
             ValueNotifier(Positionable(0, 0, 50)),
             [
-              // Positionable(-0, -60, 0),
               Positionable(-90, -40, 0),
               Positionable(-75, -20, 0),
               Positionable(-60, 0, 0),
@@ -88,7 +87,31 @@ class Level1 extends Level {
             ],
             200,
             false);
+}
 
-  @override
-  Level create() => Level1();
+/// \+ shape
+class Level2 extends Level {
+  Level2()
+      : super.fromPoints(
+            ValueNotifier(Positionable(0, 0, 50)),
+            [
+              Positionable(-0.01, -70, 0),
+              Positionable(-30, -70, 0),
+              Positionable(-30, -30, 0),
+              Positionable(-70, -30, 0),
+              Positionable(-70, 0, 0),
+              Positionable(-70, 30, 0),
+              Positionable(-30, 30, 0),
+              Positionable(-30, 70, 0),
+              Positionable(-0.01, 70, 0),
+              Positionable(30, 70, 0),
+              Positionable(30, 30, 0),
+              Positionable(70, 30, 0),
+              Positionable(70, 0, 0),
+              Positionable(70, -30, 0),
+              Positionable(30, -30, 0),
+              Positionable(30, -70, 0),
+            ],
+            200,
+            true);
 }
