@@ -1,16 +1,33 @@
-# tempest
+# Chromatic chasm - Хроматическая бездна
+Проект "Chromatic Chasm" (Хроматическая бездна) - это мобильная игра в жанре туннеотных шутер, разрабатываемая на кроссплатформенном фреймворке Flutter, вдохновленная аркадой 80-ых Atari Tempest и предоставляющая уникальный и немного забытый игровой опыт, который обеспечивает захватывающее и яркое развлечение на любых современных устройствах, включая мобильные телефоны.
 
-A new Flutter project.
+## Используемые библиотеки
+Для обеспечения минимального размера игры используется следующий минимальный набор библиотек:
+- provider - state-management
+- flutter_joystick - отображение джойстика на экране. Позволяет изменить вид отображения, для предания более аутентичного аркадного вида
+- vector_math - предоставляет математические операции с матрицами для транформации объектов.
+  
+Данный проект не основан на игровом движке, необходимые функции разрабытаются самостоятельно. Графика выводится посредством проецирования точек в 3d пространстве на плоскость, где они соединяются в линии по необходимости.
 
-## Getting Started
+## Текущее состояние и цели
+  - [x] система уровней, их появления и смены
+  - [x] игрок и его перемещение
+  - [x] стрельба
+  - [x] управление экранным джойстиком и клавиатурой(только передвижение, без стрельбы)
+  - [ ] стартовое меню
+  - [ ] подсчет очков
+  - [ ] постепенное усложнение/ускорение игры
+  - [ ] получение награды после прохождения уровня, которая упрощает дальнейшую текущую игровую сессию
+  - [ ] таблица рекордов
+  - [ ] постановка на паузу
+  - [ ] большее разнообразие уровней и врагов
 
-This project is a starting point for a Flutter application.
+## Текущая графика
+<img width="270" alt="Screenshot 2024-03-03 at 19 05 06" src="https://github.com/Glootea/ChromaticChasm/assets/101515304/f1c3dfbd-104a-4f36-80e9-cc20c743e4c9">
+<img width="270" alt="Screenshot 2024-03-03 at 19 05 06" src="https://github.com/Glootea/ChromaticChasm/assets/101515304/d1a4a064-0da6-4e6d-91b2-c8c43e159066">
+<img width="270" alt="Screenshot 2024-03-03 at 19 05 25" src="https://github.com/Glootea/ChromaticChasm/assets/101515304/d752b35c-a48b-4e93-bb8c-c52c4e504ea2">
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Референсы
+<img src='https://github.com/Glootea/ChromaticChasm/assets/101515304/85b73818-53e7-45b5-95c7-65610d69d1c6' height='400'>
+<img src='https://github.com/Glootea/ChromaticChasm/assets/101515304/baa4d7f0-3462-49e7-b9f7-b7005f53c820' height='400'>
+<img src='https://github.com/Glootea/ChromaticChasm/assets/101515304/8afd7a86-92f6-49a9-9930-a185baad4e30' height='400'>
