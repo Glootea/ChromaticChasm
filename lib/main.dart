@@ -8,7 +8,6 @@ import 'package:tempest/game_state_provider.dart';
 import 'package:tempest/widgets/game_painter.dart';
 import 'package:tempest/widgets/game_painter_clipper.dart';
 
-//TODO: spider orientation
 //TODO: player flies forward like rocker on level disappear (second half)
 void main() {
   runApp(MaterialApp(

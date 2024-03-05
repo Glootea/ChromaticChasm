@@ -70,7 +70,7 @@ class Player extends TilePositionable with Drawable {
     _updatePosition(_movementCount.sign, frameTimestamp);
     final depth =
         PositionFunctions.positionWithFraction(activeTile.mainLine.close, activeTile.mainLine.far, depthFraction).z;
-    print(depth);
+
     final pivot = PositionFunctions.positionWithFraction(
       activeTile.leftNearPointGlobal,
       activeTile.rightNearPointGlobal,
