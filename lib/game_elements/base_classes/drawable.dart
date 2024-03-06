@@ -1,48 +1,28 @@
-import 'package:flutter/material.dart';
+import 'dart:math';
+import 'dart:ui';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
+import 'package:vector_math/vector_math.dart';
 
-abstract mixin class Drawable {
-  static late double canvasSize;
-  static const double strokeWidth = 1;
-
-  /// Time in milliseconds between each frame to normalize game speed
-  static const syncTime = 32;
-  DateTime lastFrameTimestamp = DateTime.now();
-
-  ///Should be called every time screen settings change. Ment to be used in [build] method of whole app
-  static void setCanvasSize(Size size) {
-    canvasSize = size.width;
-  }
-
-  ///Must call some variation of [super.draw] to appear on canvas
+sealed class Drawable {
+  /// [_faces] is [List] of indexes of vertexes in [vertexes]
   ///
-  ///Also should call [update] if needed
-  void updateAndShow(Canvas canvas, DateTime frameTimestamp);
-
-  void drawLoopedLines(Canvas canvas, List<Positionable> points, Paint paint) {
-    final offsets = _project2D(points);
-    for (int i = 0; i < offsets.length; i++) {
-      canvas.drawLine(offsets[i], offsets[(i + 1) % offsets.length], paint);
-    }
+  /// [width] is used to scale objects. [width] = max width coordinate of object, located in [Positionable.zero()]
+  ///
+  /// In constructor all verteces are scaled with k = _width / _vertexes.maxWidth
+  Drawable(this.pivot, List<Positionable> vertexes, this._faces, {double? width})
+      : _vertexes = width != null ? _scale(vertexes, width) : vertexes;
+  final Positionable pivot;
+  List<Positionable> _vertexes;
+  final List<List<int>> _faces;
+  void show(Canvas canvas, Paint paint);
+  late final int _length = _faces.length;
+  List<Offset> _project2D(List<Positionable> list) {
+    return list.map((point) => _convert3DToOffset(point)).toList();
   }
 
-  void drawLines(Canvas canvas, List<Positionable> points, Paint paint) {
-    final offsets = _project2D(points);
-    for (int i = 0; i < offsets.length - 1; i++) {
-      canvas.drawLine(offsets[i], offsets[i + 1], paint);
-    }
-  }
-
-  void drawCircle(Canvas canvas, Positionable point, Paint paint) {
-    final offsets = _project2D([point]);
-    canvas.drawCircle(offsets[0], 5, paint);
-  }
-
-  static const distanceToCamera = 0.0000000001;
+  List<Positionable> get getGlobalVertexes => _vertexes.map((point) => point + pivot).toList();
   Offset _convert3DToOffset(Positionable point) {
-    if (point.z <= 0) {
-      point.z = 0.5;
-    }
+    point.z = point.z <= 0 ? 0.5 : point.z; //prevent imaginary draw behing camera
 
     final x = ((distanceToCamera * point.x / (point.z + distanceToCamera)) / (distanceToCamera * 4) + 0.5) * canvasSize;
     final y =
@@ -50,11 +30,20 @@ abstract mixin class Drawable {
     return Offset(x, y);
   }
 
-  List<Offset> _project2D(List<Positionable> list) {
-    return list.map((point) => _convert3DToOffset(point)).toList();
+  static const syncTime = 32;
+  static const distanceToCamera = 0.0000000001;
+  static late double canvasSize;
+  static void setCanvasSize(Size size) {
+    canvasSize = size.width;
   }
 
-  bool get avoidRedraw => DateTime.now().difference(lastFrameTimestamp).inMilliseconds < syncTime;
+  static const double strokeWidth = 1;
+
+  static List<Positionable> _scale(List<Positionable> vertexes, double width) {
+    final maxWidth = vertexes.reduce((value, element) => value.y.abs() > element.y.abs() ? value : element).y.abs();
+    final k = width / maxWidth;
+    return vertexes.map((e) => e * k).toList();
+  }
 
   ///Rotates all points around pivot by angle. If points are in local coordinates, [pivot] = Positionable.zero()
   List<Positionable> rotateX(Positionable pivot, List<Positionable> points, double angle) => points
@@ -67,7 +56,39 @@ abstract mixin class Drawable {
       .toList();
 
   ///Rotates all points around pivot by angle. If points are in local coordinates, [pivot] = Positionable.zero()
-  List<Positionable> rotateZ(Positionable pivot, List<Positionable> points, double angle) => points
-      .map((point) => point.moveRotationPointToOrigin(pivot).rotateZAroundOrigin(angle).moveRotationPointBack(pivot))
-      .toList();
+  void rotateZ(double angle) =>
+      _vertexes = _vertexes.map((point) => point.rotateZAroundOrigin(angle - pi / 2)).toList();
+}
+
+class Drawable3D extends Drawable {
+  final List<Vector3> _normals;
+  Drawable3D(super.pivot, super._vertexes, super._faces, this._normals, {super.width});
+
+  bool _visible(int i) => _vertexes[_faces[i].first].dot(_normals[i]) > 0;
+
+  @override
+  void show(Canvas canvas, Paint paint) {
+    for (int i = 0; i < _length; i++) {
+      if (_visible(i)) {
+        final globalVertexes = getGlobalVertexes;
+        final projected = _project2D(List.generate(_faces[i].length, (index) => globalVertexes[_faces[i][index]]));
+        canvas.drawPoints(PointMode.polygon, projected, paint);
+        canvas.drawPoints(PointMode.lines, [projected.first, projected.last], paint);
+      }
+    }
+  }
+}
+
+class Drawable2D extends Drawable {
+  Drawable2D(super.pivot, super._vertexes, super._faces, {super.width});
+
+  @override
+  void show(Canvas canvas, Paint paint) {
+    for (int i = 0; i < _length; i++) {
+      final globalVertexes = getGlobalVertexes;
+      final projected = _project2D(List.generate(_faces[i].length, (index) => globalVertexes[_faces[i][index]]));
+      canvas.drawPoints(PointMode.polygon, projected, paint);
+      canvas.drawPoints(PointMode.lines, [projected.first, projected.last], paint);
+    }
+  }
 }

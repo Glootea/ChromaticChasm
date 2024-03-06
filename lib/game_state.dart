@@ -5,7 +5,7 @@ import 'dart:developer' as dev;
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:tempest/game_elements/base_classes/drawable.dart';
+import 'package:tempest/game_elements/base_classes/drawable_old.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
 import 'package:tempest/game_elements/enemies/enemy.dart';
 import 'package:tempest/game_elements/level/level.dart';
@@ -21,7 +21,7 @@ sealed class GameState {
   KeyEventResult onKeyboardEvent(KeyEvent event);
   StreamController<GameState> setStateStream;
   GameState(this.setStateStream, [this._direction]);
-  final _throttler = Throttler(const Duration(milliseconds: Drawable.syncTime * 4));
+  final _throttler = Throttler(const Duration(milliseconds: DrawableOld.syncTime * 4));
   int? _direction;
   void handleKeyboardMovement();
 
@@ -59,7 +59,7 @@ abstract class LevelTransitionState extends GameState {
   }
 
   int _calculateActiveTile(double angle) {
-    final tiles = _level.tiles;
+    final tiles = _level.children;
     for (int i = 0; i < tiles.length; i++) {
       final tile = tiles[i];
       if ((angle <= tile.angleRange.last && angle >= tile.angleRange.first) ||
@@ -102,7 +102,7 @@ class LevelAppearState extends LevelTransitionState {
   @override
   final startPivot = Positionable(0, 0, 5000);
   @override
-  late final Positionable targetPivot = Positionable.copy(_level.pivot.value);
+  late final Positionable targetPivot = Positionable.copy(_level.pivot);
 
   @override
   void draw(Canvas canvas) {
@@ -110,9 +110,9 @@ class LevelAppearState extends LevelTransitionState {
     double timeFraction = _getTimeFraction(frameTimestamp, _startTime);
     handleNextState(timeFraction >= 1, PlayingState.create(setStateStream, _level, _player, _direction));
     final position = PositionFunctions.positionWithFraction(startPivot, targetPivot, timeFraction);
-    _level.pivot.value = position;
+    _level.pivot.setFrom(position);
     handleKeyboardMovement();
-    _level.updateAndShow(canvas, frameTimestamp);
+    _level.onFrame(canvas, frameTimestamp);
     _player.updateAndShow(canvas, frameTimestamp);
   }
 
@@ -144,7 +144,7 @@ class PlayingState extends GameState {
     _spawnEnemy();
     final frameTimestamp = DateTime.now();
     handleKeyboardMovement();
-    level.updateAndShow(canvas, frameTimestamp);
+    level.onFrame(canvas, frameTimestamp);
     enemyOnNewFrame(canvas, frameTimestamp);
     shotOnNewFrame(canvas, frameTimestamp);
     player.updateAndShow(canvas, frameTimestamp);
@@ -185,7 +185,7 @@ class PlayingState extends GameState {
         enemies.removeAt(enemyNum);
         continue;
       }
-      enemy.updateAndShow(canvas, frameTimestamp);
+      enemy.onFrame(canvas, frameTimestamp);
     }
   }
 
@@ -195,7 +195,7 @@ class PlayingState extends GameState {
   }
 
   int _calculateActiveTile(double angle) {
-    final tiles = level.tiles;
+    final tiles = level.children;
     for (int i = 0; i < tiles.length; i++) {
       final tile = tiles[i];
       if ((angle <= tile.angleRange.last && angle >= tile.angleRange.first) ||
@@ -231,7 +231,7 @@ class PlayingState extends GameState {
 
   void _spawnEnemy() {
     if (_enemiesToSpawnCount > 0 && _random.nextInt(90) == 0) {
-      enemies.add(Spider(level, _random.nextInt(level.tiles.length)));
+      enemies.add(Spider.create(level, _random.nextInt(level.children.length)));
       _enemiesToSpawnCount--;
     }
   }
@@ -241,9 +241,9 @@ class LevelDisappearState extends LevelTransitionState {
   LevelDisappearState(super.setStateStream, super.level, super.player, [super.direction]);
 
   @override
-  late final Positionable targetPivot = Positionable(0, 0, _level.pivot.value.z - _level.depth);
+  late final Positionable targetPivot = Positionable(0, 0, _level.pivot.z - _level.depth);
   @override
-  late final Positionable startPivot = Positionable.copy(_level.pivot.value);
+  late final Positionable startPivot = Positionable.copy(_level.pivot);
 
   @override
   void draw(Canvas canvas) {
@@ -252,13 +252,13 @@ class LevelDisappearState extends LevelTransitionState {
     handleNextState(timeFraction >= 1, LevelAppearState.create(setStateStream, Level.getRandomLevel(), _direction));
     handleDepth(timeFraction);
     handleKeyboardMovement();
-    _level.updateAndShow(canvas, frameTimestamp);
+    _level.onFrame(canvas, frameTimestamp);
     _player.updateAndShow(canvas, frameTimestamp);
   }
 
   void handleDepth(double timeFraction) {
     final position = PositionFunctions.positionWithFraction(startPivot, targetPivot, timeFraction);
-    _level.pivot.value = position;
+    _level.pivot.setFrom(position);
     _player.depthFraction = timeFraction;
   }
 

@@ -45,13 +45,18 @@ class TilePositionable extends Positionable {
   double widthFraction = 0.5;
   Positionable? offset;
   TilePositionable(this.level, this.tileNumber, {this.depthFraction = 0, this.offset}) : super.zero() {
-    setFrom(
+    setFrom(globalPosition);
+  }
+  Positionable get globalPosition =>
       PositionFunctions.positionWithFraction(
-            level.tiles[tileNumber].mainLine.close,
-            level.tiles[tileNumber].mainLine.far,
-            depthFraction,
-          ).toGlobal(level.pivot.value) +
-          (offset ?? Positionable(0, 0, 0)),
-    );
+        level.children[tileNumber].mainLine.close,
+        level.children[tileNumber].mainLine.far,
+        depthFraction,
+      ) +
+      (offset ?? Positionable(0, 0, 0));
+
+  void updatePosition(double dF) {
+    depthFraction = dF;
+    setFrom(globalPosition);
   }
 }

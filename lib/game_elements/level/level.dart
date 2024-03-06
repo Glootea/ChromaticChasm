@@ -2,14 +2,16 @@ library level;
 
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:tempest/game_elements/base_classes/drawable.dart';
+import 'package:tempest/game_elements/base_classes/game_object.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
 import 'package:tempest/game_elements/level/tile/level_tile.dart';
 part 'package:tempest/game_elements/level/level_entities.dart';
 
-sealed class Level with Drawable {
+sealed class Level extends ComplexGlobalGameObject {
   ///Default [pivot] is [Movable(0, 0, 50)]
-  ValueNotifier<Positionable> pivot;
+  @override
+  // ignore: overridden_fields
+  final List<LevelTile> children;
 
   ///Whether player can move from last tile to first or vice versa
   final bool circlular;
@@ -17,33 +19,31 @@ sealed class Level with Drawable {
   final double depth;
 
   /// Should be in non clock wise order, starting from 12 o'clock. First [tile.x] must be < 0
-  final List<LevelTile> tiles;
 
-  Level._(this.pivot, this.tiles, this.depth, this.circlular);
+  Level._(Positionable pivot, this.children, this.depth, this.circlular) : super(pivot, children);
 
   /// Tile where player is. It has different color
-  late int activeTile = tiles.length ~/ 2;
+  late int activeTile = children.length ~/ 2;
 
   /// [points] must be in range -100 to 100 in both x and y. [depth] prefered to be around 1000
   ///
-  /// Do not set [x] coordinate to 0 to prevent angle calculation issues. Use 0.01 instead
-  Level.fromPoints(ValueNotifier<Positionable> pivot, List<Positionable> points, double depth, bool circlular)
+  /// Do not set [x] coordinate to 0 to prevent angle calculation issues. Use +-0.01 instead
+  Level.fromPoints(Positionable pivot, List<Positionable> points, double depth, bool circlular)
       : this._(pivot, _pointsToTiles(pivot, points, depth, circlular), depth, circlular);
 
   @override
-  void updateAndShow(Canvas canvas, DateTime frameTimestamp) {
+  void onFrame(Canvas canvas, DateTime frameTimestamp) {
     lastFrameTimestamp = frameTimestamp;
-    for (int i = 0; i < tiles.length; i++) {
+    for (int i = 0; i < children.length; i++) {
       if (i != activeTile) {
-        tiles[i].updateAndShow(canvas, frameTimestamp);
+        children[i].onFrame(canvas, frameTimestamp);
       }
-      tiles[activeTile].showActive(canvas);
+      children[activeTile].onFrameActive(canvas);
     }
   }
 
   ///Creates tiles iteratively by connecting [i] and [i+1] points. If circlular first and last points are connected
-  static List<LevelTile> _pointsToTiles(
-      ValueNotifier<Positionable> pivot, List<Positionable> points, double depth, bool circlular) {
+  static List<LevelTile> _pointsToTiles(Positionable pivot, List<Positionable> points, double depth, bool circlular) {
     final output = <LevelTile>[];
     for (int i = 0; i < points.length - 1; i++) {
       output.add(LevelTile.from(pivot, points[i], points[i + 1], depth));

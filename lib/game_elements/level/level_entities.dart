@@ -4,7 +4,7 @@ part of 'package:tempest/game_elements/level/level.dart';
 class Level1 extends Level {
   Level1()
       : super.fromPoints(
-            ValueNotifier(Positionable(0, 0, 50)),
+            Positionable(0, 0, 50),
             [
               Positionable(-90, -40, 0),
               Positionable(-75, -20, 0),
@@ -28,7 +28,7 @@ class Level1 extends Level {
 class Level2 extends Level {
   Level2()
       : super.fromPoints(
-            ValueNotifier(Positionable(0, 0, 50)),
+            Positionable(0, 0, 50),
             [
               Positionable(-0.01, -70, 0),
               Positionable(-30, -70, 0),

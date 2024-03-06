@@ -1,3 +1,5 @@
+flutter pub get
+dart doc .
 flutter pub add dhttpd
 dart pub global activate dhttpd
 python -m webbrowser http://localhost:8080

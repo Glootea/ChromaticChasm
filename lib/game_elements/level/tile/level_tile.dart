@@ -1,14 +1,15 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
+import 'package:tempest/game_elements/base_classes/drawable_old.dart';
+import 'package:tempest/game_elements/base_classes/game_object.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
 import 'package:tempest/game_elements/level/tile/tile_main_line.dart';
+import 'dart:math' as math;
 
-class LevelTile with Drawable {
-  ValueNotifier<Positionable> _pivotNotifier;
-  Positionable get _pivot => _pivotNotifier.value;
-  List<Positionable> _localPoints;
-  List<Positionable> globalPoints;
+class LevelTile extends StatelessGlobalGameObject {
+  // List<Positionable> _localPoints;
+  // List<Positionable> get globalPoints => _localPoints.map((point) => point + pivot).toList();
 
   ///The line where most enemies are move/exist
   TileMainLine get mainLine => _getMainLine;
@@ -22,56 +23,65 @@ class LevelTile with Drawable {
     return _mainLine!;
   }
 
-  static List<Positionable> toGlobalPoints(List<Positionable> points, Positionable pivot) =>
+  List<Positionable> toGlobalPoints(List<Positionable> points, Positionable pivot) =>
       points.map((point) => point + pivot).toList();
 
   /// [Points] are in order: left near, left far, right far, right near. All points must be
-  LevelTile(this._pivotNotifier, this._localPoints)
-      : globalPoints = toGlobalPoints(_localPoints, _pivotNotifier.value) {
-    _pivotNotifier.addListener(() {
-      globalPoints = toGlobalPoints(_localPoints, _pivot);
-    });
-    assert(_localPoints.length == 4);
+  LevelTile(super.pivot, super.drawable) {
+    // assert(_localPoints.length == 4);
   }
 
   ///Construct levelTile from 2 close points(in local coordinates) relative to pivot. Also gets depth to place far points
-  LevelTile.from(ValueNotifier<Positionable> pivot, Positionable left, Positionable rigth, double depth)
-      : this(pivot, [left, left + Positionable(0, 0, depth), rigth + Positionable(0, 0, depth), rigth]);
-
+  // LevelTile.from(Positionable pivot, Positionable left, Positionable rigth, double depth)
+  //     : this(pivot, [left, left + Positionable(0, 0, depth), rigth + Positionable(0, 0, depth), rigth]);
+  LevelTile.from(Positionable pivot, Positionable left, Positionable rigth, double depth)
+      : this(
+            pivot,
+            Drawable2D(pivot, [
+              left,
+              left + Positionable(0, 0, depth),
+              rigth + Positionable(0, 0, depth),
+              rigth
+            ], [
+              [0, 1, 2, 3]
+            ]));
   List<double>? _angleRange;
   List<double> get angleRange => _angleRange ?? _calculateAngleRange();
-  Positionable get leftNearPointGlobal => globalPoints[0];
-  Positionable get leftFarPointGlobal => globalPoints[1];
-  Positionable get rightFarPointGlobal => globalPoints[2];
-  Positionable get rightNearPointGlobal => globalPoints[3];
+  Positionable get leftNearPointGlobal => drawable.getGlobalVertexes[0];
+  Positionable get leftFarPointGlobal => drawable.getGlobalVertexes[1];
+  Positionable get rightFarPointGlobal => drawable.getGlobalVertexes[2];
+  Positionable get rightNearPointGlobal => drawable.getGlobalVertexes[3];
 
   ///Used to determine if joystick points at this tile
   List<double> _calculateAngleRange() {
-    final leftAngle = atan2(globalPoints[0].x - _pivot.x, globalPoints[0].y - _pivot.y);
-    final rightAngle = atan2(globalPoints[3].x - _pivot.x, globalPoints[3].y - _pivot.y);
+    final leftAngle = atan2(leftNearPointGlobal.x - pivot.x, leftNearPointGlobal.y - pivot.y);
+    final rightAngle = atan2(rightNearPointGlobal.x - pivot.x, rightNearPointGlobal.y - pivot.y);
     _angleRange = [leftAngle, rightAngle];
     return _angleRange!;
   }
 
   static Paint defaultPaint = Paint()
     ..color = Colors.blue
-    ..strokeWidth = Drawable.strokeWidth;
+    ..strokeWidth = DrawableOld.strokeWidth;
 
   static Paint activePaint = Paint()
     ..color = Colors.yellow
-    ..strokeWidth = Drawable.strokeWidth;
+    ..strokeWidth = DrawableOld.strokeWidth;
 
   @override
-  void updateAndShow(Canvas canvas, DateTime frameTimestamp) {
-    drawLoopedLines(canvas, globalPoints, defaultPaint);
+  void onFrame(Canvas canvas, DateTime frameTimestamp) {
+    drawable.show(canvas, defaultPaint);
   }
 
-  void showActive(Canvas canvas) {
-    drawLoopedLines(canvas, globalPoints, activePaint);
+  void onFrameActive(Canvas canvas) {
+    drawable.show(canvas, activePaint);
   }
 
   double get angle {
-    final delta = globalPoints.last - globalPoints.first;
+    final delta = rightNearPointGlobal - leftNearPointGlobal;
     return atan2(delta.x, delta.y) - pi / 2;
   }
+
+  double get width => math.sqrt(math.pow((rightNearPointGlobal.x - leftNearPointGlobal.x), 2) +
+      math.pow((rightNearPointGlobal.y - leftNearPointGlobal.y), 2));
 }
