@@ -5,7 +5,7 @@ class Spider extends Enemy {
       : super._(
             pivot,
             Drawable2D(pivot, _verteces, _faces, width: LevelTileHelper.getTileWidth(pivot))
-              ..rotateZ(LevelTileHelper.getAngle(pivot)));
+              ..applyTransformation(angleZ: LevelTileHelper.getAngle(pivot)));
   Spider.create(Level level, int tileNumber) : this._(TilePositionable(level, tileNumber, depthFraction: 1));
   LevelTile get tile => pivot.level.children[pivot.tileNumber];
 

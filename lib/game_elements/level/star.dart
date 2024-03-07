@@ -1,14 +1,11 @@
-import 'dart:ui';
-import 'package:tempest/game_elements/base_classes/drawable_old.dart';
-import 'package:tempest/game_elements/base_classes/positionable.dart';
+import 'package:flutter/material.dart';
+import 'package:tempest/game_elements/base_classes/game_object.dart';
 
-class Star extends Positionable with DrawableOld {
-  Star(Positionable startPoint) : super.zero() {
-    setFrom(startPoint);
-  }
-  final List<Positionable> points = [];
+class Star extends StatelessGlobalGameObject {
+  Star(super.pivot, super.drawable);
+
   @override
-  void updateAndShow(Canvas canvas, DateTime frameTimestamp) {
-    // TODO: implement updateAndShow
+  void onFrame(Canvas canvas, DateTime frameTimestamp) {
+    // TODO: implement onFrame
   }
 }

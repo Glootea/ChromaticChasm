@@ -12,7 +12,7 @@ sealed class Drawable {
   Drawable(this.pivot, List<Positionable> vertexes, this._faces, {double? width})
       : _vertexes = width != null ? _scale(vertexes, width) : vertexes;
   final Positionable pivot;
-  List<Positionable> _vertexes;
+  final List<Positionable> _vertexes;
   final List<List<int>> _faces;
   void show(Canvas canvas, Paint paint);
   late final int _length = _faces.length;
@@ -20,7 +20,15 @@ sealed class Drawable {
     return list.map((point) => _convert3DToOffset(point)).toList();
   }
 
-  List<Positionable> get getGlobalVertexes => _vertexes.map((point) => point + pivot).toList();
+  void applyTransformation({double? angleZ}) {
+    _transformedVertexes = [..._vertexes];
+    if (angleZ != null) {
+      _rotateZ(angleZ);
+    }
+  }
+
+  late List<Positionable> _transformedVertexes = [..._vertexes];
+  List<Positionable> get getGlobalVertexes => _transformedVertexes.map((point) => point + pivot).toList();
   Offset _convert3DToOffset(Positionable point) {
     point.z = point.z <= 0 ? 0.5 : point.z; //prevent imaginary draw behing camera
 
@@ -46,18 +54,18 @@ sealed class Drawable {
   }
 
   ///Rotates all points around pivot by angle. If points are in local coordinates, [pivot] = Positionable.zero()
-  List<Positionable> rotateX(Positionable pivot, List<Positionable> points, double angle) => points
+  List<Positionable> _rotateX(Positionable pivot, List<Positionable> points, double angle) => points
       .map((point) => point.moveRotationPointToOrigin(pivot).rotateXAroundOrigin(angle).moveRotationPointBack(pivot))
       .toList();
 
   ///Rotates all points around pivot by angle. If points are in local coordinates, [pivot] = Positionable.zero()
-  List<Positionable> rotateY(Positionable pivot, List<Positionable> points, double angle) => points
+  List<Positionable> _rotateY(Positionable pivot, List<Positionable> points, double angle) => points
       .map((point) => point.moveRotationPointToOrigin(pivot).rotateYAroundOrigin(angle).moveRotationPointBack(pivot))
       .toList();
 
   ///Rotates all points around pivot by angle. If points are in local coordinates, [pivot] = Positionable.zero()
-  void rotateZ(double angle) =>
-      _vertexes = _vertexes.map((point) => point.rotateZAroundOrigin(angle - pi / 2)).toList();
+  void _rotateZ(double angle) =>
+      _transformedVertexes = _transformedVertexes.map((point) => point.rotateZAroundOrigin(angle - pi / 2)).toList();
 }
 
 class Drawable3D extends Drawable {

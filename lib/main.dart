@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:provider/provider.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
-import 'package:tempest/game_elements/base_classes/drawable_old.dart';
 import 'package:tempest/game_elements/level/level.dart';
 import 'package:tempest/game_state_provider.dart';
 import 'package:tempest/widgets/game_painter.dart';
@@ -34,7 +33,7 @@ class _MyAppState extends State<MyApp> with ChangeNotifier {
   @override
   Widget build(BuildContext context) {
     Drawable.setCanvasSize(gamePainterSize);
-    DrawableOld.setCanvasSize(gamePainterSize);
+    // DrawableOld.setCanvasSize(gamePainterSize);
     final gameState = context.read<GameStateProvider>().currentState;
     return SafeArea(
       child: Focus(

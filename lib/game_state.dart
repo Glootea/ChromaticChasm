@@ -5,7 +5,7 @@ import 'dart:developer' as dev;
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:tempest/game_elements/base_classes/drawable_old.dart';
+import 'package:tempest/game_elements/base_classes/drawable.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
 import 'package:tempest/game_elements/enemies/enemy.dart';
 import 'package:tempest/game_elements/level/level.dart';
@@ -21,7 +21,7 @@ sealed class GameState {
   KeyEventResult onKeyboardEvent(KeyEvent event);
   StreamController<GameState> setStateStream;
   GameState(this.setStateStream, [this._direction]);
-  final _throttler = Throttler(const Duration(milliseconds: DrawableOld.syncTime * 4));
+  final _throttler = Throttler(const Duration(milliseconds: Drawable.syncTime * 4));
   int? _direction;
   void handleKeyboardMovement();
 
@@ -113,7 +113,7 @@ class LevelAppearState extends LevelTransitionState {
     _level.pivot.setFrom(position);
     handleKeyboardMovement();
     _level.onFrame(canvas, frameTimestamp);
-    _player.updateAndShow(canvas, frameTimestamp);
+    _player.onFrame(canvas, frameTimestamp);
   }
 
   @override
@@ -147,7 +147,7 @@ class PlayingState extends GameState {
     level.onFrame(canvas, frameTimestamp);
     enemyOnNewFrame(canvas, frameTimestamp);
     shotOnNewFrame(canvas, frameTimestamp);
-    player.updateAndShow(canvas, frameTimestamp);
+    player.onFrame(canvas, frameTimestamp);
   }
 
   @override
@@ -165,7 +165,7 @@ class PlayingState extends GameState {
         shots.removeAt(i);
         continue;
       }
-      shot.updateAndShow(canvas, frameTimestamp);
+      shot.onFrame(canvas, frameTimestamp);
     }
   }
 
@@ -253,13 +253,13 @@ class LevelDisappearState extends LevelTransitionState {
     handleDepth(timeFraction);
     handleKeyboardMovement();
     _level.onFrame(canvas, frameTimestamp);
-    _player.updateAndShow(canvas, frameTimestamp);
+    _player.onFrame(canvas, frameTimestamp);
   }
 
   void handleDepth(double timeFraction) {
     final position = PositionFunctions.positionWithFraction(startPivot, targetPivot, timeFraction);
     _level.pivot.setFrom(position);
-    _player.depthFraction = timeFraction;
+    _player.pivot.updatePosition(timeFraction);
   }
 
   @override

@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
-import 'package:tempest/game_elements/base_classes/drawable_old.dart';
 import 'package:tempest/game_elements/base_classes/game_object.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
 import 'package:tempest/game_elements/level/tile/tile_main_line.dart';
@@ -62,11 +61,11 @@ class LevelTile extends StatelessGlobalGameObject {
 
   static Paint defaultPaint = Paint()
     ..color = Colors.blue
-    ..strokeWidth = DrawableOld.strokeWidth;
+    ..strokeWidth = Drawable.strokeWidth;
 
   static Paint activePaint = Paint()
     ..color = Colors.yellow
-    ..strokeWidth = DrawableOld.strokeWidth;
+    ..strokeWidth = Drawable.strokeWidth;
 
   @override
   void onFrame(Canvas canvas, DateTime frameTimestamp) {

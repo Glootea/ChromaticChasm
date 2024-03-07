@@ -37,7 +37,7 @@ class LevelPositionable extends Positionable {
 ///
 ///For example [player], [enemies], [shots]
 class TilePositionable extends Positionable {
-  Level level;
+  final Level level;
   int tileNumber;
 
   ///0 - on close edge of level, 1 - on far edge
@@ -49,14 +49,21 @@ class TilePositionable extends Positionable {
   }
   Positionable get globalPosition =>
       PositionFunctions.positionWithFraction(
-        level.children[tileNumber].mainLine.close,
-        level.children[tileNumber].mainLine.far,
-        depthFraction,
-      ) +
+          PositionFunctions.positionWithFraction(
+            level.children[tileNumber].leftNearPointGlobal,
+            level.children[tileNumber].leftFarPointGlobal,
+            depthFraction,
+          ),
+          PositionFunctions.positionWithFraction(
+            level.children[tileNumber].rightNearPointGlobal,
+            level.children[tileNumber].rightFarPointGlobal,
+            depthFraction,
+          ),
+          widthFraction) +
       (offset ?? Positionable(0, 0, 0));
 
-  void updatePosition(double dF) {
-    depthFraction = dF;
+  void updatePosition([double? dF]) {
+    depthFraction = dF ?? depthFraction;
     setFrom(globalPosition);
   }
 }

@@ -16,7 +16,7 @@ part 'package:tempest/game_elements/enemies/entities/spider.dart';
 sealed class Enemy extends StatelessTileGameObject {
   Enemy._(super.pivot, super.drawable);
   bool checkPlayerHit(Player player) {
-    final hit = player.tileNumber == pivot.tileNumber && pivot.depthFraction <= 0.02;
+    final hit = pivot.level.activeTile == pivot.tileNumber && pivot.depthFraction <= 0.02;
     return hit;
   }
 
@@ -26,7 +26,8 @@ sealed class Enemy extends StatelessTileGameObject {
   int? shotHitNumber(List<Shot> shots) {
     for (int i = 0; i < shots.length; i++) {
       final shot = shots[i];
-      final hit = shot.tileNumber == pivot.tileNumber && (shot.depthFraction - pivot.depthFraction).abs() < 0.05;
+      final hit =
+          shot.pivot.tileNumber == pivot.tileNumber && (shot.pivot.depthFraction - pivot.depthFraction).abs() < 0.05;
       if (hit) {
         _lifes -= 1;
         return i;

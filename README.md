@@ -1,16 +1,29 @@
-# tempest
+# Chromatic chasm - Хроматическая бездна
 
-A new Flutter project.
+Проект "Chromatic Chasm" (Хроматическая бездна) - это мобильная игра в жанре туннеотных шутер, разрабатываемая на кроссплатформенном фреймворке Flutter, вдохновленная аркадой 80-ых Atari Tempest и предоставляющая уникальный и немного забытый игровой опыт, который обеспечивает захватывающее и яркое развлечение на любых современных устройствах, включая мобильные телефоны.
 
-## Getting Started
+#### Используемые библиотеки
 
-This project is a starting point for a Flutter application.
+Для обеспечения минимального размера игры используется следующий минимальный набор библиотек:
 
-A few resources to get you started if this is your first Flutter project:
+- provider - state-management
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- flutter_joystick - отображение джойстика на экране. Позволяет изменить вид отображения, для предания более аутентичного аркадного вида
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- vector_math - предоставляет математические операции с матрицами для транформации объектов.
+  
+  Данный проект не основан на игровом движке, необходимые функции разрабытаются самостоятельно. Графика выводится посредством проецирования точек в 3d пространстве на плоскость, где они соединяются в линии по необходимости. 
+  
+  #### Текущее состояние
+  
+  Реализованы базовые системы:
+  
+  - уровней, их появления и смены, 
+  
+  - игрока и его перемещения 
+  
+  - пуль
+    
+    <video src="/Users/mac/Desktop/Screen Recording 2024-03-03 at 18.41.29.mov"/>
+
+
