@@ -4,7 +4,6 @@ import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:provider/provider.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
 import 'package:tempest/game_elements/level/level.dart';
-import 'package:tempest/game_state.dart';
 import 'package:tempest/game_state_provider.dart';
 import 'package:tempest/widgets/game_painter.dart';
 import 'package:tempest/widgets/game_painter_clipper.dart';
@@ -13,7 +12,7 @@ void main() {
   runApp(MaterialApp(
       theme: ThemeData.dark(),
       home: ChangeNotifierProvider(
-        create: (context) => GameStateProvider(PlayingState.create(Level.getRandomLevel())),
+        create: (context) => GameStateProvider.create(),
         child: const MyApp(),
       )));
 }
@@ -25,7 +24,7 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with ChangeNotifier {
+class _MyAppState extends State<MyApp> {
   final level = Level1();
   double get size => min(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height - 270);
   Size get gamePainterSize => Size(size, size);
@@ -33,11 +32,12 @@ class _MyAppState extends State<MyApp> with ChangeNotifier {
   @override
   Widget build(BuildContext context) {
     Drawable.setCanvasSize(gamePainterSize);
+    // DrawableOld.setCanvasSize(gamePainterSize);
     final gameState = context.read<GameStateProvider>().currentState;
-    return Focus(
-      autofocus: true,
-      onKeyEvent: (node, value) => gameState.onKeyboardEvent(value),
-      child: SafeArea(
+    return SafeArea(
+      child: Focus(
+        autofocus: true,
+        onKeyEvent: (node, event) => gameState.onKeyboardEvent(event),
         child: Scaffold(
             body: Column(
           children: [

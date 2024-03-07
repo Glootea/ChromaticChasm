@@ -1,38 +1,40 @@
-import 'dart:math';
+library level;
 
+import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:tempest/game_elements/base_classes/drawable.dart';
+import 'package:tempest/game_elements/base_classes/game_object.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
 import 'package:tempest/game_elements/level/tile/level_tile.dart';
-import 'package:tempest/game_elements/base_classes/movable.dart';
+part 'package:tempest/game_elements/level/level_entities.dart';
 
-sealed class Level with Drawable {
-  ///Default [pivot] is [Movable(0, 0, 50)]
-  Movable pivot;
+sealed class Level extends ComplexGlobalGameObject {
+  final List<LevelTile> tiles;
 
   ///Whether player can move from last tile to first or vice versa
   final bool circlular;
 
-  /// Should be in non clock wise order, starting from 12 o'clock. First [tile.x] must be < 0
-  final List<LevelTile> tiles;
+  final double depth;
 
-  Level(this.pivot, this.tiles, this.circlular);
+  /// Should be in non clock wise order, starting from 12 o'clock. First [tile.x] must be < 0
+  Level._(Positionable pivot, this.tiles, this.depth, this.circlular) : super(pivot, tiles);
 
   /// Tile where player is. It has different color
   late int activeTile = tiles.length ~/ 2;
 
-  /// [points] must be in range -100 to 100 in both x and y. [depth] prefered to be around 1000
-  Level.fromPoints(Movable pivot, List<Positionable> points, double depth, bool circlular)
-      : this(pivot, _pointsToTiles(pivot, points, depth, circlular), circlular);
+  /// [points] must be in range -100 to 100 in both x and y. [depth] prefered to be around 200
+  ///
+  /// Do not set [x] coordinate to 0 to prevent angle calculation issues. Use +-0.01 instead
+  Level.fromPoints(Positionable pivot, List<Positionable> points, double depth, bool circlular)
+      : this._(pivot, _pointsToTiles(pivot, points, depth, circlular), depth, circlular);
 
   @override
-  void updateAndShow(Canvas canvas, DateTime frameTimestamp) {
+  void onFrame(Canvas canvas, DateTime frameTimestamp) {
     lastFrameTimestamp = frameTimestamp;
-    for (int i = 0; i < tiles.length; i++) {
+    for (final (i, tile) in tiles.indexed) {
       if (i != activeTile) {
-        tiles[i].updateAndShow(canvas, frameTimestamp);
+        tile.onFrame(canvas, frameTimestamp);
       }
-      tiles[activeTile].showActive(canvas);
+      tiles[activeTile].onFrameActive(canvas);
     }
   }
 
@@ -48,30 +50,16 @@ sealed class Level with Drawable {
     return output;
   }
 
-  static final List<Level> _levels = [
-    Level1(),
-  ];
-  static final _random = Random();
-  static Level getRandomLevel() => _levels[_random.nextInt(_levels.length)];
-}
+  static Level createLevel(int number) {
+    switch (number) {
+      case 0:
+        return Level1();
+      case 1:
+        return Level2();
+      default:
+        return Level2();
+    }
+  }
 
-class Level1 extends Level {
-  static final Movable _level1Pivot = Movable(0, 0, 50);
-  static final List<Positionable> _level1Points = [
-    // Positionable(-0, -60, 0),
-    Positionable(-90, -40, 0),
-    Positionable(-75, -20, 0),
-    Positionable(-60, 0, 0),
-    Positionable(-45, 20, 0),
-    Positionable(-30, 40, 0),
-    Positionable(-15, 60, 0),
-    Positionable(0, 80, 0),
-    Positionable(15, 60, 0),
-    Positionable(30, 40, 0),
-    Positionable(45, 20, 0),
-    Positionable(60, 0, 0),
-    Positionable(75, -20, 0),
-    Positionable(90, -40, 0),
-  ];
-  Level1() : super.fromPoints(_level1Pivot, _level1Points, 200, false);
+  static Level getRandomLevel() => createLevel(Random().nextInt(2));
 }

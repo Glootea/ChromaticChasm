@@ -11,14 +11,11 @@ extension PositionFunctions on Positionable {
       first + ((second - first) * fraction);
   Positionable toGlobal(Positionable pivot) => this + pivot;
 
-  Positionable moveRotationPointToOrigin(Positionable pivot) => this - pivot;
-  Positionable moveRotationPointBack(Positionable pivot) => this + pivot;
-
-  Positionable rotateXAroundOrigin(double angle) =>
+  Positionable rotateX(double angle) =>
       Matrix3(1, 0, 0, 0, cos(angle), -sin(angle), 0, sin(angle), cos(angle)).transformed(this);
-  Positionable rotateYAroundOrigin(double angle) =>
+  Positionable rotateY(double angle) =>
       Matrix3(cos(angle), 0, sin(angle), 0, 1, 0, -sin(angle), 0, cos(angle)).transformed(this);
-  Positionable rotateZAroundOrigin(double angle) =>
+  Positionable rotateZ(double angle) =>
       Matrix3(cos(angle), -sin(angle), 0, sin(angle), cos(angle), 0, 0, 0, 1).transformed(this);
 }
 
@@ -37,7 +34,7 @@ class LevelPositionable extends Positionable {
 ///
 ///For example [player], [enemies], [shots]
 class TilePositionable extends Positionable {
-  Level level;
+  final Level level;
   int tileNumber;
 
   ///0 - on close edge of level, 1 - on far edge
@@ -45,13 +42,26 @@ class TilePositionable extends Positionable {
   double widthFraction = 0.5;
   Positionable? offset;
   TilePositionable(this.level, this.tileNumber, {this.depthFraction = 0, this.offset}) : super.zero() {
-    setFrom(
+    setFrom(globalPosition);
+  }
+  Positionable get globalPosition =>
       PositionFunctions.positionWithFraction(
-            level.tiles[tileNumber].mainLine.close,
-            level.tiles[tileNumber].mainLine.far,
+          PositionFunctions.positionWithFraction(
+            level.tiles[tileNumber].leftNearPointGlobal,
+            level.tiles[tileNumber].leftFarPointGlobal,
             depthFraction,
-          ).toGlobal(level.pivot) +
-          (offset ?? Positionable(0, 0, 0)),
-    );
+          ),
+          PositionFunctions.positionWithFraction(
+            level.tiles[tileNumber].rightNearPointGlobal,
+            level.tiles[tileNumber].rightFarPointGlobal,
+            depthFraction,
+          ),
+          widthFraction) +
+      (offset ?? Positionable(0, 0, 0));
+
+  void updatePosition({double? depthFraction, double? widthFraction}) {
+    this.depthFraction = depthFraction ?? this.depthFraction;
+    this.widthFraction = widthFraction ?? this.widthFraction;
+    setFrom(globalPosition);
   }
 }
