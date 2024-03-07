@@ -9,36 +9,44 @@ import 'package:tempest/game_elements/base_classes/drawable.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
 import 'package:tempest/game_elements/enemies/enemy.dart';
 import 'package:tempest/game_elements/level/level.dart';
+import 'package:tempest/game_elements/player/global_player.dart';
 import 'package:tempest/game_elements/player/player.dart';
 import 'package:tempest/game_elements/shot.dart';
 import 'package:tempest/helpers/easing.dart';
 import 'package:tempest/helpers/throttler.dart';
 
-//TODO: move camera, not whole scene
 sealed class GameState {
+  KeyEventResult onKeyboardEvent(KeyEvent event);
   void onFireButtonPressed();
   void onAngleChanged(double angle);
   void draw(Canvas canvas);
-  KeyEventResult onKeyboardEvent(KeyEvent event);
-  StreamController<GameState> setStateStream;
-  GameState(this.setStateStream, [this._direction]);
-  final _throttler = Throttler(Duration(milliseconds: (Drawable.syncTime * 1.5).toInt()));
-  int? _direction;
   void handleKeyboardMovement();
-
-  double _getTimeFraction(DateTime now, DateTime last) =>
-      (now.difference(last).inMilliseconds / LevelTransitionState.animationDuration.inMilliseconds).easeInOutCubic;
-
   void handleNextState(bool check, GameState nextState) {
     if (check) setStateStream.add(nextState);
   }
+
+  StreamController<GameState> setStateStream;
+  int? _direction;
+  Positionable camera;
+
+  GameState(this.setStateStream, {int? direction, Positionable? camera})
+      : _direction = direction,
+        camera = camera ?? Positionable(0, 0, 0);
+
+  final _throttler = Throttler(Duration(milliseconds: (Drawable.syncTime * 1.5).toInt()));
+
+  double _getTimeFractionEase(DateTime now, DateTime last) => _getTimeFractionLinear(now, last).easeInOutCubic;
+  double _getTimeFractionEaseIn(DateTime now, DateTime last) => _getTimeFractionLinear(now, last).easeInCubic;
+  double _getTimeFractionEaseOut(DateTime now, DateTime last) => _getTimeFractionLinear(now, last).easeOutCubic;
+  double _getTimeFractionLinear(DateTime now, DateTime last) =>
+      (now.difference(last).inMilliseconds / LevelTransitionState.animationDuration.inMilliseconds);
 }
 
 abstract class LevelTransitionState extends GameState {
   final Level _level;
   final Player _player;
 
-  LevelTransitionState(super.setStateStream, this._level, this._player, [super.direction]);
+  LevelTransitionState(super.setStateStream, this._level, this._player, {super.direction});
 
   static const Duration animationDuration = Duration(seconds: 3);
   final DateTime _startTime = DateTime.now();
@@ -89,24 +97,23 @@ abstract class LevelTransitionState extends GameState {
 }
 
 class LevelAppearState extends LevelTransitionState {
-  LevelAppearState(super.setStateStream, super._level, super._player, [super.direction]);
+  LevelAppearState(super.setStateStream, super._level, super._player, {super.direction});
   LevelAppearState.create(StreamController<GameState> setStateStream, Level level, [int? direction])
-      : super(setStateStream, level, Player(level), direction);
+      : super(setStateStream, level, Player(level), direction: direction);
   @override
-  final startPivot = Positionable(0, 0, 5000);
+  final startPivot = Positionable(0, 0, -5000);
   @override
-  late final Positionable targetPivot = Positionable.copy(_level.pivot);
+  late final Positionable targetPivot = Positionable.all(0);
 
   @override
   void draw(Canvas canvas) {
     final frameTimestamp = DateTime.now();
-    double timeFraction = _getTimeFraction(frameTimestamp, _startTime);
-    handleNextState(timeFraction >= 1, PlayingState.create(setStateStream, _level, _player, _direction));
-    final position = PositionFunctions.positionWithFraction(startPivot, targetPivot, timeFraction);
-    _level.pivot.setFrom(position);
+    double timeFraction = _getTimeFractionEase(frameTimestamp, _startTime);
+    handleNextState(timeFraction >= 1, PlayingState.create(setStateStream, _level, _player, direction: _direction));
+    camera.setFrom(PositionFunctions.positionWithFraction(startPivot, targetPivot, timeFraction));
     handleKeyboardMovement();
-    _level.onFrame(canvas, frameTimestamp);
-    _player.onFrame(canvas, frameTimestamp);
+    _level.onFrame(canvas, camera, frameTimestamp);
+    _player.onFrame(canvas, camera, frameTimestamp);
   }
 
   @override
@@ -123,8 +130,8 @@ class PlayingState extends GameState {
 
   int _enemiesToSpawnCount = 5;
 
-  PlayingState(super.setStateStream, this.level, this.player, this.enemies, this.shots, [super.direction]);
-  PlayingState.create(super.setStateStream, this.level, this.player, [super.direction])
+  PlayingState(super.setStateStream, this.level, this.player, this.enemies, this.shots, {super.direction});
+  PlayingState.create(super.setStateStream, this.level, this.player, {super.direction})
       : enemies = [],
         shots = [];
 
@@ -133,14 +140,15 @@ class PlayingState extends GameState {
 
   @override
   void draw(Canvas canvas) {
-    handleNextState(_enemiesToSpawnCount <= 0 && enemies.isEmpty, LevelDisappearState(setStateStream, level, player));
+    handleNextState(_enemiesToSpawnCount <= 0 && enemies.isEmpty,
+        LevelDisappearState(setStateStream, level, player, direction: _direction));
     _spawnEnemy();
     final frameTimestamp = DateTime.now();
     handleKeyboardMovement();
-    level.onFrame(canvas, frameTimestamp);
+    level.onFrame(canvas, camera, frameTimestamp);
     enemyOnNewFrame(canvas, frameTimestamp);
     shotOnNewFrame(canvas, frameTimestamp);
-    player.onFrame(canvas, frameTimestamp);
+    player.onFrame(canvas, camera, frameTimestamp);
   }
 
   @override
@@ -158,7 +166,7 @@ class PlayingState extends GameState {
         shots.removeAt(i);
         continue;
       }
-      shot.onFrame(canvas, frameTimestamp);
+      shot.onFrame(canvas, camera, frameTimestamp);
     }
   }
 
@@ -178,7 +186,7 @@ class PlayingState extends GameState {
         enemies.removeAt(enemyNum);
         continue;
       }
-      enemy.onFrame(canvas, frameTimestamp);
+      enemy.onFrame(canvas, camera, frameTimestamp);
     }
   }
 
@@ -230,32 +238,63 @@ class PlayingState extends GameState {
 }
 
 class LevelDisappearState extends LevelTransitionState {
-  LevelDisappearState(super.setStateStream, super.level, super.player, [super.direction]);
+  LevelDisappearState(super.setStateStream, super.level, super.player, {super.direction});
 
   @override
-  late final Positionable targetPivot = Positionable(0, 0, _level.pivot.z - _level.depth);
+  late final Positionable targetPivot = Positionable(0, 0, _level.depth + 1);
   @override
-  late final Positionable startPivot = Positionable.copy(_level.pivot);
+  late final Positionable startPivot = Positionable.all(0);
 
   @override
   void draw(Canvas canvas) {
     final frameTimestamp = DateTime.now();
-    double timeFraction = _getTimeFraction(frameTimestamp, _startTime);
-    handleNextState(timeFraction >= 1, LevelAppearState.create(setStateStream, Level.getRandomLevel(), _direction));
+    double timeFraction = _getTimeFractionEaseIn(frameTimestamp, _startTime);
+    handleNextState(timeFraction >= 1, FlyAwayState(setStateStream, _player, camera: camera));
     handleDepth(timeFraction);
     handleKeyboardMovement();
-    _level.onFrame(canvas, frameTimestamp);
-    _player.onFrame(canvas, frameTimestamp);
+    _level.onFrame(canvas, camera, frameTimestamp);
+    _player.onFrame(canvas, camera, frameTimestamp);
   }
 
   void handleDepth(double timeFraction) {
-    final position = PositionFunctions.positionWithFraction(startPivot, targetPivot, timeFraction);
-    _level.pivot.setFrom(position);
+    camera.setFrom(PositionFunctions.positionWithFraction(startPivot, targetPivot, timeFraction));
     _player.pivot.updatePosition(depthFraction: timeFraction);
   }
 
   @override
   void handleKeyboardMovement() {
     if (_direction != null) _throttler.throttle(() => _player.moveTargetTile(_direction!));
+  }
+}
+
+class FlyAwayState extends GameState {
+  final GlobalPlayer _player;
+  FlyAwayState(super.setStateStream, Player player, {super.camera}) : _player = GlobalPlayer.fromPlayer(player);
+
+  late final _startCameraPivot = camera.clone();
+  late final _startTime = DateTime.now();
+
+  @override
+  void draw(Canvas canvas) {
+    final frameTimestamp = DateTime.now();
+    double timeFraction = _getTimeFractionEaseOut(frameTimestamp, _startTime);
+    handleNextState(timeFraction >= 1, LevelAppearState.create(setStateStream, Level.getRandomLevel()));
+    camera.setFrom(PositionFunctions.positionWithFraction(_startCameraPivot, _startCameraPivot, timeFraction));
+    _player.updatePosition(timeFraction);
+    _player.onFrame(canvas, camera, frameTimestamp);
+  }
+
+  @override
+  void handleKeyboardMovement() {}
+
+  @override
+  void onAngleChanged(double angle) {}
+
+  @override
+  void onFireButtonPressed() {}
+
+  @override
+  KeyEventResult onKeyboardEvent(KeyEvent event) {
+    return KeyEventResult.handled;
   }
 }

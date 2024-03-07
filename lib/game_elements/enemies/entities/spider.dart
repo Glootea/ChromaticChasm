@@ -1,6 +1,5 @@
 part of 'package:tempest/game_elements/enemies/enemy.dart';
 
-///TODO: bug: on horizontal tile spider is bigger than tile width
 class Spider extends Enemy {
   Spider._(TilePositionable pivot)
       : super._(
@@ -48,9 +47,9 @@ class Spider extends Enemy {
     ..strokeWidth = Drawable.strokeWidth;
 
   @override
-  void onFrame(Canvas canvas, DateTime frameTimestamp) {
+  void onFrame(Canvas canvas, Positionable camera, DateTime frameTimestamp) {
     updatePosition(frameTimestamp);
-    drawable.show(canvas, _paint);
+    drawable.show(canvas, camera, _paint);
   }
 
   /// Depth fraction of how much is traveled on one [Drawable.syncTime]

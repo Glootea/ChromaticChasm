@@ -28,13 +28,13 @@ sealed class Level extends ComplexGlobalGameObject {
       : this._(pivot, _pointsToTiles(pivot, points, depth, circlular), depth, circlular);
 
   @override
-  void onFrame(Canvas canvas, DateTime frameTimestamp) {
+  void onFrame(Canvas canvas, Positionable camera, DateTime frameTimestamp) {
     lastFrameTimestamp = frameTimestamp;
     for (final (i, tile) in tiles.indexed) {
       if (i != activeTile) {
-        tile.onFrame(canvas, frameTimestamp);
+        tile.onFrame(canvas, camera, frameTimestamp);
       }
-      tiles[activeTile].onFrameActive(canvas);
+      tiles[activeTile].onFrameActive(canvas, camera);
     }
   }
 

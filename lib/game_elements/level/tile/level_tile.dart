@@ -4,12 +4,8 @@ import 'package:tempest/game_elements/base_classes/drawable.dart';
 import 'package:tempest/game_elements/base_classes/game_object.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
 import 'package:tempest/game_elements/level/tile/tile_main_line.dart';
-import 'dart:math' as math;
 
 class LevelTile extends StatelessGlobalGameObject {
-  // List<Positionable> _localPoints;
-  // List<Positionable> get globalPoints => _localPoints.map((point) => point + pivot).toList();
-
   ///The line where most enemies are move/exist
   TileMainLine get mainLine => _getMainLine;
   TileMainLine? _mainLine;
@@ -26,13 +22,9 @@ class LevelTile extends StatelessGlobalGameObject {
       points.map((point) => point + pivot).toList();
 
   /// [Points] are in order: left near, left far, right far, right near. All points must be
-  LevelTile(super.pivot, super.drawable) {
-    // assert(_localPoints.length == 4);
-  }
+  LevelTile(super.pivot, super.drawable);
 
   ///Construct levelTile from 2 close points(in local coordinates) relative to pivot. Also gets depth to place far points
-  // LevelTile.from(Positionable pivot, Positionable left, Positionable rigth, double depth)
-  //     : this(pivot, [left, left + Positionable(0, 0, depth), rigth + Positionable(0, 0, depth), rigth]);
   LevelTile.from(Positionable pivot, Positionable left, Positionable rigth, double depth)
       : this(
             pivot,
@@ -68,12 +60,12 @@ class LevelTile extends StatelessGlobalGameObject {
     ..strokeWidth = Drawable.strokeWidth;
 
   @override
-  void onFrame(Canvas canvas, DateTime frameTimestamp) {
-    drawable.show(canvas, defaultPaint);
+  void onFrame(Canvas canvas, Positionable camera, DateTime frameTimestamp) {
+    drawable.show(canvas, camera, defaultPaint);
   }
 
-  void onFrameActive(Canvas canvas) {
-    drawable.show(canvas, activePaint);
+  void onFrameActive(Canvas canvas, Positionable camera) {
+    drawable.show(canvas, camera, activePaint);
   }
 
   double get angle {
@@ -81,6 +73,5 @@ class LevelTile extends StatelessGlobalGameObject {
     return atan2(delta.x, delta.y) - pi / 2;
   }
 
-  double get width => math.sqrt(math.pow((rightNearPointGlobal.x - leftNearPointGlobal.x), 2) +
-      math.pow((rightNearPointGlobal.y - leftNearPointGlobal.y), 2));
+  double get width => (rightNearPointGlobal - leftNearPointGlobal).length;
 }

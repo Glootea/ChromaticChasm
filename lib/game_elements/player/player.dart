@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
 import 'package:tempest/game_elements/base_classes/game_object.dart';
@@ -15,43 +14,68 @@ class Player extends StatefulTileGameObject {
   ///
   ///Should be set as time to move from center of the tile to the center of the next tile divided by [tileStates.length]
   late final Duration _timeToMove = Duration(milliseconds: Drawable.syncTime ~/ drawables.length);
+  static double playerSize = 7;
 
   ///List of states that player can be in on one tile. Default state is the middle one.
   ///
   ///To transition to another tile player have to move through all states to the left/right related to it. Then when moved to next tile player start in right/left state
   static List<Drawable2D> createDrawables(TilePositionable pivot) => [
         Drawable2D(pivot, [
-          Positionable(0, 5, 0),
-          Positionable(7, 0, 0),
-          Positionable(7, -4, 0),
-          Positionable(5, 0, 0),
-          Positionable(-5, 0, 0),
-          Positionable(-2, -4, 0),
-          Positionable(-7, 0, 0),
+          Positionable(0.0, 1.0, 0.0),
+          Positionable(0.53, 0.0, 0.0),
+          Positionable(-0.43, 1.3, 0.0),
+          Positionable(0.0, 0.56, 0.0),
+          Positionable(0.0, -1.0, 0.0),
+          Positionable(-0.43, -0.1, 0.0),
+          Positionable(0.0, -0.56, 0.0),
+          Positionable(0.2, 0.0, 0.0)
         ], [
-          [0, 1, 2, 3, 4, 5, 6]
+          [2, 0],
+          [3, 2],
+          [0, 1],
+          [5, 4],
+          [6, 5],
+          [4, 1],
+          [7, 6],
+          [3, 7]
         ]),
         Drawable2D(pivot, [
-          Positionable(0, 5, 0),
-          Positionable(7, 0, 0),
-          Positionable(3, -4, 0),
-          Positionable(5, 0, 0),
-          Positionable(-5, 0, 0),
-          Positionable(-3, -4, 0),
-          Positionable(-7, 0, 0),
+          Positionable(0.0, -1.0, 0.0),
+          Positionable(0.53, 0.0, 0.0),
+          Positionable(-0.43, -0.4, 0.0),
+          Positionable(0.0, -0.56, 0.0),
+          Positionable(0.0, 1.0, 0.0),
+          Positionable(-0.43, 0.4, 0.0),
+          Positionable(0.0, 0.56, 0.0),
+          Positionable(0.2, 0.0, 0.0)
         ], [
-          [0, 1, 2, 3, 4, 5, 6]
+          [2, 0],
+          [3, 2],
+          [0, 1],
+          [5, 4],
+          [6, 5],
+          [4, 1],
+          [7, 6],
+          [3, 7]
         ]),
         Drawable2D(pivot, [
-          Positionable(0, 5, 0),
-          Positionable(7, 0, 0),
-          Positionable(2, -4, 0),
-          Positionable(5, 0, 0),
-          Positionable(-5, 0, 0),
-          Positionable(-7, -4, 0),
-          Positionable(-7, 0, 0),
+          Positionable(0.0, -1.0, 0.0),
+          Positionable(0.53, 0.0, 0.0),
+          Positionable(-0.43, -1.3, 0.0),
+          Positionable(0.0, -0.56, 0.0),
+          Positionable(0.0, 1.0, 0.0),
+          Positionable(-0.43, 0.1, 0.0),
+          Positionable(0.0, 0.56, 0.0),
+          Positionable(0.2, 0.0, 0.0)
         ], [
-          [0, 1, 2, 3, 4, 5, 6]
+          [2, 0],
+          [3, 2],
+          [0, 1],
+          [5, 4],
+          [6, 5],
+          [4, 1],
+          [7, 6],
+          [3, 7]
         ]),
       ];
   late final int _centralState = (drawables.length / 2).floor();
@@ -68,15 +92,15 @@ class Player extends StatefulTileGameObject {
   ///Positive value means player is moving right, negative - left
   int _movementCount = 0;
 
-  static final _paint = Paint()
+  final paint = Paint()
     ..color = Colors.yellow
     ..strokeWidth = Drawable.strokeWidth;
 
   @override
-  void onFrame(Canvas canvas, DateTime frameTimestamp) {
+  void onFrame(Canvas canvas, Positionable camera, DateTime frameTimestamp) {
     _updatePosition(frameTimestamp);
-    (drawables[state]..applyTransformation(angleZ: LevelTileHelper.getAngle(pivot) + pi / 2))
-        .show(canvas, _paint); //TODO: draw player in blender and remove pi / 2
+    (drawables[state]..applyTransformation(scaleToWidth: playerSize, angleZ: LevelTileHelper.getAngle(pivot)))
+        .show(canvas, camera, paint);
   }
 
   /// 1 - right, -1 - left, 0 - stay

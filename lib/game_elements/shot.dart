@@ -73,8 +73,8 @@ class Shot extends StatelessTileGameObject {
   bool get disappear => pivot.depthFraction >= 0.95;
 
   @override
-  void onFrame(Canvas canvas, DateTime frameTimestamp) {
+  void onFrame(Canvas canvas, Positionable camera, DateTime frameTimestamp) {
     _updatePosition(frameTimestamp);
-    drawable.show(canvas, _paint);
+    drawable.show(canvas, camera, _paint);
   }
 }

@@ -5,4 +5,12 @@ extension Easing on double {
   double get easeInOutCubic {
     return this < 0.5 ? 4 * this * this * this : 1 - pow(-2 * this + 2, 3) / 2;
   }
+
+  double get easeInCubic {
+    return 4 * this * this * this;
+  }
+
+  double get easeOutCubic {
+    return 1 - pow(1 - this, 3).toDouble();
+  }
 }

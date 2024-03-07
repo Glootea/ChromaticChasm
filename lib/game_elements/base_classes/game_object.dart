@@ -7,7 +7,7 @@ sealed class _GameObject {
   DateTime lastFrameTimestamp = DateTime.now();
   _GameObject(this.pivot);
 
-  void onFrame(Canvas canvas, DateTime frameTimestamp);
+  void onFrame(Canvas canvas, Positionable camera, DateTime frameTimestamp);
 }
 
 abstract class _TileGameObject extends _GameObject {
