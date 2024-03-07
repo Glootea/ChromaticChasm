@@ -11,14 +11,11 @@ extension PositionFunctions on Positionable {
       first + ((second - first) * fraction);
   Positionable toGlobal(Positionable pivot) => this + pivot;
 
-  Positionable moveRotationPointToOrigin(Positionable pivot) => this - pivot;
-  Positionable moveRotationPointBack(Positionable pivot) => this + pivot;
-
-  Positionable rotateXAroundOrigin(double angle) =>
+  Positionable rotateX(double angle) =>
       Matrix3(1, 0, 0, 0, cos(angle), -sin(angle), 0, sin(angle), cos(angle)).transformed(this);
-  Positionable rotateYAroundOrigin(double angle) =>
+  Positionable rotateY(double angle) =>
       Matrix3(cos(angle), 0, sin(angle), 0, 1, 0, -sin(angle), 0, cos(angle)).transformed(this);
-  Positionable rotateZAroundOrigin(double angle) =>
+  Positionable rotateZ(double angle) =>
       Matrix3(cos(angle), -sin(angle), 0, sin(angle), cos(angle), 0, 0, 0, 1).transformed(this);
 }
 
@@ -50,20 +47,21 @@ class TilePositionable extends Positionable {
   Positionable get globalPosition =>
       PositionFunctions.positionWithFraction(
           PositionFunctions.positionWithFraction(
-            level.children[tileNumber].leftNearPointGlobal,
-            level.children[tileNumber].leftFarPointGlobal,
+            level.tiles[tileNumber].leftNearPointGlobal,
+            level.tiles[tileNumber].leftFarPointGlobal,
             depthFraction,
           ),
           PositionFunctions.positionWithFraction(
-            level.children[tileNumber].rightNearPointGlobal,
-            level.children[tileNumber].rightFarPointGlobal,
+            level.tiles[tileNumber].rightNearPointGlobal,
+            level.tiles[tileNumber].rightFarPointGlobal,
             depthFraction,
           ),
           widthFraction) +
       (offset ?? Positionable(0, 0, 0));
 
-  void updatePosition([double? dF]) {
-    depthFraction = dF ?? depthFraction;
+  void updatePosition({double? depthFraction, double? widthFraction}) {
+    this.depthFraction = depthFraction ?? this.depthFraction;
+    this.widthFraction = widthFraction ?? this.widthFraction;
     setFrom(globalPosition);
   }
 }

@@ -14,6 +14,7 @@ import 'package:tempest/game_elements/shot.dart';
 import 'package:tempest/helpers/easing.dart';
 import 'package:tempest/helpers/throttler.dart';
 
+//TODO: move camera, not whole scene
 sealed class GameState {
   void onFireButtonPressed();
   void onAngleChanged(double angle);
@@ -21,20 +22,13 @@ sealed class GameState {
   KeyEventResult onKeyboardEvent(KeyEvent event);
   StreamController<GameState> setStateStream;
   GameState(this.setStateStream, [this._direction]);
-  final _throttler = Throttler(const Duration(milliseconds: Drawable.syncTime * 4));
+  final _throttler = Throttler(Duration(milliseconds: (Drawable.syncTime * 1.5).toInt()));
   int? _direction;
   void handleKeyboardMovement();
 
   double _getTimeFraction(DateTime now, DateTime last) =>
       (now.difference(last).inMilliseconds / LevelTransitionState.animationDuration.inMilliseconds).easeInOutCubic;
 
-  ///Must be called in the begging of [draw]
-  ///
-  ///Must implement this logic:
-  ///```dart
-  /// if (check)
-  ///  setStateStream.add(nextState);
-  ///```
   void handleNextState(bool check, GameState nextState) {
     if (check) setStateStream.add(nextState);
   }
@@ -59,9 +53,8 @@ abstract class LevelTransitionState extends GameState {
   }
 
   int _calculateActiveTile(double angle) {
-    final tiles = _level.children;
-    for (int i = 0; i < tiles.length; i++) {
-      final tile = tiles[i];
+    final tiles = _level.tiles;
+    for (final (i, tile) in tiles.indexed) {
       if ((angle <= tile.angleRange.last && angle >= tile.angleRange.first) ||
           (angle <= tile.angleRange.first && angle >= tile.angleRange.last)) {
         return i;
@@ -98,7 +91,7 @@ abstract class LevelTransitionState extends GameState {
 class LevelAppearState extends LevelTransitionState {
   LevelAppearState(super.setStateStream, super._level, super._player, [super.direction]);
   LevelAppearState.create(StreamController<GameState> setStateStream, Level level, [int? direction])
-      : super(setStateStream, level, Player.create(level), direction);
+      : super(setStateStream, level, Player(level), direction);
   @override
   final startPivot = Positionable(0, 0, 5000);
   @override
@@ -195,9 +188,8 @@ class PlayingState extends GameState {
   }
 
   int _calculateActiveTile(double angle) {
-    final tiles = level.children;
-    for (int i = 0; i < tiles.length; i++) {
-      final tile = tiles[i];
+    final tiles = level.tiles;
+    for (final (i, tile) in tiles.indexed) {
       if ((angle <= tile.angleRange.last && angle >= tile.angleRange.first) ||
           (angle <= tile.angleRange.first && angle >= tile.angleRange.last)) {
         return i;
@@ -231,7 +223,7 @@ class PlayingState extends GameState {
 
   void _spawnEnemy() {
     if (_enemiesToSpawnCount > 0 && _random.nextInt(90) == 0) {
-      enemies.add(Spider.create(level, _random.nextInt(level.children.length)));
+      enemies.add(Spider(level, _random.nextInt(level.tiles.length)));
       _enemiesToSpawnCount--;
     }
   }
@@ -259,7 +251,7 @@ class LevelDisappearState extends LevelTransitionState {
   void handleDepth(double timeFraction) {
     final position = PositionFunctions.positionWithFraction(startPivot, targetPivot, timeFraction);
     _level.pivot.setFrom(position);
-    _player.pivot.updatePosition(timeFraction);
+    _player.pivot.updatePosition(depthFraction: timeFraction);
   }
 
   @override

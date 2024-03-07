@@ -8,10 +8,7 @@ import 'package:tempest/game_elements/level/tile/level_tile.dart';
 part 'package:tempest/game_elements/level/level_entities.dart';
 
 sealed class Level extends ComplexGlobalGameObject {
-  ///Default [pivot] is [Movable(0, 0, 50)]
-  @override
-  // ignore: overridden_fields
-  final List<LevelTile> children;
+  final List<LevelTile> tiles;
 
   ///Whether player can move from last tile to first or vice versa
   final bool circlular;
@@ -19,13 +16,12 @@ sealed class Level extends ComplexGlobalGameObject {
   final double depth;
 
   /// Should be in non clock wise order, starting from 12 o'clock. First [tile.x] must be < 0
-
-  Level._(Positionable pivot, this.children, this.depth, this.circlular) : super(pivot, children);
+  Level._(Positionable pivot, this.tiles, this.depth, this.circlular) : super(pivot, tiles);
 
   /// Tile where player is. It has different color
-  late int activeTile = children.length ~/ 2;
+  late int activeTile = tiles.length ~/ 2;
 
-  /// [points] must be in range -100 to 100 in both x and y. [depth] prefered to be around 1000
+  /// [points] must be in range -100 to 100 in both x and y. [depth] prefered to be around 200
   ///
   /// Do not set [x] coordinate to 0 to prevent angle calculation issues. Use +-0.01 instead
   Level.fromPoints(Positionable pivot, List<Positionable> points, double depth, bool circlular)
@@ -34,11 +30,11 @@ sealed class Level extends ComplexGlobalGameObject {
   @override
   void onFrame(Canvas canvas, DateTime frameTimestamp) {
     lastFrameTimestamp = frameTimestamp;
-    for (int i = 0; i < children.length; i++) {
+    for (final (i, tile) in tiles.indexed) {
       if (i != activeTile) {
-        children[i].onFrame(canvas, frameTimestamp);
+        tile.onFrame(canvas, frameTimestamp);
       }
-      children[activeTile].onFrameActive(canvas);
+      tiles[activeTile].onFrameActive(canvas);
     }
   }
 

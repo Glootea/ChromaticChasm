@@ -12,11 +12,12 @@ class GameStateProvider extends ChangeNotifier {
   late GameState _currentState;
   late final Ticker ticker;
   final StreamController<GameState> _setStateStreamController = StreamController<GameState>();
+  late StreamSubscription _sub;
 
   GameStateProvider.create() {
     final level = Level.getRandomLevel();
-    _currentState = LevelAppearState(_setStateStreamController, level, Player.create(level));
-    _setStateStreamController.stream.listen((event) {
+    _currentState = LevelAppearState(_setStateStreamController, level, Player(level));
+    _sub = _setStateStreamController.stream.listen((event) {
       _currentState = event;
     });
     ticker = Ticker((_) {
@@ -32,6 +33,7 @@ class GameStateProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    _sub.cancel();
     _setStateStreamController.close();
     ticker.dispose();
     super.dispose();

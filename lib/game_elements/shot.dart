@@ -5,14 +5,14 @@ import 'package:tempest/game_elements/base_classes/positionable.dart';
 import 'package:tempest/game_elements/level/level.dart';
 
 class Shot extends StatelessTileGameObject {
-  Shot._(TilePositionable pivot) : super(pivot, Drawable3D(pivot, _vertices, _faces, _normals, width: 2));
+  Shot._(TilePositionable pivot)
+      : super(pivot, Drawable3D(pivot, _vertices, _faces, _normals)..applyTransformation(scaleToWidth: 2));
   Shot(Level level, int tileNumber) : this._(TilePositionable(level, tileNumber, depthFraction: 0));
 
-  static const _speed = 0.025;
-
-  static final Paint paint = Paint()
+  static final Paint _paint = Paint()
     ..color = Colors.red
     ..strokeWidth = Drawable.strokeWidth;
+
   static final List<Positionable> _vertices = [
     Positionable(0.0, 1.0, 0.0),
     Positionable(-0.8660253882408142, 0.5, 0.0),
@@ -60,37 +60,13 @@ class Shot extends StatelessTileGameObject {
     Positionable(0.37796449661254883, -0.6546536684036255, 0.6546536684036255),
     Positionable(0.0, 0.0, -0.9999999403953552)
   ];
-  // @override
-  // void updateAndShow(Canvas canvas, DateTime frameTimestamp) {
-  // _updatePosition(frameTimestamp);
-  // final pivotOfShot = PositionFunctions.positionWithFraction(
-  //   level.children[tileNumber].mainLine.close,
-  //   level.children[tileNumber].mainLine.far,
-  //   depthFraction,
-  // );
-  // drawLoopedLines(
-  //     canvas,
-  //     rotateZ(
-  //       Positionable.zero(),
-  //       localPoints,
-  //       level.children[tileNumber].angle,
-  //     ).toGlobal(pivotOfShot),
-  //     paint);
-  // }
 
-  List<Positionable> get localPoints => [
-        Positionable(-1.5, 0, 0),
-        Positionable(-1.5, 0, 5),
-        Positionable(-0.5, 0, 7),
-        Positionable(0.5, 0, 7),
-        Positionable(1.5, 0, 5),
-        Positionable(1.5, 0, 0),
-      ];
+  final double _speed = 0.025;
 
   void _updatePosition(DateTime frameTimestamp) {
-    final dF = pivot.depthFraction +
+    final depthFraction = pivot.depthFraction +
         _speed * (frameTimestamp.difference(lastFrameTimestamp).inMilliseconds / Drawable.syncTime);
-    pivot.updatePosition(dF);
+    pivot.updatePosition(depthFraction: depthFraction);
     lastFrameTimestamp = frameTimestamp;
   }
 
@@ -99,6 +75,6 @@ class Shot extends StatelessTileGameObject {
   @override
   void onFrame(Canvas canvas, DateTime frameTimestamp) {
     _updatePosition(frameTimestamp);
-    drawable.show(canvas, paint);
+    drawable.show(canvas, _paint);
   }
 }

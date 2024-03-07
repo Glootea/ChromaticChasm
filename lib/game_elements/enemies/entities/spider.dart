@@ -1,13 +1,16 @@
 part of 'package:tempest/game_elements/enemies/enemy.dart';
 
+///TODO: bug: on horizontal tile spider is bigger than tile width
 class Spider extends Enemy {
   Spider._(TilePositionable pivot)
       : super._(
             pivot,
-            Drawable2D(pivot, _verteces, _faces, width: LevelTileHelper.getTileWidth(pivot))
-              ..applyTransformation(angleZ: LevelTileHelper.getAngle(pivot)));
-  Spider.create(Level level, int tileNumber) : this._(TilePositionable(level, tileNumber, depthFraction: 1));
-  LevelTile get tile => pivot.level.children[pivot.tileNumber];
+            Drawable2D(pivot, _verteces, _faces)
+              ..applyTransformation(
+                angleZ: LevelTileHelper.getAngle(pivot),
+                scaleToWidth: LevelTileHelper.getTileWidth(pivot),
+              ));
+  Spider(Level level, int tileNumber) : this._(TilePositionable(level, tileNumber, depthFraction: 1));
 
   static final List<Positionable> _verteces = [
     Positionable(-0.04947704076766968, -1.0, 0.0),
@@ -44,32 +47,21 @@ class Spider extends Enemy {
     ..color = Colors.red
     ..strokeWidth = Drawable.strokeWidth;
 
-  // List<List<Positionable>> get _spiderLines {
-  //   List<List<Positionable>> output = List.generate(
-  //       _localLines.length, (index) => List.generate(_localLines.first.length, (index) => Positionable.zero()));
-  //   for (int i = 0; i < _localLines.length; i++) {
-  //     final rotatedLine = rotateZ(Positionable.zero(), _localLines[i], tile.angle);
-  //     for (int j = 0; j < rotatedLine.length; j++) {
-  //       final line = rotatedLine[j] + _tileOrientedPoints[i][j];
-  //       output[i][j] = (line);
-  //     }
-  //   }
-  //   return output;
-  // }
-
   @override
   void onFrame(Canvas canvas, DateTime frameTimestamp) {
     updatePosition(frameTimestamp);
     drawable.show(canvas, _paint);
   }
 
-  static const _speed = 0.005;
+  /// Depth fraction of how much is traveled on one [Drawable.syncTime]
+  @override
+  double speed = 0.005;
 
   @override
   void updatePosition(DateTime frameTimestamp) {
-    final dF = pivot.depthFraction -
-        _speed * (frameTimestamp.difference(lastFrameTimestamp).inMilliseconds / Drawable.syncTime);
-    pivot.updatePosition(dF);
+    final depthFraction = pivot.depthFraction -
+        speed * (frameTimestamp.difference(lastFrameTimestamp).inMilliseconds / Drawable.syncTime);
+    pivot.updatePosition(depthFraction: depthFraction);
     lastFrameTimestamp = frameTimestamp;
   }
 

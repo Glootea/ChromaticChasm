@@ -8,7 +8,6 @@ import 'package:tempest/game_state_provider.dart';
 import 'package:tempest/widgets/game_painter.dart';
 import 'package:tempest/widgets/game_painter_clipper.dart';
 
-//TODO: player flies forward like rocker on level disappear (second half)
 void main() {
   runApp(MaterialApp(
       theme: ThemeData.dark(),
@@ -25,7 +24,7 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with ChangeNotifier {
+class _MyAppState extends State<MyApp> {
   final level = Level1();
   double get size => min(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height - 270);
   Size get gamePainterSize => Size(size, size);
