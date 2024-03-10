@@ -59,9 +59,10 @@ class TilePositionable extends Positionable {
           widthFraction) +
       (offset ?? Positionable(0, 0, 0));
 
-  void updatePosition({double? depthFraction, double? widthFraction}) {
+  void updatePosition({double? depthFraction, double? widthFraction, Positionable? offset}) {
     this.depthFraction = depthFraction ?? this.depthFraction;
     this.widthFraction = widthFraction ?? this.widthFraction;
+    this.offset = offset ?? this.offset;
     setFrom(globalPosition);
   }
 }

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tempest/game_elements/level/level.dart';
-import 'package:tempest/game_elements/player/player.dart';
 import 'package:tempest/game_state.dart';
 
 class GameStateProvider extends ChangeNotifier {
@@ -16,7 +15,7 @@ class GameStateProvider extends ChangeNotifier {
 
   GameStateProvider.create() {
     final level = Level.getRandomLevel();
-    _currentState = LevelAppearState(_setStateStreamController, level, Player(level));
+    _currentState = LevelAppearState.newCycle(_setStateStreamController, level);
     _sub = _setStateStreamController.stream.listen((event) {
       _currentState = event;
     });

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
 import 'package:tempest/game_elements/base_classes/game_object.dart';
+import 'package:tempest/game_elements/base_classes/game_object_lifecycle.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
 import 'package:tempest/game_elements/level/level.dart';
 import 'package:tempest/helpers/tile_helper.dart';
@@ -8,13 +9,16 @@ import 'package:tempest/helpers/tile_helper.dart';
 class Player extends StatefulTileGameObject {
   Player(Level level) : this._(TilePositionable(level, level.tiles.length ~/ 2, depthFraction: 0));
   Player._(TilePositionable tile) : this.__(tile, createDrawables(tile));
-  Player.__(TilePositionable tile, List<Drawable> drawables) : super(tile, drawables, (drawables.length / 2).floor());
+  Player.__(TilePositionable tile, List<Drawable> drawables)
+      : lifecycleState = PlayerFlyToLevel(tile.level),
+        super(tile, drawables, (drawables.length / 2).floor());
 
   ///Time to move from one [tileStates] to another
   ///
   ///Should be set as time to move from center of the tile to the center of the next tile divided by [tileStates.length]
   late final Duration _timeToMove = Duration(milliseconds: Drawable.syncTime ~/ drawables.length);
   static double playerSize = 7;
+  PlayerLifecycle lifecycleState;
 
   ///List of states that player can be in on one tile. Default state is the middle one.
   ///
@@ -99,7 +103,12 @@ class Player extends StatefulTileGameObject {
   @override
   void onFrame(Canvas canvas, Positionable camera, DateTime frameTimestamp) {
     _updatePosition(frameTimestamp);
-    (drawables[state]..applyTransformation(scaleToWidth: playerSize, angleZ: LevelTileHelper.getAngle(pivot)))
+    (drawables[state]
+          ..applyTransformation(
+              scaleToWidth: playerSize,
+              angleZ: (lifecycleState is PlayerFlyOutsideLevel)
+                  ? (lifecycleState as PlayerFlyOutsideLevel).getAngle
+                  : LevelTileHelper.getAngle(pivot)))
         .show(canvas, camera, paint);
   }
 
@@ -120,21 +129,37 @@ class Player extends StatefulTileGameObject {
   }
 
   void _updatePosition(DateTime frameTimestamp) {
-    if (frameTimestamp.difference(lastFrameTimestamp) > _timeToMove) {
-      if (_movementCount != 0) {
-        state += _movementCount.sign;
-        if (state == -1) {
-          setActiveTile = (level.activeTile + _movementCount.sign) % level.tiles.length;
-          state = drawables.length - 1;
-        } else if (state == drawables.length) {
-          setActiveTile = (level.activeTile + _movementCount.sign) % level.tiles.length;
-          state = 0;
+    switch (lifecycleState.runtimeType) {
+      case PlayerLive || PlayerFlyThroughLevel:
+        {
+          if (frameTimestamp.difference(lastFrameTimestamp) > _timeToMove) {
+            if (_movementCount != 0) {
+              state += _movementCount.sign;
+              if (state == -1) {
+                setActiveTile = (level.activeTile + _movementCount.sign) % level.tiles.length;
+                state = drawables.length - 1;
+              } else if (state == drawables.length) {
+                setActiveTile = (level.activeTile + _movementCount.sign) % level.tiles.length;
+                state = 0;
+              }
+              _movementCount -= _movementCount.sign;
+            }
+            lastFrameTimestamp = frameTimestamp;
+          }
+          // angleZ = LevelTileHelper.getAngle(pivot);
+          pivot.updatePosition(
+              widthFraction: (state + 1) / (drawables.length + 1),
+              depthFraction: lifecycleState.runtimeType == PlayerFlyThroughLevel
+                  ? (lifecycleState as PlayerFlyThroughLevel).timeFraction
+                  : 0);
         }
-        _movementCount -= _movementCount.sign;
-      }
-      lastFrameTimestamp = frameTimestamp;
+      case PlayerFlyFromLevel || PlayerFlyToLevel:
+        {
+          pivot.updatePosition(offset: (lifecycleState as PlayerFlyOutsideLevel).currentPosition);
+        }
+      default:
+        throw UnimplementedError("Unhandled player lifecycle state, ${lifecycleState.runtimeType}");
     }
-    pivot.updatePosition(widthFraction: (state + 1) / (drawables.length + 1));
   }
 
   set setTargetTile(int value) {

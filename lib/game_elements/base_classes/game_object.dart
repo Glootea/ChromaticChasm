@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
+import 'package:tempest/game_elements/base_classes/game_object_lifecycle.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
 
 sealed class _GameObject {
   final Positionable pivot;
+  GameObjectLifecycle lifecycle;
   DateTime lastFrameTimestamp = DateTime.now();
-  _GameObject(this.pivot);
+  _GameObject(this.pivot, [GameObjectLifecycle? _lifecycle]) : lifecycle = _lifecycle ?? LiveLifecycle();
 
   void onFrame(Canvas canvas, Positionable camera, DateTime frameTimestamp);
 }

@@ -6,119 +6,63 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
+import 'package:tempest/game_elements/base_classes/game_object_lifecycle.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
 import 'package:tempest/game_elements/enemies/enemy.dart';
 import 'package:tempest/game_elements/level/level.dart';
-import 'package:tempest/game_elements/player/global_player.dart';
 import 'package:tempest/game_elements/player/player.dart';
 import 'package:tempest/game_elements/shot.dart';
 import 'package:tempest/helpers/easing.dart';
 import 'package:tempest/helpers/throttler.dart';
+import 'package:tempest/helpers/tile_helper.dart';
 
 sealed class GameState {
+  void init();
   KeyEventResult onKeyboardEvent(KeyEvent event);
   void onFireButtonPressed();
   void onAngleChanged(double angle);
   void draw(Canvas canvas);
   void handleKeyboardMovement();
   void handleNextState(bool check, GameState nextState) {
-    if (check) setStateStream.add(nextState);
+    if (check) setStateStream.add(nextState..init());
   }
 
   StreamController<GameState> setStateStream;
   int? _direction;
   Positionable camera;
 
-  GameState(this.setStateStream, {int? direction, Positionable? camera})
+  GameState(this.setStateStream, Positionable? camera, {int? direction})
       : _direction = direction,
         camera = camera ?? Positionable(0, 0, 0);
 
   final _throttler = Throttler(Duration(milliseconds: (Drawable.syncTime * 1.5).toInt()));
 
-  double _getTimeFractionEase(DateTime now, DateTime last) => _getTimeFractionLinear(now, last).easeInOutCubic;
-  double _getTimeFractionEaseIn(DateTime now, DateTime last) => _getTimeFractionLinear(now, last).easeInCubic;
-  double _getTimeFractionEaseOut(DateTime now, DateTime last) => _getTimeFractionLinear(now, last).easeOutCubic;
-  double _getTimeFractionLinear(DateTime now, DateTime last) =>
+  double _getTimeFraction(DateTime now, DateTime last) =>
       (now.difference(last).inMilliseconds / LevelTransitionState.animationDuration.inMilliseconds);
 }
 
-abstract class LevelTransitionState extends GameState {
-  final Level _level;
-  final Player _player;
-
-  LevelTransitionState(super.setStateStream, this._level, this._player, {super.direction});
-
-  static const Duration animationDuration = Duration(seconds: 3);
-  final DateTime _startTime = DateTime.now();
-
-  late final Positionable startPivot;
-
-  late final Positionable targetPivot;
+class LevelAppearState extends PlayerFlyOutsideLevel {
+  final _startCameraPivot = Positionable(0, 0, -5000);
+  late final Positionable targetCameraPivot = Positionable.all(0);
+  LevelAppearState(super.setStateStream, super.camera, super._level, super._player);
+  LevelAppearState.newCycle(StreamController<GameState> setStateStream, Level level)
+      : this(setStateStream, null, level, Player(level));
 
   @override
-  void onAngleChanged(double angle) {
-    _player.setTargetTile = _calculateActiveTile(angle);
+  void init() {
+    _player.lifecycleState = PlayerFlyToLevel(_level);
   }
-
-  int _calculateActiveTile(double angle) {
-    final tiles = _level.tiles;
-    for (final (i, tile) in tiles.indexed) {
-      if ((angle <= tile.angleRange.last && angle >= tile.angleRange.first) ||
-          (angle <= tile.angleRange.first && angle >= tile.angleRange.last)) {
-        return i;
-      }
-    }
-    if (angle < tiles.first.angleRange.first) return 0;
-    if (angle >= tiles.last.angleRange.last) return tiles.length - 1;
-    dev.log(angle.toString());
-    dev.log("Tile no found");
-    throw Exception("Tile no found");
-  }
-
-  @override
-  void onFireButtonPressed() {}
-
-  @override
-  KeyEventResult onKeyboardEvent(KeyEvent event) {
-    if (event is KeyRepeatEvent) return KeyEventResult.ignored;
-    if (event is KeyDownEvent) {
-      switch (event.logicalKey.keyLabel) {
-        case "A":
-          _direction = -1;
-          break;
-        case "D":
-          _direction = 1;
-          break;
-      }
-    }
-    if (event is KeyUpEvent) _direction = null;
-    return KeyEventResult.handled;
-  }
-}
-
-class LevelAppearState extends LevelTransitionState {
-  LevelAppearState(super.setStateStream, super._level, super._player, {super.direction});
-  LevelAppearState.create(StreamController<GameState> setStateStream, Level level, [int? direction])
-      : super(setStateStream, level, Player(level), direction: direction);
-  @override
-  final startPivot = Positionable(0, 0, -5000);
-  @override
-  late final Positionable targetPivot = Positionable.all(0);
 
   @override
   void draw(Canvas canvas) {
     final frameTimestamp = DateTime.now();
-    double timeFraction = _getTimeFractionEase(frameTimestamp, _startTime);
-    handleNextState(timeFraction >= 1, PlayingState.create(setStateStream, _level, _player, direction: _direction));
-    camera.setFrom(PositionFunctions.positionWithFraction(startPivot, targetPivot, timeFraction));
-    handleKeyboardMovement();
+    double timeFraction = _getTimeFraction(frameTimestamp, _startTime);
+    handleNextState(
+        timeFraction >= 1, PlayingState.create(setStateStream, camera, _level, Player(_level), direction: _direction));
+    camera.setFrom(PositionFunctions.positionWithFraction(
+        _startCameraPivot, targetCameraPivot, EasingFunctions.easeOutCubic(timeFraction)));
     _level.onFrame(canvas, camera, frameTimestamp);
     _player.onFrame(canvas, camera, frameTimestamp);
-  }
-
-  @override
-  void handleKeyboardMovement() {
-    if (_direction != null) _throttler.throttle(() => _player.moveTargetTile(_direction!));
   }
 }
 
@@ -130,10 +74,15 @@ class PlayingState extends GameState {
 
   int _enemiesToSpawnCount = 5;
 
-  PlayingState(super.setStateStream, this.level, this.player, this.enemies, this.shots, {super.direction});
-  PlayingState.create(super.setStateStream, this.level, this.player, {super.direction})
+  PlayingState(super.setStateStream, super.camera, this.level, this.player, this.enemies, this.shots,
+      {super.direction});
+  PlayingState.create(super.setStateStream, super.camera, this.level, this.player, {super.direction})
       : enemies = [],
         shots = [];
+  @override
+  void init() {
+    player.lifecycleState = PlayerLive();
+  }
 
   @override
   void onFireButtonPressed() => shots.add(Shot(level, level.activeTile));
@@ -141,7 +90,7 @@ class PlayingState extends GameState {
   @override
   void draw(Canvas canvas) {
     handleNextState(_enemiesToSpawnCount <= 0 && enemies.isEmpty,
-        LevelDisappearState(setStateStream, level, player, direction: _direction));
+        LevelDisappearState(setStateStream, camera, level, player, direction: _direction));
     _spawnEnemy();
     final frameTimestamp = DateTime.now();
     handleKeyboardMovement();
@@ -238,18 +187,22 @@ class PlayingState extends GameState {
 }
 
 class LevelDisappearState extends LevelTransitionState {
-  LevelDisappearState(super.setStateStream, super.level, super.player, {super.direction});
+  LevelDisappearState(super.setStateStream, super.camera, super.level, super.player, {super.direction});
+  @override
+  void init() {
+    _player.lifecycleState = PlayerFlyThroughLevel();
+  }
 
   @override
-  late final Positionable targetPivot = Positionable(0, 0, _level.depth + 1);
+  late final Positionable targetPivot = Positionable(0, 0, _level.depth * 1.05);
   @override
   late final Positionable startPivot = Positionable.all(0);
 
   @override
   void draw(Canvas canvas) {
     final frameTimestamp = DateTime.now();
-    double timeFraction = _getTimeFractionEaseIn(frameTimestamp, _startTime);
-    handleNextState(timeFraction >= 1, FlyAwayState(setStateStream, _player, camera: camera));
+    double timeFraction = _getTimeFraction(frameTimestamp, _startTime);
+    handleNextState(timeFraction >= 1, FlyAwayState(setStateStream, camera, _level, _player));
     handleDepth(timeFraction);
     handleKeyboardMovement();
     _level.onFrame(canvas, camera, frameTimestamp);
@@ -267,20 +220,21 @@ class LevelDisappearState extends LevelTransitionState {
   }
 }
 
-class FlyAwayState extends GameState {
-  final GlobalPlayer _player;
-  FlyAwayState(super.setStateStream, Player player, {super.camera}) : _player = GlobalPlayer.fromPlayer(player);
+class FlyAwayState extends PlayerFlyOutsideLevel {
+  FlyAwayState(super.setStateStream, super.camera, super._level, super.player);
+  @override
+  void init() {
+    _player.lifecycleState = PlayerFlyFromLevel(LevelTileHelper.getAngle(_player.pivot));
+    _startCameraPivot = camera.clone();
+  }
 
-  late final _startCameraPivot = camera.clone();
-  late final _startTime = DateTime.now();
-
+  late final Positionable _startCameraPivot;
   @override
   void draw(Canvas canvas) {
     final frameTimestamp = DateTime.now();
-    double timeFraction = _getTimeFractionEaseOut(frameTimestamp, _startTime);
-    handleNextState(timeFraction >= 1, LevelAppearState.create(setStateStream, Level.getRandomLevel()));
+    double timeFraction = _getTimeFraction(frameTimestamp, _startTime);
+    handleNextState(timeFraction >= 1, LevelAppearState.newCycle(setStateStream, Level.getRandomLevel()));
     camera.setFrom(PositionFunctions.positionWithFraction(_startCameraPivot, _startCameraPivot, timeFraction));
-    _player.updatePosition(timeFraction);
     _player.onFrame(canvas, camera, frameTimestamp);
   }
 
@@ -295,6 +249,74 @@ class FlyAwayState extends GameState {
 
   @override
   KeyEventResult onKeyboardEvent(KeyEvent event) {
+    return KeyEventResult.handled;
+  }
+}
+
+abstract class PlayerFlyOutsideLevel extends LevelTransitionState {
+  PlayerFlyOutsideLevel(super.setStateStream, super.camera, super._level, super._player, {super.direction});
+  @override
+  void handleKeyboardMovement() {}
+  @override
+  void onAngleChanged(double angle) {}
+  @override
+  void onFireButtonPressed() {}
+  @override
+  KeyEventResult onKeyboardEvent(KeyEvent event) {
+    return KeyEventResult.handled;
+  }
+}
+
+abstract class LevelTransitionState extends GameState {
+  final Level _level;
+  final Player _player;
+
+  LevelTransitionState(super.setStateStream, super.camera, this._level, this._player, {super.direction});
+
+  static const Duration animationDuration = Duration(seconds: 3);
+  final DateTime _startTime = DateTime.now();
+
+  late final Positionable startPivot;
+
+  late final Positionable targetPivot;
+
+  @override
+  void onAngleChanged(double angle) {
+    _player.setTargetTile = _calculateActiveTile(angle);
+  }
+
+  int _calculateActiveTile(double angle) {
+    final tiles = _level.tiles;
+    for (final (i, tile) in tiles.indexed) {
+      if ((angle <= tile.angleRange.last && angle >= tile.angleRange.first) ||
+          (angle <= tile.angleRange.first && angle >= tile.angleRange.last)) {
+        return i;
+      }
+    }
+    if (angle < tiles.first.angleRange.first) return 0;
+    if (angle >= tiles.last.angleRange.last) return tiles.length - 1;
+    dev.log(angle.toString());
+    dev.log("Tile no found");
+    throw Exception("Tile no found");
+  }
+
+  @override
+  void onFireButtonPressed() {}
+
+  @override
+  KeyEventResult onKeyboardEvent(KeyEvent event) {
+    if (event is KeyRepeatEvent) return KeyEventResult.ignored;
+    if (event is KeyDownEvent) {
+      switch (event.logicalKey.keyLabel) {
+        case "A":
+          _direction = -1;
+          break;
+        case "D":
+          _direction = 1;
+          break;
+      }
+    }
+    if (event is KeyUpEvent) _direction = null;
     return KeyEventResult.handled;
   }
 }

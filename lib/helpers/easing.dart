@@ -1,16 +1,20 @@
 import 'dart:math';
 
-extension Easing on double {
-  ///Should be applied to normalized(0-1) values, for example - timeFraction
-  double get easeInOutCubic {
-    return this < 0.5 ? 4 * this * this * this : 1 - pow(-2 * this + 2, 3) / 2;
+typedef EasingFunction = double Function(double);
+
+///Should be applied to normalized(0-1) values, for example - timeFraction
+class EasingFunctions {
+  static double easeInOutCubic(double n) {
+    return n < 0.5 ? 4 * n * n * n : 1 - pow(-2 * n + 2, 3) / 2;
   }
 
-  double get easeInCubic {
-    return 4 * this * this * this;
+  static double easeInCubic(double n) {
+    return 4 * n * n * n;
   }
 
-  double get easeOutCubic {
-    return 1 - pow(1 - this, 3).toDouble();
+  static double easeOutCubic(double n) {
+    return 1 - pow(1 - n, 3).toDouble();
   }
+
+  static double linear(double n) => n;
 }
