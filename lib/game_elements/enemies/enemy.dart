@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
 import 'package:tempest/game_elements/base_classes/game_object.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
+import 'package:tempest/game_elements/camera.dart';
 import 'package:tempest/game_elements/level/level.dart';
 export 'package:tempest/game_elements/enemies/enemy.dart';
 import 'package:tempest/game_elements/player/player.dart';

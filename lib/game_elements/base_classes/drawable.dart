@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
+import 'package:tempest/game_elements/camera.dart';
 import 'package:vector_math/vector_math.dart';
 
 sealed class Drawable {
@@ -15,7 +16,7 @@ sealed class Drawable {
   final List<Positionable> _vertexes;
   final List<List<int>> _faces;
   bool clip = true;
-  void show(Canvas canvas, Positionable camera, Paint paint);
+  void show(Canvas canvas, Camera camera, Paint paint);
 
   List<Offset> _project2D(List<Positionable> list, Positionable camera) {
     return list.map((point) => _convert3DToOffset(point - camera)).toList();
@@ -79,10 +80,11 @@ class Drawable3D extends Drawable {
   bool _visible(int i) => _vertexes[_faces[i].first].dot(_normals[i]) > 0;
 
   @override
-  void show(Canvas canvas, Positionable camera, Paint paint) {
+  void show(Canvas canvas, Camera camera, Paint paint) {
     for (final (i, face) in _faces.indexed) {
       if (_visible(i)) {
-        final projected = _project2D(List.generate(face.length, (index) => getGlobalVertexes[face[index]]), camera);
+        final projected =
+            _project2D(List.generate(face.length, (index) => getGlobalVertexes[face[index]]), camera.pivot);
         canvas.drawPoints(PointMode.polygon, projected, paint);
         canvas.drawPoints(PointMode.lines, [projected.first, projected.last], paint);
       }
@@ -94,9 +96,9 @@ class Drawable2D extends Drawable {
   Drawable2D(super.pivot, super._vertexes, super._faces);
 
   @override
-  void show(Canvas canvas, Positionable camera, Paint paint) {
+  void show(Canvas canvas, Camera camera, Paint paint) {
     for (final face in _faces) {
-      final projected = _project2D(List.generate(face.length, (index) => getGlobalVertexes[face[index]]), camera);
+      final projected = _project2D(List.generate(face.length, (index) => getGlobalVertexes[face[index]]), camera.pivot);
       canvas.drawPoints(PointMode.polygon, projected, paint);
       canvas.drawPoints(PointMode.lines, [projected.first, projected.last], paint);
     }

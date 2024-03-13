@@ -3,22 +3,23 @@ import 'package:tempest/game_elements/base_classes/drawable.dart';
 import 'package:tempest/game_elements/base_classes/game_object.dart';
 import 'package:tempest/game_elements/base_classes/game_object_lifecycle.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
+import 'package:tempest/game_elements/camera.dart';
 import 'package:tempest/game_elements/level/level.dart';
 import 'package:tempest/helpers/tile_helper.dart';
 
 class Player extends StatefulTileGameObject {
   Player(Level level) : this._(TilePositionable(level, level.tiles.length ~/ 2, depthFraction: 0));
   Player._(TilePositionable tile) : this.__(tile, createDrawables(tile));
-  Player.__(TilePositionable tile, List<Drawable> drawables)
-      : lifecycleState = PlayerFlyToLevel(tile.level),
-        super(tile, drawables, (drawables.length / 2).floor());
+  Player.__(TilePositionable tile, List<Drawable> drawables) : super(tile, drawables, (drawables.length / 2).floor()) {
+    super.lifecycleState = PlayerFlyToLevel(tile.level);
+  }
 
   ///Time to move from one [tileStates] to another
   ///
   ///Should be set as time to move from center of the tile to the center of the next tile divided by [tileStates.length]
   late final Duration _timeToMove = Duration(milliseconds: Drawable.syncTime ~/ drawables.length);
   static double playerSize = 7;
-  PlayerLifecycle lifecycleState;
+  // PlayerLifecycle lifecycleState;
 
   ///List of states that player can be in on one tile. Default state is the middle one.
   ///
@@ -101,7 +102,7 @@ class Player extends StatefulTileGameObject {
     ..strokeWidth = Drawable.strokeWidth;
 
   @override
-  void onFrame(Canvas canvas, Positionable camera, DateTime frameTimestamp) {
+  void onFrame(Canvas canvas, Camera camera, DateTime frameTimestamp) {
     _updatePosition(frameTimestamp);
     (drawables[state]
           ..applyTransformation(

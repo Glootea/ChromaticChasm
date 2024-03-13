@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
 import 'package:tempest/game_elements/base_classes/game_object.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
+import 'package:tempest/game_elements/camera.dart';
 import 'package:tempest/game_elements/level/level.dart';
 
 class Shot extends StatelessTileGameObject {
@@ -73,7 +74,7 @@ class Shot extends StatelessTileGameObject {
   bool get disappear => pivot.depthFraction >= 0.95;
 
   @override
-  void onFrame(Canvas canvas, Positionable camera, DateTime frameTimestamp) {
+  void onFrame(Canvas canvas, Camera camera, DateTime frameTimestamp) {
     _updatePosition(frameTimestamp);
     drawable.show(canvas, camera, _paint);
   }

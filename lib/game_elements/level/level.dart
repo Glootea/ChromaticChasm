@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:tempest/game_elements/base_classes/game_object.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
+import 'package:tempest/game_elements/camera.dart';
 import 'package:tempest/game_elements/level/tile/level_tile.dart';
 part 'package:tempest/game_elements/level/level_entities.dart';
 
@@ -28,7 +29,7 @@ sealed class Level extends ComplexGlobalGameObject {
       : this._(pivot, _pointsToTiles(pivot, points, depth, circlular), depth, circlular);
 
   @override
-  void onFrame(Canvas canvas, Positionable camera, DateTime frameTimestamp) {
+  void onFrame(Canvas canvas, Camera camera, DateTime frameTimestamp) {
     lastFrameTimestamp = frameTimestamp;
     for (final (i, tile) in tiles.indexed) {
       if (i != activeTile) {

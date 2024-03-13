@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'dart:ui';
-
 import 'package:tempest/game_elements/base_classes/positionable.dart';
 import 'package:tempest/game_elements/level/level.dart';
 import 'package:tempest/helpers/easing.dart';
@@ -39,6 +38,7 @@ mixin class TransitionLifeCycle implements TimefulLifecycle {
       TransitionFunction? transitionFunction,
       EasingFunction? easingFunction,
       Positionable? anchorOffsetPivot}) {
+    print('Transition configured: ${startOffsetPivot}, $endOffsetPivot $runtimeType $hashCode');
     _startOffsetPivot = startOffsetPivot;
     _endOffsetPivot = endOffsetPivot;
     _anchorOffsetPivot = anchorOffsetPivot ?? _anchorOffsetPivot;
@@ -138,4 +138,16 @@ sealed class CameraLifeCycle extends GameObjectLifecycle {}
 
 final class CameraStationary extends CameraLifeCycle {}
 
-final class CameraMoving extends CameraLifeCycle with TransitionLifeCycle {}
+final class CameraMoving extends CameraLifeCycle with TransitionLifeCycle {
+  final Positionable start;
+  final Positionable target;
+  final EasingFunction easingFunctions;
+  CameraMoving(
+    this.start,
+    this.target, {
+    Duration duration = const Duration(seconds: 3),
+    this.easingFunctions = EasingFunctions.linear,
+  }) {
+    configureTransition(start, target, duration: duration, easingFunction: easingFunctions);
+  }
+}

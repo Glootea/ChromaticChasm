@@ -47,7 +47,7 @@ class Spider extends Enemy {
     ..strokeWidth = Drawable.strokeWidth;
 
   @override
-  void onFrame(Canvas canvas, Positionable camera, DateTime frameTimestamp) {
+  void onFrame(Canvas canvas, Camera camera, DateTime frameTimestamp) {
     updatePosition(frameTimestamp);
     drawable.show(canvas, camera, _paint);
   }

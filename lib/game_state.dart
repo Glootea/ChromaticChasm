@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
 import 'package:tempest/game_elements/base_classes/game_object_lifecycle.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
+import 'package:tempest/game_elements/camera.dart';
 import 'package:tempest/game_elements/enemies/enemy.dart';
 import 'package:tempest/game_elements/level/level.dart';
 import 'package:tempest/game_elements/player/player.dart';
@@ -29,11 +30,11 @@ sealed class GameState {
 
   StreamController<GameState> setStateStream;
   int? _direction;
-  Positionable camera;
+  Camera camera;
 
-  GameState(this.setStateStream, Positionable? camera, {int? direction})
+  GameState(this.setStateStream, Camera? camera, {int? direction})
       : _direction = direction,
-        camera = camera ?? Positionable(0, 0, 0);
+        camera = camera ?? Camera(Positionable(0, 0, 0));
 
   final _throttler = Throttler(Duration(milliseconds: (Drawable.syncTime * 1.5).toInt()));
 
@@ -51,6 +52,8 @@ class LevelAppearState extends PlayerFlyOutsideLevel {
   @override
   void init() {
     _player.lifecycleState = PlayerFlyToLevel(_level);
+    camera.lifecycleState =
+        CameraMoving(_startCameraPivot, targetCameraPivot, easingFunctions: EasingFunctions.easeOutCubic);
   }
 
   @override
@@ -59,8 +62,9 @@ class LevelAppearState extends PlayerFlyOutsideLevel {
     double timeFraction = _getTimeFraction(frameTimestamp, _startTime);
     handleNextState(
         timeFraction >= 1, PlayingState.create(setStateStream, camera, _level, Player(_level), direction: _direction));
-    camera.setFrom(PositionFunctions.positionWithFraction(
-        _startCameraPivot, targetCameraPivot, EasingFunctions.easeOutCubic(timeFraction)));
+    // camera.setFrom(PositionFunctions.positionWithFraction(
+    //     _startCameraPivot, targetCameraPivot, EasingFunctions.easeOutCubic(timeFraction)));
+    camera.onFrame(canvas, camera, frameTimestamp);
     _level.onFrame(canvas, camera, frameTimestamp);
     _player.onFrame(canvas, camera, frameTimestamp);
   }
@@ -82,6 +86,7 @@ class PlayingState extends GameState {
   @override
   void init() {
     player.lifecycleState = PlayerLive();
+    camera.lifecycleState = CameraStationary();
   }
 
   @override
@@ -191,6 +196,7 @@ class LevelDisappearState extends LevelTransitionState {
   @override
   void init() {
     _player.lifecycleState = PlayerFlyThroughLevel();
+    camera.lifecycleState = CameraMoving(startPivot, targetPivot);
   }
 
   @override
@@ -207,10 +213,11 @@ class LevelDisappearState extends LevelTransitionState {
     handleKeyboardMovement();
     _level.onFrame(canvas, camera, frameTimestamp);
     _player.onFrame(canvas, camera, frameTimestamp);
+    camera.onFrame(canvas, camera, frameTimestamp);
   }
 
   void handleDepth(double timeFraction) {
-    camera.setFrom(PositionFunctions.positionWithFraction(startPivot, targetPivot, timeFraction));
+    // camera.setFrom(PositionFunctions.positionWithFraction(startPivot, targetPivot, timeFraction));
     _player.pivot.updatePosition(depthFraction: timeFraction);
   }
 
@@ -224,8 +231,9 @@ class FlyAwayState extends PlayerFlyOutsideLevel {
   FlyAwayState(super.setStateStream, super.camera, super._level, super.player);
   @override
   void init() {
+    _startCameraPivot = camera.pivot.clone();
     _player.lifecycleState = PlayerFlyFromLevel(LevelTileHelper.getAngle(_player.pivot));
-    _startCameraPivot = camera.clone();
+    camera.lifecycleState = CameraMoving(_startCameraPivot, _startCameraPivot);
   }
 
   late final Positionable _startCameraPivot;
@@ -234,7 +242,7 @@ class FlyAwayState extends PlayerFlyOutsideLevel {
     final frameTimestamp = DateTime.now();
     double timeFraction = _getTimeFraction(frameTimestamp, _startTime);
     handleNextState(timeFraction >= 1, LevelAppearState.newCycle(setStateStream, Level.getRandomLevel()));
-    camera.setFrom(PositionFunctions.positionWithFraction(_startCameraPivot, _startCameraPivot, timeFraction));
+    // camera.setFrom(PositionFunctions.positionWithFraction(_startCameraPivot, _startCameraPivot, timeFraction));
     _player.onFrame(canvas, camera, frameTimestamp);
   }
 

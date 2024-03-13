@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:tempest/game_elements/base_classes/drawable.dart';
 import 'package:tempest/game_elements/base_classes/game_object.dart';
 import 'package:tempest/game_elements/base_classes/positionable.dart';
+import 'package:tempest/game_elements/camera.dart';
 import 'package:tempest/game_elements/level/tile/tile_main_line.dart';
 
 class LevelTile extends StatelessGlobalGameObject {
@@ -60,11 +61,11 @@ class LevelTile extends StatelessGlobalGameObject {
     ..strokeWidth = Drawable.strokeWidth;
 
   @override
-  void onFrame(Canvas canvas, Positionable camera, DateTime frameTimestamp) {
+  void onFrame(Canvas canvas, Camera camera, DateTime frameTimestamp) {
     drawable.show(canvas, camera, defaultPaint);
   }
 
-  void onFrameActive(Canvas canvas, Positionable camera) {
+  void onFrameActive(Canvas canvas, Camera camera) {
     drawable.show(canvas, camera, activePaint);
   }
 

@@ -15,7 +15,9 @@ class GameStateProvider extends ChangeNotifier {
 
   GameStateProvider.create() {
     final level = Level.getRandomLevel();
-    _currentState = LevelAppearState.newCycle(_setStateStreamController, level);
+    final state = LevelAppearState.newCycle(_setStateStreamController, level);
+    state.init();
+    _currentState = state;
     _sub = _setStateStreamController.stream.listen((event) {
       _currentState = event;
     });
