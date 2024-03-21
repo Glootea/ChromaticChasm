@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tempest/game_state.dart';
+import 'package:chromatic_chasm/game_state.dart';
 
 class GamePainter extends CustomPainter with ChangeNotifier {
   Listenable? repaint;

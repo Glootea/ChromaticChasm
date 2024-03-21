@@ -1,9 +1,11 @@
 import 'dart:math';
 import 'dart:ui';
-import 'package:tempest/game_elements/base_classes/positionable.dart';
-import 'package:tempest/game_elements/level/level.dart';
-import 'package:tempest/helpers/easing.dart';
-import 'package:tempest/helpers/transition_functions.dart';
+import 'package:chromatic_chasm/game_elements/base_classes/drawable.dart';
+import 'package:chromatic_chasm/game_elements/base_classes/positionable.dart';
+import 'package:chromatic_chasm/game_elements/level/level.dart';
+import 'package:chromatic_chasm/helpers/easing.dart';
+import 'package:chromatic_chasm/helpers/transition_functions.dart';
+import 'package:vector_math/vector_math.dart';
 
 sealed class GameObjectLifecycle {
   final DateTime startTime;
@@ -58,6 +60,27 @@ mixin class TransitionLifeCycle implements TimefulLifecycle {
   Positionable _pivot = Positionable.zero();
   @override
   double get timeFraction => DateTime.now().difference(startTime).inMilliseconds / duration.inMilliseconds;
+}
+
+mixin class FlyingLifecycle implements GameObjectLifecycle {
+  @override
+  DateTime startTime = DateTime.now();
+  DateTime lastFrame = DateTime.now();
+
+  Positionable position = Positionable.zero();
+  Vector3 speedVector = Vector3.zero();
+  void configureFlying(Positionable position, Vector3 speedVector) {
+    this.speedVector = speedVector;
+    this.position = position;
+  }
+
+  Positionable getCurrentPosition(DateTime frameTimestamp) {
+    assert(speedVector != Vector3.zero(), "Flying has not been configured");
+
+    final double delta = frameTimestamp.difference(lastFrame).inMilliseconds / Drawable.syncTime;
+    lastFrame = frameTimestamp;
+    return position + speedVector.scaled(delta);
+  }
 }
 
 interface class PlayerLifecycle extends GameObjectLifecycle {}
@@ -134,20 +157,26 @@ final class PlayerFlyFromLevel extends PlayerFlyOutsideLevel {
   }
 }
 
-sealed class CameraLifeCycle extends GameObjectLifecycle {}
+sealed class ObjectLifeCycle extends GameObjectLifecycle {}
 
-final class CameraStationary extends CameraLifeCycle {}
+final class ObjectStationary extends ObjectLifeCycle {}
 
-final class CameraMoving extends CameraLifeCycle with TransitionLifeCycle {
+final class ObjectMoving extends ObjectLifeCycle with TransitionLifeCycle {
   final Positionable start;
   final Positionable target;
   final EasingFunction easingFunctions;
-  CameraMoving(
+  ObjectMoving(
     this.start,
     this.target, {
     Duration duration = const Duration(seconds: 3),
     this.easingFunctions = EasingFunctions.linear,
   }) {
     configureTransition(start, target, duration: duration, easingFunction: easingFunctions);
+  }
+}
+
+final class ObjectFlying extends ObjectLifeCycle with FlyingLifecycle {
+  ObjectFlying(Vector3 position, Vector3 speedVector) {
+    configureFlying(position, speedVector);
   }
 }

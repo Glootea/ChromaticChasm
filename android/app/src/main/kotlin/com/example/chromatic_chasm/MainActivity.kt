@@ -1,4 +1,4 @@
-package com.example.tempest
+package com.glootea.chromaticChasm
 
 import io.flutter.embedding.android.FlutterActivity
 

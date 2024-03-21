@@ -1,10 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:tempest/game_elements/base_classes/drawable.dart';
-import 'package:tempest/game_elements/base_classes/game_object.dart';
-import 'package:tempest/game_elements/base_classes/positionable.dart';
-import 'package:tempest/game_elements/camera.dart';
-import 'package:tempest/game_elements/level/tile/tile_main_line.dart';
+import 'package:chromatic_chasm/game_elements/base_classes/drawable.dart';
+import 'package:chromatic_chasm/game_elements/base_classes/game_object.dart';
+import 'package:chromatic_chasm/game_elements/base_classes/positionable.dart';
+import 'package:chromatic_chasm/game_elements/camera.dart';
+import 'package:chromatic_chasm/game_elements/level/tile/tile_main_line.dart';
 
 class LevelTile extends StatelessGlobalGameObject {
   ///The line where most enemies are move/exist

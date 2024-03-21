@@ -1,4 +1,4 @@
-part of 'package:tempest/game_elements/enemies/enemy.dart';
+part of 'package:chromatic_chasm/game_elements/enemies/enemy.dart';
 
 class Spider extends Enemy {
   Spider._(TilePositionable pivot)

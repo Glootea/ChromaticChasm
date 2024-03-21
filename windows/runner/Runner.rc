@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "flutter_tempest" "\0"
+            VALUE "CompanyName", "com.glootea" "\0"
+            VALUE "FileDescription", "chromatic_chasm" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "flutter_tempest" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2024 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "flutter_tempest.exe" "\0"
-            VALUE "ProductName", "flutter_tempest" "\0"
+            VALUE "InternalName", "chromatic_chasm" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2024 com.glootea. All rights reserved." "\0"
+            VALUE "OriginalFilename", "chromatic_chasm.exe" "\0"
+            VALUE "ProductName", "chromatic_chasm" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

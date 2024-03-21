@@ -1,4 +1,4 @@
-part of 'package:tempest/game_elements/level/level.dart';
+part of 'package:chromatic_chasm/game_elements/level/level.dart';
 
 /// V shape
 class Level1 extends Level {

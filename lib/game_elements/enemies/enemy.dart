@@ -1,17 +1,17 @@
 library enemy;
 
 import 'package:flutter/material.dart';
-import 'package:tempest/game_elements/base_classes/drawable.dart';
-import 'package:tempest/game_elements/base_classes/game_object.dart';
-import 'package:tempest/game_elements/base_classes/positionable.dart';
-import 'package:tempest/game_elements/camera.dart';
-import 'package:tempest/game_elements/level/level.dart';
-export 'package:tempest/game_elements/enemies/enemy.dart';
-import 'package:tempest/game_elements/player/player.dart';
-import 'package:tempest/game_elements/shot.dart';
-import 'package:tempest/helpers/tile_helper.dart';
+import 'package:chromatic_chasm/game_elements/base_classes/drawable.dart';
+import 'package:chromatic_chasm/game_elements/base_classes/game_object.dart';
+import 'package:chromatic_chasm/game_elements/base_classes/positionable.dart';
+import 'package:chromatic_chasm/game_elements/camera.dart';
+import 'package:chromatic_chasm/game_elements/level/level.dart';
+export 'package:chromatic_chasm/game_elements/enemies/enemy.dart';
+import 'package:chromatic_chasm/game_elements/player/player.dart';
+import 'package:chromatic_chasm/game_elements/shot.dart';
+import 'package:chromatic_chasm/helpers/tile_helper.dart';
 
-part 'package:tempest/game_elements/enemies/entities/spider.dart';
+part 'package:chromatic_chasm/game_elements/enemies/entities/spider.dart';
 
 sealed class Enemy extends StatelessTileGameObject {
   Enemy._(super.pivot, super.drawable);

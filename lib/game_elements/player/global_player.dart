@@ -1,8 +1,8 @@
 // import 'dart:math';
 // import 'dart:ui';
-// import 'package:tempest/game_elements/base_classes/game_object.dart';
-// import 'package:tempest/game_elements/base_classes/positionable.dart';
-// import 'package:tempest/game_elements/player/player.dart';
+// import 'package:chromatic_chasm/game_elements/base_classes/game_object.dart';
+// import 'package:chromatic_chasm/game_elements/base_classes/positionable.dart';
+// import 'package:chromatic_chasm/game_elements/player/player.dart';
 // import '../level/level.dart';
 
 // // Positionable(0, -_targetY, pivot.z + 100);

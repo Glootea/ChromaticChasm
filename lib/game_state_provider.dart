@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
-import 'package:tempest/game_elements/level/level.dart';
-import 'package:tempest/game_state.dart';
+import 'package:chromatic_chasm/game_elements/level/level.dart';
+import 'package:chromatic_chasm/game_state.dart';
 
 class GameStateProvider extends ChangeNotifier {
   GameState get currentState => _currentState;

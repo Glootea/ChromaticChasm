@@ -1,4 +1,4 @@
-import 'package:tempest/game_elements/base_classes/positionable.dart';
+import 'package:chromatic_chasm/game_elements/base_classes/positionable.dart';
 
 class TileMainLine {
   final Positionable close;

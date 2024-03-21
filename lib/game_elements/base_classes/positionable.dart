@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:tempest/game_elements/level/level.dart';
+import 'package:chromatic_chasm/game_elements/level/level.dart';
 import 'package:vector_math/vector_math.dart';
 
 typedef Positionable = Vector3;

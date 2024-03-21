@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:tempest/game_elements/base_classes/drawable.dart';
-import 'package:tempest/game_elements/base_classes/game_object_lifecycle.dart';
-import 'package:tempest/game_elements/base_classes/positionable.dart';
-import 'package:tempest/game_elements/camera.dart';
+import 'package:chromatic_chasm/game_elements/base_classes/drawable.dart';
+import 'package:chromatic_chasm/game_elements/base_classes/game_object_lifecycle.dart';
+import 'package:chromatic_chasm/game_elements/base_classes/positionable.dart';
+import 'package:chromatic_chasm/game_elements/camera.dart';
 
 abstract class _GameObject {
   final Positionable pivot;

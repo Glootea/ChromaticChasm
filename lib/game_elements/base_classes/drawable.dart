@@ -1,8 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
-import 'package:tempest/game_elements/base_classes/positionable.dart';
-import 'package:tempest/game_elements/camera.dart';
-import 'package:vector_math/vector_math.dart';
+import 'package:chromatic_chasm/game_elements/base_classes/positionable.dart';
+import 'package:chromatic_chasm/game_elements/camera.dart';
 
 sealed class Drawable {
   /// [_faces] is [List] of indexes of vertexes in [vertexes]
@@ -52,6 +51,7 @@ sealed class Drawable {
   }
 
   static const double strokeWidth = 1;
+  static const double strokeWidthLight = 0.3;
 
   void _scale(double width) {
     final maxWidth =
@@ -74,15 +74,20 @@ sealed class Drawable {
 }
 
 class Drawable3D extends Drawable {
-  final List<Vector3> _normals;
-  Drawable3D(super.pivot, super._vertexes, super._faces, this._normals);
+  Drawable3D(super.pivot, super._vertexes, super._faces);
 
-  bool _visible(int i) => _vertexes[_faces[i].first].dot(_normals[i]) > 0;
+  // bool _visible(int i) => Vector3(0, 0, 1).dot(_normals[i]) > 0;
+  bool _visible(int i, Camera camera) {
+    var dir = (_transformedVertexes[_faces[i][1]] - _transformedVertexes[_faces[i][0]])
+        .cross(_transformedVertexes[_faces[i][2]] - _transformedVertexes[_faces[i][0]]);
+    var normal = dir.normalized();
+    return (pivot - camera.pivot).dot(normal) > 0;
+  }
 
   @override
   void show(Canvas canvas, Camera camera, Paint paint) {
     for (final (i, face) in _faces.indexed) {
-      if (_visible(i)) {
+      if (_visible(i, camera)) {
         final projected =
             _project2D(List.generate(face.length, (index) => getGlobalVertexes[face[index]]), camera.pivot);
         canvas.drawPoints(PointMode.polygon, projected, paint);

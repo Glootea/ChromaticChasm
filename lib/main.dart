@@ -2,11 +2,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:provider/provider.dart';
-import 'package:tempest/game_elements/base_classes/drawable.dart';
-import 'package:tempest/game_elements/level/level.dart';
-import 'package:tempest/game_state_provider.dart';
-import 'package:tempest/widgets/game_painter.dart';
-import 'package:tempest/widgets/game_painter_clipper.dart';
+import 'package:chromatic_chasm/game_elements/base_classes/drawable.dart';
+import 'package:chromatic_chasm/game_elements/level/level.dart';
+import 'package:chromatic_chasm/game_state_provider.dart';
+import 'package:chromatic_chasm/widgets/game_painter.dart';
+import 'package:chromatic_chasm/widgets/game_painter_clipper.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -32,7 +32,6 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     Drawable.setCanvasSize(gamePainterSize);
-    // DrawableOld.setCanvasSize(gamePainterSize);
     final gameState = context.read<GameStateProvider>().currentState;
     return SafeArea(
       child: Focus(

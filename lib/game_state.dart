@@ -3,19 +3,20 @@
 import 'dart:async';
 import 'dart:developer' as dev;
 import 'dart:math';
+import 'package:chromatic_chasm/game_elements/star.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:tempest/game_elements/base_classes/drawable.dart';
-import 'package:tempest/game_elements/base_classes/game_object_lifecycle.dart';
-import 'package:tempest/game_elements/base_classes/positionable.dart';
-import 'package:tempest/game_elements/camera.dart';
-import 'package:tempest/game_elements/enemies/enemy.dart';
-import 'package:tempest/game_elements/level/level.dart';
-import 'package:tempest/game_elements/player/player.dart';
-import 'package:tempest/game_elements/shot.dart';
-import 'package:tempest/helpers/easing.dart';
-import 'package:tempest/helpers/throttler.dart';
-import 'package:tempest/helpers/tile_helper.dart';
+import 'package:chromatic_chasm/game_elements/base_classes/drawable.dart';
+import 'package:chromatic_chasm/game_elements/base_classes/game_object_lifecycle.dart';
+import 'package:chromatic_chasm/game_elements/base_classes/positionable.dart';
+import 'package:chromatic_chasm/game_elements/camera.dart';
+import 'package:chromatic_chasm/game_elements/enemies/enemy.dart';
+import 'package:chromatic_chasm/game_elements/level/level.dart';
+import 'package:chromatic_chasm/game_elements/player/player.dart';
+import 'package:chromatic_chasm/game_elements/shot.dart';
+import 'package:chromatic_chasm/helpers/easing.dart';
+import 'package:chromatic_chasm/helpers/throttler.dart';
+import 'package:chromatic_chasm/helpers/tile_helper.dart';
 
 sealed class GameState {
   void init();
@@ -45,6 +46,7 @@ sealed class GameState {
 class LevelAppearState extends PlayerFlyOutsideLevel {
   final _startCameraPivot = Positionable(0, 0, -5000);
   late final Positionable targetCameraPivot = Positionable.all(0);
+  late final _stars = List.generate(5, (index) => Star.createStationary(_level));
   LevelAppearState(super.setStateStream, super.camera, super._level, super._player);
   LevelAppearState.newCycle(StreamController<GameState> setStateStream, Level level)
       : this(setStateStream, null, level, Player(level));
@@ -53,18 +55,21 @@ class LevelAppearState extends PlayerFlyOutsideLevel {
   void init() {
     _player.lifecycleState = PlayerFlyToLevel(_level);
     camera.lifecycleState =
-        CameraMoving(_startCameraPivot, targetCameraPivot, easingFunctions: EasingFunctions.easeOutCubic);
+        ObjectMoving(_startCameraPivot, targetCameraPivot, easingFunctions: EasingFunctions.easeOutCubic);
   }
 
   @override
   void draw(Canvas canvas) {
     final frameTimestamp = DateTime.now();
     double timeFraction = _getTimeFraction(frameTimestamp, _startTime);
-    handleNextState(
-        timeFraction >= 1, PlayingState.create(setStateStream, camera, _level, Player(_level), direction: _direction));
+    handleNextState(timeFraction >= 1,
+        PlayingState.create(setStateStream, camera, _level, Player(_level), _stars, direction: _direction));
     // camera.setFrom(PositionFunctions.positionWithFraction(
     //     _startCameraPivot, targetCameraPivot, EasingFunctions.easeOutCubic(timeFraction)));
     camera.onFrame(canvas, camera, frameTimestamp);
+    for (var star in _stars) {
+      star.onFrame(canvas, camera, frameTimestamp);
+    }
     _level.onFrame(canvas, camera, frameTimestamp);
     _player.onFrame(canvas, camera, frameTimestamp);
   }
@@ -75,18 +80,18 @@ class PlayingState extends GameState {
   final Player player;
   final List<Enemy> enemies;
   final List<Shot> shots;
-
+  final List<Star> stars;
   int _enemiesToSpawnCount = 5;
 
-  PlayingState(super.setStateStream, super.camera, this.level, this.player, this.enemies, this.shots,
+  PlayingState(super.setStateStream, super.camera, this.level, this.player, this.enemies, this.shots, this.stars,
       {super.direction});
-  PlayingState.create(super.setStateStream, super.camera, this.level, this.player, {super.direction})
+  PlayingState.create(super.setStateStream, super.camera, this.level, this.player, this.stars, {super.direction})
       : enemies = [],
         shots = [];
   @override
   void init() {
     player.lifecycleState = PlayerLive();
-    camera.lifecycleState = CameraStationary();
+    camera.lifecycleState = ObjectStationary();
   }
 
   @override
@@ -99,6 +104,9 @@ class PlayingState extends GameState {
     _spawnEnemy();
     final frameTimestamp = DateTime.now();
     handleKeyboardMovement();
+    for (var star in stars) {
+      star.onFrame(canvas, camera, frameTimestamp);
+    }
     level.onFrame(canvas, camera, frameTimestamp);
     enemyOnNewFrame(canvas, frameTimestamp);
     shotOnNewFrame(canvas, frameTimestamp);
@@ -196,7 +204,7 @@ class LevelDisappearState extends LevelTransitionState {
   @override
   void init() {
     _player.lifecycleState = PlayerFlyThroughLevel();
-    camera.lifecycleState = CameraMoving(startPivot, targetPivot);
+    camera.lifecycleState = ObjectMoving(startPivot, targetPivot);
   }
 
   @override
@@ -233,7 +241,7 @@ class FlyAwayState extends PlayerFlyOutsideLevel {
   void init() {
     _startCameraPivot = camera.pivot.clone();
     _player.lifecycleState = PlayerFlyFromLevel(LevelTileHelper.getAngle(_player.pivot));
-    camera.lifecycleState = CameraMoving(_startCameraPivot, _startCameraPivot);
+    camera.lifecycleState = ObjectMoving(_startCameraPivot, _startCameraPivot);
   }
 
   late final Positionable _startCameraPivot;
