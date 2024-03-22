@@ -40,7 +40,6 @@ mixin class TransitionLifeCycle implements TimefulLifecycle {
       TransitionFunction? transitionFunction,
       EasingFunction? easingFunction,
       Positionable? anchorOffsetPivot}) {
-    print('Transition configured: ${startOffsetPivot}, $endOffsetPivot $runtimeType $hashCode');
     _startOffsetPivot = startOffsetPivot;
     _endOffsetPivot = endOffsetPivot;
     _anchorOffsetPivot = anchorOffsetPivot ?? _anchorOffsetPivot;
@@ -87,7 +86,7 @@ interface class PlayerLifecycle extends GameObjectLifecycle {}
 
 final class LiveLifecycle extends GameObjectLifecycle {}
 
-sealed class PlayerFlyOutsideLevel extends PlayerLifecycle with TransitionLifeCycle {
+class PlayerFlyOutsideLevel extends PlayerLifecycle with TransitionLifeCycle {
   PlayerFlyOutsideLevel() {
     _setDuration = const Duration(seconds: 3);
   }

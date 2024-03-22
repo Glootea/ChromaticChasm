@@ -1,5 +1,6 @@
 library enemy;
 
+import 'package:chromatic_chasm/game_elements/enemies/entities/spider/drawables/spider_default_drawable.dart';
 import 'package:flutter/material.dart';
 import 'package:chromatic_chasm/game_elements/base_classes/drawable.dart';
 import 'package:chromatic_chasm/game_elements/base_classes/game_object.dart';
@@ -11,7 +12,7 @@ import 'package:chromatic_chasm/game_elements/player/player.dart';
 import 'package:chromatic_chasm/game_elements/shot.dart';
 import 'package:chromatic_chasm/helpers/tile_helper.dart';
 
-part 'package:chromatic_chasm/game_elements/enemies/entities/spider.dart';
+part 'package:chromatic_chasm/game_elements/enemies/entities/spider/spider.dart';
 
 sealed class Enemy extends StatelessTileGameObject {
   Enemy._(super.pivot, super.drawable);
@@ -21,7 +22,7 @@ sealed class Enemy extends StatelessTileGameObject {
     return hit;
   }
 
-  ///Returns number of shot, that hit this enemy
+  ///Returns index of shot, that hit this enemy
   ///
   ///Returns null if no shot hit
   int? shotHitNumber(List<Shot> shots) {

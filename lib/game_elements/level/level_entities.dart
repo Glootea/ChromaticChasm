@@ -4,8 +4,8 @@ part of 'package:chromatic_chasm/game_elements/level/level.dart';
 class Level1 extends Level {
   Level1()
       : super.fromPoints(
-            Positionable(0, 0, 50),
-            [
+            pivot: Positionable(0, 0, 50),
+            points: [
               Positionable(-90, -40, 0),
               Positionable(-75, -20, 0),
               Positionable(-60, 0, 0),
@@ -20,16 +20,16 @@ class Level1 extends Level {
               Positionable(75, -20, 0),
               Positionable(90, -40, 0),
             ],
-            200,
-            false);
+            depth: 200,
+            circlular: false);
 }
 
 /// \+ shape
 class Level2 extends Level {
   Level2()
       : super.fromPoints(
-            Positionable(0, 0, 50),
-            [
+            pivot: Positionable(0, 0, 50),
+            points: [
               Positionable(-0.01, -70, 0),
               Positionable(-30, -70, 0),
               Positionable(-30, -30, 0),
@@ -47,6 +47,6 @@ class Level2 extends Level {
               Positionable(30, -30, 0),
               Positionable(30, -70, 0),
             ],
-            200,
-            true);
+            depth: 200,
+            circlular: true);
 }

@@ -1,3 +1,4 @@
+import 'package:chromatic_chasm/game_elements/player/skins/player_skin_abst.dart';
 import 'package:flutter/material.dart';
 import 'package:chromatic_chasm/game_elements/base_classes/drawable.dart';
 import 'package:chromatic_chasm/game_elements/base_classes/game_object.dart';
@@ -9,7 +10,7 @@ import 'package:chromatic_chasm/helpers/tile_helper.dart';
 
 class Player extends StatefulTileGameObject {
   Player(Level level) : this._(TilePositionable(level, level.tiles.length ~/ 2, depthFraction: 0));
-  Player._(TilePositionable tile) : this.__(tile, createDrawables(tile));
+  Player._(TilePositionable tile) : this.__(tile, PlayerSkin1().getDrawables(tile));
   Player.__(TilePositionable tile, List<Drawable> drawables) : super(tile, drawables, (drawables.length / 2).floor()) {
     super.lifecycleState = PlayerFlyToLevel(tile.level);
   }
@@ -24,65 +25,7 @@ class Player extends StatefulTileGameObject {
   ///List of states that player can be in on one tile. Default state is the middle one.
   ///
   ///To transition to another tile player have to move through all states to the left/right related to it. Then when moved to next tile player start in right/left state
-  static List<Drawable2D> createDrawables(TilePositionable pivot) => [
-        Drawable2D(pivot, [
-          Positionable(0.0, 1.0, 0.0),
-          Positionable(0.53, 0.0, 0.0),
-          Positionable(-0.43, 1.3, 0.0),
-          Positionable(0.0, 0.56, 0.0),
-          Positionable(0.0, -1.0, 0.0),
-          Positionable(-0.43, -0.1, 0.0),
-          Positionable(0.0, -0.56, 0.0),
-          Positionable(0.2, 0.0, 0.0)
-        ], [
-          [2, 0],
-          [3, 2],
-          [0, 1],
-          [5, 4],
-          [6, 5],
-          [4, 1],
-          [7, 6],
-          [3, 7]
-        ]),
-        Drawable2D(pivot, [
-          Positionable(0.0, -1.0, 0.0),
-          Positionable(0.53, 0.0, 0.0),
-          Positionable(-0.43, -0.4, 0.0),
-          Positionable(0.0, -0.56, 0.0),
-          Positionable(0.0, 1.0, 0.0),
-          Positionable(-0.43, 0.4, 0.0),
-          Positionable(0.0, 0.56, 0.0),
-          Positionable(0.2, 0.0, 0.0)
-        ], [
-          [2, 0],
-          [3, 2],
-          [0, 1],
-          [5, 4],
-          [6, 5],
-          [4, 1],
-          [7, 6],
-          [3, 7]
-        ]),
-        Drawable2D(pivot, [
-          Positionable(0.0, -1.0, 0.0),
-          Positionable(0.53, 0.0, 0.0),
-          Positionable(-0.43, -1.3, 0.0),
-          Positionable(0.0, -0.56, 0.0),
-          Positionable(0.0, 1.0, 0.0),
-          Positionable(-0.43, 0.1, 0.0),
-          Positionable(0.0, 0.56, 0.0),
-          Positionable(0.2, 0.0, 0.0)
-        ], [
-          [2, 0],
-          [3, 2],
-          [0, 1],
-          [5, 4],
-          [6, 5],
-          [4, 1],
-          [7, 6],
-          [3, 7]
-        ]),
-      ];
+
   late final int _centralState = (drawables.length / 2).floor();
   Level get level => pivot.level;
   late int _targetTile = level.tiles.length ~/ 2;
@@ -147,7 +90,6 @@ class Player extends StatefulTileGameObject {
             }
             lastFrameTimestamp = frameTimestamp;
           }
-          // angleZ = LevelTileHelper.getAngle(pivot);
           pivot.updatePosition(
               widthFraction: (state + 1) / (drawables.length + 1),
               depthFraction: lifecycleState.runtimeType == PlayerFlyThroughLevel

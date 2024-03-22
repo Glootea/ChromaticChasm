@@ -30,6 +30,7 @@ class Shot extends StatelessTileGameObject {
     Positionable(0.0, 0.0, 3.0)
   ];
 
+// in blender faces must be fliped so they are red to get right face culling
   static final List<List<int>> _faces = [
     [0, 5, 11, 6],
     [4, 3, 9, 10],

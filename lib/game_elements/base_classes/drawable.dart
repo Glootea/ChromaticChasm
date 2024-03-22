@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:chromatic_chasm/game_elements/base_classes/positionable.dart';
 import 'package:chromatic_chasm/game_elements/camera.dart';
+import 'package:vector_math/vector_math.dart';
 
 sealed class Drawable {
   /// [_faces] is [List] of indexes of vertexes in [vertexes]
@@ -9,19 +10,42 @@ sealed class Drawable {
   /// [width] is used to scale objects. [width] = max width coordinate of object, located in [Positionable.zero()]
   ///
   /// In constructor all verteces are scaled with k = _width / _vertexes.maxWidth
-  Drawable(this.pivot, this._vertexes, this._faces);
+  Drawable(this._pivot, this._vertexes, this._faces);
 
-  final Positionable pivot;
+  final Positionable _pivot;
   final List<Positionable> _vertexes;
   final List<List<int>> _faces;
-  bool clip = true;
+
+  ///Time in milliseconds that one game time unit is. Used to sync movement for devices with different refresh rates
+  static const syncTime = 48;
+
+  ///How far the projection plane is from camera
+  static const _distanceToCamera = 0.0000000001;
+  static late double _canvasSize;
+  static void setCanvasSize(Size size) {
+    _canvasSize = size.width;
+  }
+
+  static const double strokeWidth = 1;
+  static const double strokeWidthLight = 0.3;
+
   void show(Canvas canvas, Camera camera, Paint paint);
 
   List<Offset> _project2D(List<Positionable> list, Positionable camera) {
     return list.map((point) => _convert3DToOffset(point - camera)).toList();
   }
 
-  ///Use in constructor for permanent effect or in show() for onFrame effect
+  Offset _convert3DToOffset(Positionable point) {
+    point.z = point.z <= 0 ? 0.5 : point.z; //prevent imaginary draw behing camera
+
+    final x =
+        ((_distanceToCamera * point.x / (point.z + _distanceToCamera)) / (_distanceToCamera * 4) + 0.5) * _canvasSize;
+    final y =
+        (((_distanceToCamera * point.y / (point.z + _distanceToCamera)) / (_distanceToCamera * 4)) + 0.5) * _canvasSize;
+    return Offset(x, y);
+  }
+
+  ///Use in constructor for permanent effect or in show() for onFrame effect, that will erased after next call
   ///
   ///[scaleToWidth] = max absolute width coordinate of object, located in [Positionable.zero()]
   void applyTransformation({double? angleX, double? angleY, double? angleZ, double? scaleToWidth}) {
@@ -32,26 +56,9 @@ sealed class Drawable {
     angleZ != null ? _rotateZ(angleZ) : null;
   }
 
+  ///Temporary storage for transformed vertexes
   late List<Positionable> _transformedVertexes = _vertexes.toList();
-  List<Positionable> get getGlobalVertexes => _transformedVertexes.map((point) => point + pivot).toList();
-  Offset _convert3DToOffset(Positionable point) {
-    point.z = point.z <= 0 ? 0.5 : point.z; //prevent imaginary draw behing camera
-
-    final x = ((distanceToCamera * point.x / (point.z + distanceToCamera)) / (distanceToCamera * 4) + 0.5) * canvasSize;
-    final y =
-        (((distanceToCamera * point.y / (point.z + distanceToCamera)) / (distanceToCamera * 4)) + 0.5) * canvasSize;
-    return Offset(x, y);
-  }
-
-  static const syncTime = 48;
-  static const distanceToCamera = 0.0000000001;
-  static late double canvasSize;
-  static void setCanvasSize(Size size) {
-    canvasSize = size.width;
-  }
-
-  static const double strokeWidth = 1;
-  static const double strokeWidthLight = 0.3;
+  List<Positionable> get getGlobalVertexes => _transformedVertexes.map((point) => point + _pivot).toList();
 
   void _scale(double width) {
     final maxWidth =
@@ -60,29 +67,21 @@ sealed class Drawable {
     _transformedVertexes = _transformedVertexes.map((e) => e * k).toList();
   }
 
-  ///Rotates all points around pivot by angle. If points are in local coordinates, [pivot] = Positionable.zero()
+  ///Rotates all points around pivot by angle. If points are in local coordinates, [_pivot] = Positionable.zero()
   List<Positionable> _rotateX(double angle) =>
       _transformedVertexes = _transformedVertexes.map((point) => point.rotateX(angle - pi / 2)).toList();
 
-  ///Rotates all points around pivot by angle. If points are in local coordinates, [pivot] = Positionable.zero()
+  ///Rotates all points around pivot by angle. If points are in local coordinates, [_pivot] = Positionable.zero()
   List<Positionable> _rotateY(double angle) =>
       _transformedVertexes = _transformedVertexes.map((point) => point.rotateY(angle - pi / 2)).toList();
 
-  ///Rotates all points around pivot by angle. If points are in local coordinates, [pivot] = Positionable.zero()
-  void _rotateZ(double angle) =>
+  ///Rotates all points around pivot by angle. If points are in local coordinates, [_pivot] = Positionable.zero()
+  List<Positionable> _rotateZ(double angle) =>
       _transformedVertexes = _transformedVertexes.map((point) => point.rotateZ(angle - pi / 2)).toList();
 }
 
 class Drawable3D extends Drawable {
-  Drawable3D(super.pivot, super._vertexes, super._faces);
-
-  // bool _visible(int i) => Vector3(0, 0, 1).dot(_normals[i]) > 0;
-  bool _visible(int i, Camera camera) {
-    var dir = (_transformedVertexes[_faces[i][1]] - _transformedVertexes[_faces[i][0]])
-        .cross(_transformedVertexes[_faces[i][2]] - _transformedVertexes[_faces[i][0]]);
-    var normal = dir.normalized();
-    return (pivot - camera.pivot).dot(normal) > 0;
-  }
+  Drawable3D(super._pivot, super._vertexes, super._faces);
 
   @override
   void show(Canvas canvas, Camera camera, Paint paint) {
@@ -95,10 +94,22 @@ class Drawable3D extends Drawable {
       }
     }
   }
+
+  bool _visible(int i, Camera camera) {
+    Vector3 normal = _getFaceNormal(i);
+    return (_pivot - camera.pivot).dot(normal) > 0;
+  }
+
+  Vector3 _getFaceNormal(int faceNumber) {
+    final dir = (_transformedVertexes[_faces[faceNumber][1]] - _transformedVertexes[_faces[faceNumber][0]])
+        .cross(_transformedVertexes[_faces[faceNumber][2]] - _transformedVertexes[_faces[faceNumber][0]]);
+    final normal = dir.normalized();
+    return normal;
+  }
 }
 
 class Drawable2D extends Drawable {
-  Drawable2D(super.pivot, super._vertexes, super._faces);
+  Drawable2D(super._pivot, super._vertexes, super._faces);
 
   @override
   void show(Canvas canvas, Camera camera, Paint paint) {

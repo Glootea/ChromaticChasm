@@ -32,7 +32,7 @@ class LevelPositionable extends Positionable {
 
 ///This position should be applied to everything that exist on tiles
 ///
-///For example [player], [enemies], [shots]
+///For example [Player], [Enemy], [Shot]
 class TilePositionable extends Positionable {
   final Level level;
   int tileNumber;
@@ -40,24 +40,21 @@ class TilePositionable extends Positionable {
   ///0 - on close edge of level, 1 - on far edge
   double depthFraction;
   double widthFraction = 0.5;
+
+  ///Aditional offset in global coordinates. For example, used by [Player] to fly outside the level
   Positionable? offset;
   TilePositionable(this.level, this.tileNumber, {this.depthFraction = 0, this.offset}) : super.zero() {
     setFrom(globalPosition);
   }
-  Positionable get globalPosition =>
-      PositionFunctions.positionWithFraction(
-          PositionFunctions.positionWithFraction(
-            level.tiles[tileNumber].leftNearPointGlobal,
-            level.tiles[tileNumber].leftFarPointGlobal,
-            depthFraction,
-          ),
-          PositionFunctions.positionWithFraction(
-            level.tiles[tileNumber].rightNearPointGlobal,
-            level.tiles[tileNumber].rightFarPointGlobal,
-            depthFraction,
-          ),
-          widthFraction) +
-      (offset ?? Positionable(0, 0, 0));
+  Positionable get globalPosition {
+    final leftLinePoint = PositionFunctions.positionWithFraction(
+        level.tiles[tileNumber].leftNearPointGlobal, level.tiles[tileNumber].leftFarPointGlobal, depthFraction);
+    final rightLinePoint = PositionFunctions.positionWithFraction(
+        level.tiles[tileNumber].rightNearPointGlobal, level.tiles[tileNumber].rightFarPointGlobal, depthFraction);
+
+    return PositionFunctions.positionWithFraction(leftLinePoint, rightLinePoint, widthFraction) +
+        (offset ?? Positionable.zero());
+  }
 
   void updatePosition({double? depthFraction, double? widthFraction, Positionable? offset}) {
     this.depthFraction = depthFraction ?? this.depthFraction;

@@ -26,7 +26,8 @@ sealed class Level extends ComplexGlobalGameObject {
   /// [points] must be in range -100 to 100 in both x and y. [depth] prefered to be around 200
   ///
   /// Do not set [x] coordinate to 0 to prevent angle calculation issues. Use +-0.01 instead
-  Level.fromPoints(Positionable pivot, List<Positionable> points, double depth, bool circlular)
+  Level.fromPoints(
+      {required Positionable pivot, required List<Positionable> points, required double depth, required bool circlular})
       : this._(pivot, _pointsToTiles(pivot, points, depth, circlular), depth, circlular);
 
   @override
@@ -65,9 +66,9 @@ sealed class Level extends ComplexGlobalGameObject {
 
   static Level getRandomLevel() => createLevel(Random().nextInt(2));
 
-  Vector2 getLevelAmplitude() => _levelAmplitude ?? _setLevelAmplitude();
+  Vector2 get levelAmplitude => _levelAmplitude ?? _setAndReturnLevelAmplitude;
   Vector2? _levelAmplitude;
-  Vector2 _setLevelAmplitude() {
+  Vector2 get _setAndReturnLevelAmplitude {
     double maxX = 0, maxY = 0;
     for (final tile in tiles) {
       for (final point in [tile.leftNearPointGlobal, tile.rightNearPointGlobal]) {

@@ -11,14 +11,12 @@ class Camera extends StatelessGlobalGameObject {
 
   @override
   void onFrame(Canvas canvas, Camera camera, DateTime frameTimestamp) {
-    print(lifecycleState.runtimeType);
     switch (lifecycleState.runtimeType) {
       case ObjectStationary:
         null;
       case ObjectMoving:
         {
           pivot.setFrom((lifecycleState as ObjectMoving).currentPosition);
-          print("Camera pivot: $pivot");
         }
 
       case _:

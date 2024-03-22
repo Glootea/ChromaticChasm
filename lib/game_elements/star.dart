@@ -6,6 +6,7 @@ import 'package:chromatic_chasm/game_elements/base_classes/game_object_lifecycle
 import 'package:chromatic_chasm/game_elements/base_classes/positionable.dart';
 import 'package:chromatic_chasm/game_elements/camera.dart';
 import 'package:chromatic_chasm/game_elements/level/level.dart';
+import 'package:chromatic_chasm/helpers/angle_generator.dart';
 import 'package:chromatic_chasm/helpers/positionable_generator.dart';
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math.dart' show Vector3;
@@ -18,9 +19,9 @@ class Star extends StatelessGlobalGameObject {
           Drawable3D(pivot, _vertices, _faces)
             ..applyTransformation(
                 scaleToWidth: Random().nextDouble() * 10,
-                angleX: Random().nextDouble() * 2 * pi,
-                angleY: Random().nextDouble() * 2 * pi,
-                angleZ: Random().nextDouble() * 2 * pi),
+                angleX: AngleGenerator.getRandomAngle,
+                angleY: AngleGenerator.getRandomAngle,
+                angleZ: AngleGenerator.getRandomAngle),
           lifecycle: ObjectStationary(),
         );
 
