@@ -7,6 +7,8 @@ class PlayingState extends GameState {
   final List<Shot> shots;
   final List<Star> stars;
   int _enemiesToSpawnCount = 5;
+  final letter = ModelLoader.getDrawable(Positionable(50, 50, 50), '4')
+    ..applyTransformation(scaleToWidth: 10, angleZ: -pi / 2, angleY: -pi / 2);
 
   PlayingState(super.gameStateProvider, super.camera, this.level, this.player, this.enemies, this.shots, this.stars,
       {super.direction});
@@ -36,6 +38,12 @@ class PlayingState extends GameState {
     enemyOnNewFrame(canvas, frameTimestamp);
     shotOnNewFrame(canvas, frameTimestamp);
     player.onFrame(canvas, camera, frameTimestamp);
+    letter.show(
+        canvas,
+        camera,
+        Paint()
+          ..color = Colors.white
+          ..strokeWidth = Drawable.strokeWidthLight);
   }
 
   @override

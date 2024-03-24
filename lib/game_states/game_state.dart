@@ -18,6 +18,7 @@ import 'package:chromatic_chasm/helpers/easing.dart';
 import 'package:chromatic_chasm/helpers/throttler.dart';
 import 'package:chromatic_chasm/helpers/tile_helper.dart';
 
+import '../model_loader.dart';
 part 'level_transition_states/player_fly_outside_level/player_fly_outside_level_abst.dart';
 part 'level_transition_states/level_transition_state_abst.dart';
 part 'level_transition_states/player_fly_outside_level/level_appear_state.dart';

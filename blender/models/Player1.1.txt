@@ -1,4 +1,0 @@
-static final List<Positionable> _vertices = [Positionable(0.0, 1.0, 0.0), Positionable(0.53, 0.0, 0.0), Positionable(-0.43, 1.3, 0.0), Positionable(0.0, 0.56, 0.0), Positionable(0.0, -1.0, 0.0), Positionable(-0.43, -0.1, 0.0), Positionable(0.0, -0.56, 0.0), Positionable(0.2, 0.0, 0.0)];
-
-static final List<List<int>> _faces = [[2, 0], [3, 2], [0, 1], [5, 4], [6, 5], [4, 1], [7, 6], [3, 7]];
-
