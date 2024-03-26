@@ -7,8 +7,8 @@ class PlayingState extends GameState {
   final List<Shot> shots;
   final List<Star> stars;
   int _enemiesToSpawnCount = 5;
-  final letter = ModelLoader.getDrawable(Positionable(50, 50, 50), '4')
-    ..applyTransformation(scaleToWidth: 10, angleZ: -pi / 2, angleY: -pi / 2);
+  final letter = ModelLoader.getDrawable(Positionable(50, 50, 50), 'я')
+    ..applyTransformation(widthToScale: 10, angleZ: -pi / 2, angleY: -pi / 2);
 
   PlayingState(super.gameStateProvider, super.camera, this.level, this.player, this.enemies, this.shots, this.stars,
       {super.direction});

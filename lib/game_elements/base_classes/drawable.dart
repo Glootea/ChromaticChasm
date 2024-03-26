@@ -1,10 +1,11 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:chromatic_chasm/game_elements/base_classes/positionable.dart';
+import 'package:chromatic_chasm/game_elements/base_classes/transformable.dart';
 import 'package:chromatic_chasm/game_elements/camera.dart';
 import 'package:vector_math/vector_math.dart';
 
-sealed class Drawable {
+sealed class Drawable implements Transformable {
   /// [_faces] is [List] of indexes of vertexes in [vertexes]
   ///
   /// [width] is used to scale objects. [width] = max width coordinate of object, located in [Positionable.zero()]
@@ -48,36 +49,41 @@ sealed class Drawable {
   ///Use in constructor for permanent effect or in show() for onFrame effect, that will erased after next call
   ///
   ///[scaleToWidth] = max absolute width coordinate of object, located in [Positionable.zero()]
-  void applyTransformation({double? angleX, double? angleY, double? angleZ, double? scaleToWidth}) {
+  @override
+  void applyTransformation({double? angleX, double? angleY, double? angleZ, double? widthToScale}) {
     _transformedVertexes = [..._vertexes];
-    scaleToWidth != null ? _scale(scaleToWidth) : null;
-    angleX != null ? _rotateX(angleX) : null;
-    angleY != null ? _rotateY(angleY) : null;
-    angleZ != null ? _rotateZ(angleZ) : null;
+    widthToScale != null ? scaleToWidth(widthToScale) : null;
+    angleX != null ? rotateX(angleX) : null;
+    angleY != null ? rotateY(angleY) : null;
+    angleZ != null ? rotateZ(angleZ) : null;
   }
 
   ///Temporary storage for transformed vertexes
   late List<Positionable> _transformedVertexes = _vertexes.toList();
   List<Positionable> get getGlobalVertexes => _transformedVertexes.map((point) => point + _pivot).toList();
 
-  void _scale(double width) {
+  ///Rotates all points around pivot by angle. If points are in local coordinates, [_pivot] = Positionable.zero()
+  @override
+  List<Positionable> rotateX(double angle) => _transformedVertexes =
+      _transformedVertexes.map((point) => point.rotateX(angle - pi / 2)).expand((element) => element).toList();
+
+  ///Rotates all points around pivot by angle. If points are in local coordinates, [_pivot] = Positionable.zero()
+  @override
+  List<Positionable> rotateY(double angle) => _transformedVertexes =
+      _transformedVertexes.map((point) => point.rotateY(angle - pi / 2)).expand((element) => element).toList();
+
+  ///Rotates all points around pivot by angle. If points are in local coordinates, [_pivot] = Positionable.zero()
+  @override
+  List<Positionable> rotateZ(double angle) => _transformedVertexes =
+      _transformedVertexes.map((point) => point.rotateZ(angle - pi / 2)).expand((element) => element).toList();
+
+  @override
+  List<Transformable> scaleToWidth(double width) {
     final maxWidth =
         _transformedVertexes.reduce((value, element) => value.y.abs() > element.y.abs() ? value : element).y.abs();
     final k = width / maxWidth;
-    _transformedVertexes = _transformedVertexes.map((e) => e * k).toList();
+    return _transformedVertexes = _transformedVertexes.map((e) => e * k).toList();
   }
-
-  ///Rotates all points around pivot by angle. If points are in local coordinates, [_pivot] = Positionable.zero()
-  List<Positionable> _rotateX(double angle) =>
-      _transformedVertexes = _transformedVertexes.map((point) => point.rotateX(angle - pi / 2)).toList();
-
-  ///Rotates all points around pivot by angle. If points are in local coordinates, [_pivot] = Positionable.zero()
-  List<Positionable> _rotateY(double angle) =>
-      _transformedVertexes = _transformedVertexes.map((point) => point.rotateY(angle - pi / 2)).toList();
-
-  ///Rotates all points around pivot by angle. If points are in local coordinates, [_pivot] = Positionable.zero()
-  List<Positionable> _rotateZ(double angle) =>
-      _transformedVertexes = _transformedVertexes.map((point) => point.rotateZ(angle - pi / 2)).toList();
 }
 
 class Drawable3D extends Drawable {

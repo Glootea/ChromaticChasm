@@ -1,8 +1,60 @@
 import 'dart:math';
+import 'package:chromatic_chasm/game_elements/base_classes/transformable.dart';
 import 'package:chromatic_chasm/game_elements/level/level.dart';
 import 'package:vector_math/vector_math.dart';
 
-typedef Positionable = Vector3;
+// typedef Positionable = Vector3;
+class Positionable extends Vector3 implements Transformable {
+  Positionable(double x, double y, double z) : super.zero() {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+  }
+  Positionable.zero() : super.zero();
+  factory Positionable.copy(Vector3 other) {
+    return Positionable.zero()..setFrom(other);
+  }
+  @override
+  Positionable operator +(covariant other) => Positionable.zero()..setValues(x + other.x, y + other.y, z + other.z);
+  @override
+  Positionable operator -(covariant other) => Positionable.zero()..setValues(x - other.x, y - other.y, z - other.z);
+  @override
+  Positionable operator *(covariant scale) => Positionable.zero()..setValues(x * scale, y * scale, z * scale);
+  @override
+  Positionable operator /(covariant scale) => Positionable.zero()..setValues(x / scale, y / scale, z / scale);
+
+  factory Positionable.random() {
+    return Vector3.random() as Positionable;
+  }
+  factory Positionable.all(double a) {
+    return Positionable.zero()..setValues(a, a, a);
+  }
+  @override
+  Positionable clone() => Positionable.zero()..setValues(x, y, z);
+
+  @override
+  void applyTransformation({double? angleX, double? angleY, double? angleZ, double? widthToScale}) {
+    widthToScale != null ? scaleToWidth(widthToScale) : null;
+    angleX != null ? rotateX(angleX) : null;
+    angleY != null ? rotateY(angleY) : null;
+    angleZ != null ? rotateZ(angleZ) : null;
+  }
+
+  @override
+  List<Positionable> rotateX(double angle) =>
+      [Positionable.copy(Matrix3(1, 0, 0, 0, cos(angle), -sin(angle), 0, sin(angle), cos(angle)).transformed(this))];
+  @override
+  List<Positionable> rotateY(double angle) =>
+      [Positionable.copy(Matrix3(cos(angle), 0, sin(angle), 0, 1, 0, -sin(angle), 0, cos(angle)).transformed(this))];
+  @override
+  List<Positionable> rotateZ(double angle) =>
+      [Positionable.copy(Matrix3(cos(angle), -sin(angle), 0, sin(angle), cos(angle), 0, 0, 0, 1).transformed(this))];
+
+  @override
+  List<Transformable> scaleToWidth(double width) {
+    throw UnimplementedError();
+  }
+}
 
 extension PositionFunctions on Positionable {
   static Positionable median(Positionable first, Positionable second) => (first + second) * 0.5;
@@ -10,13 +62,6 @@ extension PositionFunctions on Positionable {
   static Positionable positionWithFraction(Positionable first, Positionable second, double fraction) =>
       first + ((second - first) * fraction);
   Positionable toGlobal(Positionable pivot) => this + pivot;
-
-  Positionable rotateX(double angle) =>
-      Matrix3(1, 0, 0, 0, cos(angle), -sin(angle), 0, sin(angle), cos(angle)).transformed(this);
-  Positionable rotateY(double angle) =>
-      Matrix3(cos(angle), 0, sin(angle), 0, 1, 0, -sin(angle), 0, cos(angle)).transformed(this);
-  Positionable rotateZ(double angle) =>
-      Matrix3(cos(angle), -sin(angle), 0, sin(angle), cos(angle), 0, 0, 0, 1).transformed(this);
 }
 
 ///This position should be applied to everything that exist in the level and should be connected to level pivot
@@ -25,7 +70,7 @@ extension PositionFunctions on Positionable {
 class LevelPositionable extends Positionable {
   Positionable levelPivot;
   Positionable offsetPosition;
-  LevelPositionable(this.levelPivot, this.offsetPosition) : super.zero() {
+  LevelPositionable(this.levelPivot, this.offsetPosition) : super(0, 0, 0) {
     setFrom(levelPivot + offsetPosition);
   }
 }
@@ -43,7 +88,7 @@ class TilePositionable extends Positionable {
 
   ///Aditional offset in global coordinates. For example, used by [Player] to fly outside the level
   Positionable? offset;
-  TilePositionable(this.level, this.tileNumber, {this.depthFraction = 0, this.offset}) : super.zero() {
+  TilePositionable(this.level, this.tileNumber, {this.depthFraction = 0, this.offset}) : super(0, 0, 0) {
     setFrom(globalPosition);
   }
   Positionable get globalPosition {

@@ -11,6 +11,7 @@ class TransitionFunctions {
   static Positionable bezierCurve(double timeFraction, Positionable startPivot, Positionable targetPivot,
           {Positionable? anchorPivot}) =>
       startPivot.scaled(pow((1 - timeFraction), 2).toDouble()) +
-      (anchorPivot ?? getDefaultAnchorPoint(startPivot, targetPivot)).scaled(2 * timeFraction * (1 - timeFraction)) +
-      targetPivot.scaled(timeFraction * timeFraction);
+          (anchorPivot ?? getDefaultAnchorPoint(startPivot, targetPivot))
+              .scaled(2 * timeFraction * (1 - timeFraction)) +
+          targetPivot.scaled(timeFraction * timeFraction) as Positionable;
 }

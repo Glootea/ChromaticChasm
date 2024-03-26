@@ -175,7 +175,7 @@ final class ObjectMoving extends ObjectLifeCycle with TransitionLifeCycle {
 }
 
 final class ObjectFlying extends ObjectLifeCycle with FlyingLifecycle {
-  ObjectFlying(Vector3 position, Vector3 speedVector) {
+  ObjectFlying(Positionable position, Vector3 speedVector) {
     configureFlying(position, speedVector);
   }
 }

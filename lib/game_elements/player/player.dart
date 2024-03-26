@@ -49,7 +49,7 @@ class Player extends StatefulTileGameObject {
     _updatePosition(frameTimestamp);
     (drawables[state]
           ..applyTransformation(
-              scaleToWidth: playerSize,
+              widthToScale: playerSize,
               angleZ: (lifecycleState is PlayerFlyOutsideLevel)
                   ? (lifecycleState as PlayerFlyOutsideLevel).getAngle
                   : LevelTileHelper.getAngle(pivot)))

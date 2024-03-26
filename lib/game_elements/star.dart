@@ -18,14 +18,14 @@ class Star extends StatelessGlobalGameObject {
           pivot,
           Drawable3D(pivot, _vertices, _faces)
             ..applyTransformation(
-                scaleToWidth: Random().nextDouble() * 10,
+                widthToScale: Random().nextDouble() * 3,
                 angleX: AngleGenerator.getRandomAngle,
                 angleY: AngleGenerator.getRandomAngle,
                 angleZ: AngleGenerator.getRandomAngle),
           lifecycle: ObjectStationary(),
         );
 
-  Star.createMoving() : this._createMoving(Positionable.random().scaled(1000));
+  Star.createMoving() : this._createMoving(Positionable.random() * 1000);
   Star._createMoving(Positionable startPivot)
       : super(
           startPivot,

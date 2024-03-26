@@ -7,7 +7,7 @@ import 'package:chromatic_chasm/game_elements/level/level.dart';
 
 class Shot extends StatelessTileGameObject {
   Shot._(TilePositionable pivot)
-      : super(pivot, Drawable3D(pivot, _vertices, _faces)..applyTransformation(scaleToWidth: 2));
+      : super(pivot, Drawable3D(pivot, _vertices, _faces)..applyTransformation(widthToScale: 2));
   Shot(Level level, int tileNumber) : this._(TilePositionable(level, tileNumber, depthFraction: 0));
 
   static final Paint _paint = Paint()
