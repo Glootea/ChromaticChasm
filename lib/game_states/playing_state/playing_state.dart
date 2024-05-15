@@ -10,9 +10,11 @@ class PlayingState extends GameState {
   final letter = ModelLoader.getDrawable(Positionable(50, 50, 50), 'я')
     ..applyTransformation(widthToScale: 10, angleZ: -pi / 2, angleY: -pi / 2);
 
-  PlayingState(super.gameStateProvider, super.camera, this.level, this.player, this.enemies, this.shots, this.stars,
+  PlayingState(super.gameStateProvider, super.camera, super.runState, this.level, this.player, this.enemies, this.shots,
+      this.stars,
       {super.direction});
-  PlayingState.create(super.gameStateProvider, super.camera, this.level, this.player, this.stars, {super.direction})
+  PlayingState.create(super.gameStateProvider, super.camera, super.runState, this.level, this.player, this.stars,
+      {super.direction})
       : enemies = [],
         shots = [];
   @override
@@ -27,7 +29,7 @@ class PlayingState extends GameState {
   @override
   void draw(Canvas canvas) {
     handleNextState(_enemiesToSpawnCount <= 0 && enemies.isEmpty,
-        LevelDisappearState(gameStateProvider, camera, level, player, direction: _direction));
+        LevelDisappearState(gameStateProvider, camera, runState, level, player, direction: _direction));
     _spawnEnemy();
     final frameTimestamp = DateTime.now();
     handleKeyboardMovement();
@@ -61,6 +63,7 @@ class PlayingState extends GameState {
         shots.removeAt(i);
         continue;
       }
+
       shot.onFrame(canvas, camera, frameTimestamp);
     }
   }
@@ -73,9 +76,20 @@ class PlayingState extends GameState {
       final enemy = enemies[enemyNum];
       final shotHitNum = enemy.shotHitNumber(shots);
       if (shotHitNum != null) {
+        runState.addScore(enemies[enemyNum].scoreForKill);
         enemies.removeAt(enemyNum);
         shots.removeAt(shotHitNum);
         continue;
+      }
+      if (enemy.checkPlayerHit(player)) {
+        enemies.removeAt(enemyNum);
+        runState.removeLife();
+        if (runState.lives == 0) {
+          gameStateProvider.currentState = GameOverState(gameStateProvider, camera, runState);
+        } else {
+          gameStateProvider.currentState =
+              LevelAppearState(gameStateProvider, Camera(Positionable(0, 0, 0)), runState, level, player)..init();
+        }
       }
       if (enemy.disappear) {
         enemies.removeAt(enemyNum);

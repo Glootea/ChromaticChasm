@@ -3,7 +3,8 @@
 part of game_state;
 
 class LevelDisappearState extends LevelTransitionState {
-  LevelDisappearState(super.gameStateProvider, super.camera, super.level, super.player, {super.direction});
+  LevelDisappearState(super.gameStateProvider, super.camera, super.runState, super.level, super.player,
+      {super.direction});
   @override
   void init() {
     _player.lifecycleState = PlayerFlyThroughLevel();
@@ -19,7 +20,7 @@ class LevelDisappearState extends LevelTransitionState {
   void draw(Canvas canvas) {
     final frameTimestamp = DateTime.now();
     double timeFraction = _getTimeFraction(frameTimestamp, _startTime);
-    handleNextState(timeFraction >= 1, PlayerFlyAwayState(gameStateProvider, camera, _level, _player));
+    handleNextState(timeFraction >= 1, PlayerFlyAwayState(gameStateProvider, camera, runState, _level, _player));
     handleDepth(timeFraction);
     handleKeyboardMovement();
     _level.onFrame(canvas, camera, frameTimestamp);

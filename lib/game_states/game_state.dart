@@ -4,6 +4,7 @@ import 'dart:developer' as dev;
 import 'dart:math';
 import 'package:chromatic_chasm/game_elements/star.dart';
 import 'package:chromatic_chasm/game_state_provider.dart';
+import 'package:chromatic_chasm/run_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:chromatic_chasm/game_elements/base_classes/drawable.dart';
@@ -25,6 +26,7 @@ part 'level_transition_states/player_fly_outside_level/level_appear_state.dart';
 part 'level_transition_states/player_fly_outside_level/level_disappear_state.dart';
 part 'playing_state/playing_state.dart';
 part 'level_transition_states/player_fly_outside_level/player_fly_away_state.dart';
+part 'game_over.dart';
 
 sealed class GameState {
   void init();
@@ -33,6 +35,9 @@ sealed class GameState {
   void onAngleChanged(double angle);
   void draw(Canvas canvas);
   void handleKeyboardMovement();
+  void playerDead() {}
+  void playerHit(double scoreForKill) {}
+  RunState runState;
 
   ///Applies state if check is true
   void handleNextState(bool check, GameState nextState) {
@@ -45,7 +50,7 @@ sealed class GameState {
   int? _direction;
   Camera camera;
 
-  GameState(this.gameStateProvider, Camera? camera, {int? direction})
+  GameState(this.gameStateProvider, Camera? camera, this.runState, {int? direction})
       : _direction = direction,
         camera = camera ?? Camera(Positionable(0, 0, 0));
 

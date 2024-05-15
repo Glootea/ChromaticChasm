@@ -22,7 +22,7 @@ class Spider extends Enemy {
 
   /// Depth fraction of how much is traveled on one [Drawable.syncTime]
   @override
-  double speed = 0.005;
+  double speed = 0.02;
 
   @override
   void updatePosition(DateTime frameTimestamp) {
@@ -34,4 +34,7 @@ class Spider extends Enemy {
 
   @override
   bool get disappear => pivot.depthFraction < 0;
+
+  @override
+  int get scoreForKill => 50;
 }

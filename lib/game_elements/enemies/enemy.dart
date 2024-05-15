@@ -43,4 +43,6 @@ sealed class Enemy extends StatelessTileGameObject {
   void updatePosition(DateTime frameTimestamp);
   double get speed;
   bool get disappear;
+
+  int scoreForKill = 50;
 }

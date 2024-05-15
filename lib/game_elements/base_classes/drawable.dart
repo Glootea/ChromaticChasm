@@ -22,9 +22,9 @@ sealed class Drawable implements Transformable {
 
   ///How far the projection plane is from camera
   static const _distanceToCamera = 0.0000000001;
-  static late double _canvasSize;
+  static late double canvasSize;
   static void setCanvasSize(Size size) {
-    _canvasSize = size.width;
+    canvasSize = size.width;
   }
 
   static const double strokeWidth = 1;
@@ -40,9 +40,9 @@ sealed class Drawable implements Transformable {
     point.z = point.z <= 0 ? 0.5 : point.z; //prevent imaginary draw behing camera
 
     final x =
-        ((_distanceToCamera * point.x / (point.z + _distanceToCamera)) / (_distanceToCamera * 4) + 0.5) * _canvasSize;
+        ((_distanceToCamera * point.x / (point.z + _distanceToCamera)) / (_distanceToCamera * 4) + 0.5) * canvasSize;
     final y =
-        (((_distanceToCamera * point.y / (point.z + _distanceToCamera)) / (_distanceToCamera * 4)) + 0.5) * _canvasSize;
+        (((_distanceToCamera * point.y / (point.z + _distanceToCamera)) / (_distanceToCamera * 4)) + 0.5) * canvasSize;
     return Offset(x, y);
   }
 

@@ -1,7 +1,7 @@
 part of game_state;
 
 class PlayerFlyAwayState extends PlayerFlyOutsideLevel {
-  PlayerFlyAwayState(super.gameStateProvider, super.camera, super._level, super.player);
+  PlayerFlyAwayState(super.gameStateProvider, super.camera, super.runState, super._level, super.player);
   @override
   void init() {
     _startCameraPivot = camera.pivot.clone();
@@ -14,7 +14,10 @@ class PlayerFlyAwayState extends PlayerFlyOutsideLevel {
   void draw(Canvas canvas) {
     final frameTimestamp = DateTime.now();
     double timeFraction = _getTimeFraction(frameTimestamp, _startTime);
-    handleNextState(timeFraction >= 1, LevelAppearState.newCycle(gameStateProvider, Level.getRandomLevel()));
+    handleNextState(
+        timeFraction >= 1,
+        LevelAppearState(
+            gameStateProvider, (Camera(Positionable(0, 0, 0))), runState, Level.getRandomLevel(), _player));
     _player.onFrame(canvas, camera, frameTimestamp);
   }
 

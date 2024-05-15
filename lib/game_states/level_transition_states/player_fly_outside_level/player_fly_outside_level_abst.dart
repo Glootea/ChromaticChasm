@@ -1,7 +1,8 @@
 part of game_state;
 
 abstract class PlayerFlyOutsideLevel extends LevelTransitionState {
-  PlayerFlyOutsideLevel(super.gameStateProvider, super.camera, super._level, super._player, {super.direction});
+  PlayerFlyOutsideLevel(super.gameStateProvider, super.camera, super.runState, super._level, super._player,
+      {super.direction});
   @override
   void handleKeyboardMovement() {}
   @override
