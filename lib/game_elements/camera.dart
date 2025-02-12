@@ -7,20 +7,22 @@ import 'package:chromatic_chasm/game_elements/base_classes/positionable.dart';
 
 class Camera extends StatelessGlobalGameObject {
   Camera(Positionable pivot, {ObjectLifeCycle? cameraLifeCycle})
-      : super(pivot, Drawable2D(pivot, [], []), lifecycle: cameraLifeCycle ?? ObjectStationary());
+      : super(pivot, Drawable2D(pivot, [], []),
+            lifecycle: cameraLifeCycle ?? ObjectStationary());
 
   @override
   void onFrame(Canvas canvas, Camera camera, DateTime frameTimestamp) {
-    switch (lifecycleState.runtimeType) {
-      case ObjectStationary:
+    switch (lifecycleState) {
+      case ObjectStationary _:
         null;
-      case ObjectMoving:
+      case ObjectMoving _:
         {
           pivot.setFrom((lifecycleState as ObjectMoving).currentPosition);
         }
 
       case _:
-        throw UnimplementedError("Unimplemented camera lifecycleState: ${lifecycleState.runtimeType} ");
+        throw UnimplementedError(
+            "Unimplemented camera lifecycleState: ${lifecycleState.runtimeType} ");
     }
   }
 }

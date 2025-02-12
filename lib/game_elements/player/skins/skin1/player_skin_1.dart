@@ -1,4 +1,9 @@
-part of player_skin;
+import 'package:chromatic_chasm/game_elements/base_classes/drawable.dart';
+import 'package:chromatic_chasm/game_elements/base_classes/positionable.dart';
+import 'package:chromatic_chasm/game_elements/player/skins/player_skin_abst.dart';
+import 'package:chromatic_chasm/game_elements/player/skins/skin1/drawables/player_skin_1_center.dart';
+import 'package:chromatic_chasm/game_elements/player/skins/skin1/drawables/player_skin_1_left.dart';
+import 'package:chromatic_chasm/game_elements/player/skins/skin1/drawables/player_skin_1_right.dart';
 
 class PlayerSkin1 implements PlayerSkin {
   @override

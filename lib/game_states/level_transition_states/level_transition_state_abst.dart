@@ -4,7 +4,8 @@ abstract class LevelTransitionState extends GameState {
   final Level _level;
   final Player _player;
 
-  LevelTransitionState(super.gameStateProvider, super.camera, super.runState, this._level, this._player,
+  LevelTransitionState(super.gameStateProvider, super.camera, super.runState,
+      this._level, this._player,
       {super.direction});
 
   static const Duration animationDuration = Duration(seconds: 3);

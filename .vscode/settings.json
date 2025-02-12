@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "C:/Programming/Project/Flutter/FlutterTempest/windows/flutter"
+    "cmake.sourceDirectory": "C:/Programming/Project/Flutter/FlutterTempest/windows/flutter",
+    "cmake.ignoreCMakeListsMissing": true
 }

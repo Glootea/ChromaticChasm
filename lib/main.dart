@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:provider/provider.dart';
 import 'package:chromatic_chasm/game_elements/base_classes/drawable.dart';
 import 'package:chromatic_chasm/game_elements/level/level.dart';
@@ -28,7 +27,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final level = Level1();
-  double get size => min(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height - 270);
+  double get size => min(MediaQuery.of(context).size.width,
+      MediaQuery.of(context).size.height - 270);
   Size get gamePainterSize => Size(size, size);
 
   @override
@@ -56,7 +56,8 @@ class _MyAppState extends State<MyApp> {
                   clipper: GamePainterClipper(gamePainterSize),
                   child: CustomPaint(
                     size: gamePainterSize,
-                    painter: GamePainter(gameState, repaint: context.watch<GameStateProvider>()),
+                    painter: GamePainter(gameState,
+                        repaint: context.watch<GameStateProvider>()),
                   )),
             ),
             Align(
@@ -75,15 +76,19 @@ class _MyAppState extends State<MyApp> {
               ),
               Center(
                   child: Padding(
-                      padding: EdgeInsets.only(right: 150, top: 20),
+                      padding: EdgeInsets.only(right: 150, bottom: 30),
                       child: SizedBox(
                           width: 120,
                           height: 120,
                           child: GestureDetector(
                             onPanUpdate: (details) {
-                              if ((details.localPosition.dx).abs() <= 0.3 && (details.localPosition.dy).abs() <= 0.3)
+                              if ((details.localPosition.dx).abs() <= 0.3 &&
+                                  (details.localPosition.dy).abs() <= 0.3) {
                                 return;
-                              final angle = (atan2(details.localPosition.dx, details.localPosition.dy));
+                              }
+                              final angle = (atan2(
+                                  details.localPosition.dx - 60,
+                                  details.localPosition.dy - 60));
                               gameState.onAngleChanged(angle);
                             },
                           )))),
@@ -91,27 +96,12 @@ class _MyAppState extends State<MyApp> {
                   child: Padding(
                       padding: EdgeInsets.only(left: 170, top: 55),
                       child: SizedBox(
-                          width: 50, height: 50, child: GestureDetector(onTap: gameState.onFireButtonPressed))))
+                          width: 50,
+                          height: 50,
+                          child: GestureDetector(
+                              onTap: gameState.onFireButtonPressed))))
             ]),
           ),
-          // Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-          //   Joystick(
-          //       period: const Duration(milliseconds: 16),
-          //       listener: (details) {
-          //         // ignore small movements in the middle / dead zone
-          //         if ((details.x).abs() <= 0.3 && (details.y).abs() <= 0.3) return;
-          //         final angle = (atan2(details.x, details.y));
-          //         gameState.onAngleChanged(angle);
-          //       }),
-          //   Column(children: [
-          //     OutlinedButton(
-          //       onPressed: gameState.onFireButtonPressed,
-          //       child: const Icon(Icons.local_fire_department_outlined),
-          //     ),
-          //     Switch(value: false, onChanged: ((value) {})),
-          //     const Text("Auto fire")
-          //   ])
-          // ]),
         ]),
       ])),
     ));
@@ -127,7 +117,9 @@ class RunDataRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = context.watch<GameStateProvider>().currentState.runState;
     if (state.lives == 0) {
-      return Center(child: Text("Ваш счет: ${state.score} \nНажмите 'Огонь' для перезапуска"));
+      return Center(
+          child: Text(
+              "Ваш счет: ${state.score} \nНажмите 'Огонь' для перезапуска"));
     }
     return Row(
       children: <Widget>[

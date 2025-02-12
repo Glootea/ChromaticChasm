@@ -8,7 +8,8 @@ abstract class _GameObject {
   final Positionable pivot;
   GameObjectLifecycle lifecycleState;
   DateTime lastFrameTimestamp = DateTime.now();
-  _GameObject(this.pivot, {GameObjectLifecycle? lifecycle}) : lifecycleState = lifecycle ?? LiveLifecycle();
+  _GameObject(this.pivot, {GameObjectLifecycle? lifecycle})
+      : lifecycleState = lifecycle ?? LiveLifecycle();
 
   void onFrame(Canvas canvas, Camera camera, DateTime frameTimestamp);
 }
@@ -17,25 +18,28 @@ abstract class _TileGameObject extends _GameObject {
   @override
   // ignore: overridden_fields
   final TilePositionable pivot;
-  _TileGameObject(this.pivot, {GameObjectLifecycle? lifecycle}) : super(pivot, lifecycle: lifecycle);
+  _TileGameObject(this.pivot, {GameObjectLifecycle? lifecycle})
+      : super(pivot, lifecycle: lifecycle);
 }
 
 abstract class StatefulTileGameObject extends _TileGameObject {
   int state;
   final List<Drawable> drawables;
-  StatefulTileGameObject(super.pivot, this.drawables, this.state, {super.lifecycle});
+  StatefulTileGameObject(super.pivot, this.drawables, this.state,
+      {super.lifecycle});
 }
 
 abstract class StatelessTileGameObject extends _TileGameObject {
   final Drawable drawable;
-  StatelessTileGameObject(TilePositionable pivot, this.drawable, {super.lifecycle}) : super(pivot);
+  StatelessTileGameObject(super.pivot, this.drawable, {super.lifecycle});
 }
 
 abstract class _GlobalGameObject extends _GameObject {
   @override
   // ignore: overridden_fields
   final Positionable pivot;
-  _GlobalGameObject(this.pivot, {GameObjectLifecycle? lifecycle}) : super(pivot, lifecycle: lifecycle);
+  _GlobalGameObject(this.pivot, {GameObjectLifecycle? lifecycle})
+      : super(pivot, lifecycle: lifecycle);
 }
 
 abstract class StatelessGlobalGameObject extends _GlobalGameObject {
@@ -46,7 +50,8 @@ abstract class StatelessGlobalGameObject extends _GlobalGameObject {
 abstract class StatefulGlobalGameObject extends _GlobalGameObject {
   int state;
   final List<Drawable> drawables;
-  StatefulGlobalGameObject(super.pivot, this.drawables, this.state, {super.lifecycle});
+  StatefulGlobalGameObject(super.pivot, this.drawables, this.state,
+      {super.lifecycle});
 }
 
 abstract class ComplexGlobalGameObject extends _GameObject {

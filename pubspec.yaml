@@ -28,17 +28,16 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  dhttpd: ^4.1.0
   flutter:
     sdk: flutter
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  flutter_joystick: ^0.0.4
+  flutter_joystick: ^0.2.1
   lzstring: ^2.0.0+2
-  provider: ^6.1.1
-  rive: ^0.13.4
-  shared_preferences: ^2.2.2
+  provider: ^6.1.2
+  rive: ^0.13.20
+  shared_preferences: ^2.5.2
   vector_math: ^2.1.4
 
 dev_dependencies:
@@ -50,7 +49,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
