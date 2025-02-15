@@ -56,12 +56,13 @@ sealed class GameState {
     Camera? camera,
     this.runState, {
     int? direction,
-  })  : _direction = direction,
-        camera = camera ?? Camera(Positionable(0, 0, 0));
+  }) : _direction = direction,
+       camera = camera ?? Camera(Positionable(0, 0, 0));
 
   ///Prevents player from moving too fast/instantly
-  final _playerMovementThrottler =
-      Throttler(Duration(milliseconds: (Drawable.syncTime * 1.5).toInt()));
+  final _playerMovementThrottler = Throttler(
+    Duration(milliseconds: (Drawable.syncTime * 1.5).toInt()),
+  );
 
   double _getTimeFraction(DateTime now, DateTime last) =>
       (now.difference(last).inMilliseconds /

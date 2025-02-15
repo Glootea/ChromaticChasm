@@ -32,8 +32,10 @@ mixin class TransitionLifeCycle implements TimefulLifecycle {
   set _setDuration(Duration d) => duration = d;
 
   Positionable _startOffsetPivot = Positionable.zero();
-  late Positionable _anchorOffsetPivot =
-      PositionFunctions.median(_startOffsetPivot, _endOffsetPivot);
+  late Positionable _anchorOffsetPivot = PositionFunctions.median(
+    _startOffsetPivot,
+    _endOffsetPivot,
+  );
   Positionable _endOffsetPivot = Positionable.zero();
   EasingFunction _easingFunction = EasingFunctions.linear;
   TransitionFunction _transitionFunction = TransitionFunctions.bezierCurve;
@@ -129,15 +131,15 @@ class PlayerFlyOutsideLevel extends PlayerLifecycle with TransitionLifeCycle {
     // lastAngle += (delta > pi ? 2 * pi - delta : delta) * 0.05;
     return timeFraction <= 0.5
         ? lerpDouble(
-            startAngle,
-            0,
-            EasingFunctions.easeInOutCubic(timeFraction) * 2,
-          )!
+          startAngle,
+          0,
+          EasingFunctions.easeInOutCubic(timeFraction) * 2,
+        )!
         : lerpDouble(
-            0,
-            targetAngle,
-            EasingFunctions.easeInOutCubic(timeFraction) * 2 - 1,
-          )!;
+          0,
+          targetAngle,
+          EasingFunctions.easeInOutCubic(timeFraction) * 2 - 1,
+        )!;
     // prevPivot.setFrom(_pivot);
   }
 }
@@ -175,7 +177,8 @@ final class PlayerFlyFromLevel extends PlayerFlyOutsideLevel {
     startAngle = angle;
     targetAngle = x.sign > 0 ? -pi / 2 : pi / 2;
     configureTransition(
-      Positionable.zero(), Positionable(x, y, z),
+      Positionable.zero(),
+      Positionable(x, y, z),
       easingFunction: EasingFunctions.easeInCubic,
       anchorOffsetPivot: Positionable(0, 0, z),
       // anchorOffsetPivot: Positionable(_startOffsetPivot.x, _startOffsetPivot.y, _endOffsetPivot.z),

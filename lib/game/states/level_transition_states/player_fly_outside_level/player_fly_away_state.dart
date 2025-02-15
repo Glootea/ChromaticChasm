@@ -11,8 +11,9 @@ class PlayerFlyAwayState extends PlayerFlyOutsideLevel {
   @override
   void init() {
     _startCameraPivot = camera.pivot.clone();
-    _player.lifecycleState =
-        PlayerFlyFromLevel(LevelTileHelper.getAngle(_player.pivot));
+    _player.lifecycleState = PlayerFlyFromLevel(
+      LevelTileHelper.getAngle(_player.pivot),
+    );
     camera.lifecycleState = ObjectMoving(_startCameraPivot, _startCameraPivot);
   }
 

@@ -29,8 +29,8 @@ class PlayingState extends GameState {
     this.player,
     this.stars, {
     super.direction,
-  })  : enemies = [],
-        shots = [];
+  }) : enemies = [],
+       shots = [];
   @override
   void init() {
     player.lifecycleState = PlayerLive();
@@ -75,8 +75,9 @@ class PlayingState extends GameState {
   @override
   void handleKeyboardMovement() {
     if (_direction != null) {
-      _playerMovementThrottler
-          .throttle(() => player.moveTargetTile(_direction!));
+      _playerMovementThrottler.throttle(
+        () => player.moveTargetTile(_direction!),
+      );
     }
   }
 
@@ -112,8 +113,11 @@ class PlayingState extends GameState {
         enemies.removeAt(enemyNum);
         runState.removeLife();
         if (runState.lives == 0) {
-          gameStateProvider.currentState =
-              GameOverState(gameStateProvider, camera, runState);
+          gameStateProvider.currentState = GameOverState(
+            gameStateProvider,
+            camera,
+            runState,
+          );
         } else {
           gameStateProvider.currentState = LevelAppearState(
             gameStateProvider,

@@ -1,0 +1,38 @@
+{
+    "@@locale": "en",
+    "appTitle": "Chromatic Chasm",
+    "@appTitle": {
+        "description": "Application title"
+    },
+    "play": "Play",
+    "@play": { "description": "Play button on main screen" },
+    "tutorial": "Tutorial",
+    "@tutorial": { "description": "Tutorial button on main screen" },
+    "levelBuilder": "Level Builder",
+    "@levelBuilder": { "description": "Level builder button on main screen" },
+    "deleteLevel": "Delete Level?",
+    "@deleteLevel": { "description": "Confirmation dialog for deleting level on level selection screen" },
+    "delete": "Delete",
+    "@delete": { "description": "Delete button on level selection screen" },
+    "cancel": "Cancel",
+    "@cancel": { "description": "Cancel button on level selection screen" },
+    "levelSelection": "Level Selection",
+    "@levelSelection": { "description": "Title of level selection screen" },
+    "depth": "Depth",
+    "@depth": { "description": "Depth slider label on level editor screen" },
+    "levelIsLooped": "Level is looped",
+    "@levelIsLooped": { "description": "Loop checkbox label on level editor screen's drawer" },
+    "levelDepth": "Level depth",
+    "@levelDepth": { "description": "Level depth label on level editor screen's drawer" },
+    "save": "Save",
+    "@save": { "description": "Save button on level editor screen" },
+    "saveChanges": "Save changes?",
+    "@saveChanges": { "description": "Confirmation dialog for saving changes on level editor screen" },
+    "saveQuestion": "Save?",
+    "@saveQuestion": { "description": "Confirmation dialog for saving level on level editor screen" },
+    "newLevel": "New Level",
+    "@newLevel": { "description": "New level name on level selection screen" },
+    "removeChanges": "Remove changes",
+    "@removeChanges": { "description": "Remove changes button on level editor screen" }
+
+}

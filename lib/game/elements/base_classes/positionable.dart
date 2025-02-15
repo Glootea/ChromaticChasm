@@ -51,52 +51,52 @@ class Positionable extends Vector3 implements Transformable {
 
   @override
   List<Positionable> rotateX(double angle) => [
-        Positionable.copy(
-          Matrix3(
-            1,
-            0,
-            0,
-            0,
-            cos(angle),
-            -sin(angle),
-            0,
-            sin(angle),
-            cos(angle),
-          ).transformed(this),
-        ),
-      ];
+    Positionable.copy(
+      Matrix3(
+        1,
+        0,
+        0,
+        0,
+        cos(angle),
+        -sin(angle),
+        0,
+        sin(angle),
+        cos(angle),
+      ).transformed(this),
+    ),
+  ];
   @override
   List<Positionable> rotateY(double angle) => [
-        Positionable.copy(
-          Matrix3(
-            cos(angle),
-            0,
-            sin(angle),
-            0,
-            1,
-            0,
-            -sin(angle),
-            0,
-            cos(angle),
-          ).transformed(this),
-        ),
-      ];
+    Positionable.copy(
+      Matrix3(
+        cos(angle),
+        0,
+        sin(angle),
+        0,
+        1,
+        0,
+        -sin(angle),
+        0,
+        cos(angle),
+      ).transformed(this),
+    ),
+  ];
   @override
   List<Positionable> rotateZ(double angle) => [
-        Positionable.copy(
-          Matrix3(
-            cos(angle),
-            -sin(angle),
-            0,
-            sin(angle),
-            cos(angle),
-            0,
-            0,
-            0,
-            1,
-          ).transformed(this),
-        ),
-      ];
+    Positionable.copy(
+      Matrix3(
+        cos(angle),
+        -sin(angle),
+        0,
+        sin(angle),
+        cos(angle),
+        0,
+        0,
+        0,
+        1,
+      ).transformed(this),
+    ),
+  ];
 
   @override
   List<Transformable> scaleToWidth(double width) {
@@ -112,8 +112,7 @@ extension PositionFunctions on Positionable {
     Positionable first,
     Positionable second,
     double fraction,
-  ) =>
-      first + ((second - first) * fraction);
+  ) => first + ((second - first) * fraction);
   Positionable toGlobal(Positionable pivot) => this + pivot;
 }
 
@@ -178,5 +177,13 @@ class TilePositionable extends Positionable {
     this.widthFraction = widthFraction ?? this.widthFraction;
     this.offset = offset ?? this.offset;
     setFrom(globalPosition);
+  }
+
+  /// Resets [depthFraction], [widthFraction], [offset] and [tileNumber (to level middle)] to default values
+  void reset() {
+    depthFraction = 0;
+    widthFraction = 0.5;
+    offset = null;
+    tileNumber = level.tiles.length ~/ 2;
   }
 }

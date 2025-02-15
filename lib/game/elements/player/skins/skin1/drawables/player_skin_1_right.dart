@@ -3,7 +3,7 @@ import 'package:chromatic_chasm/game/elements/base_classes/positionable.dart';
 
 class PlayerSkin1Right extends Drawable2D {
   PlayerSkin1Right(TilePositionable startPivot)
-      : super(startPivot, _vertexes, _edges);
+    : super(startPivot, _vertexes, _edges);
   static final _vertexes = [
     Positionable(0.0, -1.0, 0.0),
     Positionable(0.53, 0.0, 0.0),

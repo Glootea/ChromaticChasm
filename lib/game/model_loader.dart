@@ -15,10 +15,12 @@ class ModelLoader {
       throw ArgumentError("Failed to decode source $name");
     }
     final Map<String, dynamic>? sourceMap = jsonDecode(decodedString);
-    final verticesList = (sourceMap!['vertices'] as List)
-        .map((e) => Float32List.fromList(e.cast<double>()));
-    final edgesRaw =
-        Uint8List.fromList((sourceMap['edges'] as List).cast<int>());
+    final verticesList = (sourceMap!['vertices'] as List).map(
+      (e) => Float32List.fromList(e.cast<double>()),
+    );
+    final edgesRaw = Uint8List.fromList(
+      (sourceMap['edges'] as List).cast<int>(),
+    );
     final edges = List.generate(
       edgesRaw.length ~/ 2,
       (index) => [edgesRaw[index * 2], edgesRaw[index * 2 + 1]],

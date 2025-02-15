@@ -7,17 +7,18 @@ import 'package:flutter/material.dart';
 
 class Shot extends StatelessTileGameObject {
   Shot._(TilePositionable pivot)
-      : super(
-          pivot,
-          Drawable3D(pivot, _vertices, _faces)
-            ..applyTransformation(widthToScale: 2),
-        );
+    : super(
+        pivot,
+        Drawable3D(pivot, _vertices, _faces)
+          ..applyTransformation(widthToScale: 2),
+      );
   Shot(Level level, int tileNumber)
-      : this._(TilePositionable(level, tileNumber, depthFraction: 0));
+    : this._(TilePositionable(level, tileNumber, depthFraction: 0));
 
-  static final Paint _paint = Paint()
-    ..color = Colors.red
-    ..strokeWidth = Drawable.strokeWidth;
+  static final Paint _paint =
+      Paint()
+        ..color = Colors.red
+        ..strokeWidth = Drawable.strokeWidth;
 
   static final List<Positionable> _vertices = [
     Positionable(0.0, 1.0, 0.0),
@@ -35,7 +36,7 @@ class Shot extends StatelessTileGameObject {
     Positionable(0.0, 0.0, 3.0),
   ];
 
-// in blender faces must be fliped so they are red to get right face culling
+  // in blender faces must be fliped so they are red to get right face culling
   static final List<List<int>> _faces = [
     [0, 5, 11, 6],
     [4, 3, 9, 10],
@@ -55,7 +56,8 @@ class Shot extends StatelessTileGameObject {
   final double _speed = 0.025;
 
   void _updatePosition(DateTime frameTimestamp) {
-    final depthFraction = pivot.depthFraction +
+    final depthFraction =
+        pivot.depthFraction +
         _speed *
             (frameTimestamp.difference(lastFrameTimestamp).inMilliseconds /
                 Drawable.syncTime);

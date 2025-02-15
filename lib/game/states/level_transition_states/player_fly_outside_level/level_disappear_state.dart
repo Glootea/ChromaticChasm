@@ -26,13 +26,7 @@ class LevelDisappearState extends LevelTransitionState {
     double timeFraction = _getTimeFraction(frameTimestamp, _startTime);
     handleNextState(
       timeFraction >= 1,
-      PlayerFlyAwayState(
-        gameStateProvider,
-        camera,
-        runState,
-        _level,
-        _player,
-      ),
+      PlayerFlyAwayState(gameStateProvider, camera, runState, _level, _player),
     );
     handleDepth(timeFraction);
     handleKeyboardMovement();
@@ -48,8 +42,9 @@ class LevelDisappearState extends LevelTransitionState {
   @override
   void handleKeyboardMovement() {
     if (_direction != null) {
-      _playerMovementThrottler
-          .throttle(() => _player.moveTargetTile(_direction!));
+      _playerMovementThrottler.throttle(
+        () => _player.moveTargetTile(_direction!),
+      );
     }
   }
 }

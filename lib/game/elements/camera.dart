@@ -7,11 +7,11 @@ import 'package:chromatic_chasm/game/elements/base_classes/positionable.dart';
 
 class Camera extends StatelessGlobalGameObject {
   Camera(Positionable pivot, {ObjectLifeCycle? cameraLifeCycle})
-      : super(
-          pivot,
-          Drawable2D(pivot, [], []),
-          lifecycle: cameraLifeCycle ?? ObjectStationary(),
-        );
+    : super(
+        pivot,
+        Drawable2D(pivot, [], []),
+        lifecycle: cameraLifeCycle ?? ObjectStationary(),
+      );
 
   @override
   void onFrame(Canvas canvas, Camera camera, DateTime frameTimestamp) {

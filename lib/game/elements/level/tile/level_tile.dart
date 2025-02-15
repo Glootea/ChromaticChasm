@@ -23,8 +23,7 @@ class LevelTile extends StatelessGlobalGameObject {
   List<Positionable> toGlobalPoints(
     List<Positionable> points,
     Positionable pivot,
-  ) =>
-      points.map((point) => point + pivot).toList();
+  ) => points.map((point) => point + pivot).toList();
 
   /// Points are in order: left near, left far, right far, right near. All points must be
   LevelTile(super.pivot, super.drawable);
@@ -36,16 +35,20 @@ class LevelTile extends StatelessGlobalGameObject {
     Positionable rigth,
     double depth,
   ) : this(
+        pivot,
+        Drawable2D(
           pivot,
-          Drawable2D(pivot, [
+          [
             left,
             left + Positionable(0, 0, depth),
             rigth + Positionable(0, 0, depth),
             rigth,
-          ], [
+          ],
+          [
             [0, 1, 2, 3],
-          ]),
-        );
+          ],
+        ),
+      );
   List<double>? _angleRange;
   List<double> get angleRange => _angleRange ?? _calculateAngleRange();
   Positionable get leftNearPointGlobal => drawable.getGlobalVertexes[0];
@@ -55,8 +58,10 @@ class LevelTile extends StatelessGlobalGameObject {
 
   ///Used to determine if joystick points at this tile
   List<double> _calculateAngleRange() {
-    final leftAngle =
-        atan2(leftNearPointGlobal.x - pivot.x, leftNearPointGlobal.y - pivot.y);
+    final leftAngle = atan2(
+      leftNearPointGlobal.x - pivot.x,
+      leftNearPointGlobal.y - pivot.y,
+    );
     final rightAngle = atan2(
       rightNearPointGlobal.x - pivot.x,
       rightNearPointGlobal.y - pivot.y,
@@ -65,13 +70,15 @@ class LevelTile extends StatelessGlobalGameObject {
     return _angleRange!;
   }
 
-  static Paint defaultPaint = Paint()
-    ..color = Colors.blue
-    ..strokeWidth = Drawable.strokeWidth;
+  static Paint defaultPaint =
+      Paint()
+        ..color = Colors.blue
+        ..strokeWidth = Drawable.strokeWidth;
 
-  static Paint activePaint = Paint()
-    ..color = Colors.yellow
-    ..strokeWidth = Drawable.strokeWidth;
+  static Paint activePaint =
+      Paint()
+        ..color = Colors.yellow
+        ..strokeWidth = Drawable.strokeWidth;
 
   @override
   void onFrame(Canvas canvas, Camera camera, DateTime frameTimestamp) {

@@ -17,7 +17,8 @@ sealed class Enemy extends StatelessTileGameObject {
   Enemy._(super.pivot, super.drawable);
 
   bool checkPlayerHit(Player player) {
-    final hit = pivot.level.activeTile == pivot.tileNumber &&
+    final hit =
+        pivot.level.activeTile == pivot.tileNumber &&
         pivot.depthFraction <= 0.02;
     return hit;
   }
@@ -27,7 +28,8 @@ sealed class Enemy extends StatelessTileGameObject {
   ///Returns null if no shot hit
   int? shotHitNumber(List<Shot> shots) {
     for (final (i, shot) in shots.indexed) {
-      final hit = shot.pivot.tileNumber == pivot.tileNumber &&
+      final hit =
+          shot.pivot.tileNumber == pivot.tileNumber &&
           (shot.pivot.depthFraction - pivot.depthFraction).abs() < 0.05;
       if (hit) {
         _lifes -= 1;

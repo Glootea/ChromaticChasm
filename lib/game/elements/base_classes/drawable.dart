@@ -40,11 +40,13 @@ sealed class Drawable implements Transformable {
     point.z =
         point.z <= 0 ? 0.5 : point.z; //prevent imaginary draw behing camera
 
-    final x = ((_distanceToCamera * point.x / (point.z + _distanceToCamera)) /
+    final x =
+        ((_distanceToCamera * point.x / (point.z + _distanceToCamera)) /
                 (_distanceToCamera * 4) +
             0.5) *
         canvasSize;
-    final y = (((_distanceToCamera * point.y / (point.z + _distanceToCamera)) /
+    final y =
+        (((_distanceToCamera * point.y / (point.z + _distanceToCamera)) /
                 (_distanceToCamera * 4)) +
             0.5) *
         canvasSize;
@@ -76,35 +78,40 @@ sealed class Drawable implements Transformable {
   ///Rotates all points around pivot by angle. If points are in local coordinates, [_pivot] = Positionable.zero()
   @override
   List<Positionable> rotateX(double angle) =>
-      _transformedVertexes = _transformedVertexes
-          .map((point) => point.rotateX(angle - pi / 2))
-          .expand((element) => element)
-          .toList();
+      _transformedVertexes =
+          _transformedVertexes
+              .map((point) => point.rotateX(angle - pi / 2))
+              .expand((element) => element)
+              .toList();
 
   ///Rotates all points around pivot by angle. If points are in local coordinates, [_pivot] = Positionable.zero()
   @override
   List<Positionable> rotateY(double angle) =>
-      _transformedVertexes = _transformedVertexes
-          .map((point) => point.rotateY(angle - pi / 2))
-          .expand((element) => element)
-          .toList();
+      _transformedVertexes =
+          _transformedVertexes
+              .map((point) => point.rotateY(angle - pi / 2))
+              .expand((element) => element)
+              .toList();
 
   ///Rotates all points around pivot by angle. If points are in local coordinates, [_pivot] = Positionable.zero()
   @override
   List<Positionable> rotateZ(double angle) =>
-      _transformedVertexes = _transformedVertexes
-          .map((point) => point.rotateZ(angle - pi / 2))
-          .expand((element) => element)
-          .toList();
+      _transformedVertexes =
+          _transformedVertexes
+              .map((point) => point.rotateZ(angle - pi / 2))
+              .expand((element) => element)
+              .toList();
 
   @override
   List<Transformable> scaleToWidth(double width) {
-    final maxWidth = _transformedVertexes
-        .reduce(
-          (value, element) => value.y.abs() > element.y.abs() ? value : element,
-        )
-        .y
-        .abs();
+    final maxWidth =
+        _transformedVertexes
+            .reduce(
+              (value, element) =>
+                  value.y.abs() > element.y.abs() ? value : element,
+            )
+            .y
+            .abs();
     final k = width / maxWidth;
     return _transformedVertexes =
         _transformedVertexes.map((e) => e * k).toList();
@@ -119,18 +126,14 @@ class Drawable3D extends Drawable {
     for (final (i, face) in _faces.indexed) {
       if (_visible(i, camera)) {
         final projected = _project2D(
-          List.generate(
-            face.length,
-            (index) => getGlobalVertexes[face[index]],
-          ),
+          List.generate(face.length, (index) => getGlobalVertexes[face[index]]),
           camera.pivot,
         );
         canvas.drawPoints(PointMode.polygon, projected, paint);
-        canvas.drawPoints(
-          PointMode.lines,
-          [projected.first, projected.last],
-          paint,
-        );
+        canvas.drawPoints(PointMode.lines, [
+          projected.first,
+          projected.last,
+        ], paint);
       }
     }
   }
@@ -144,9 +147,9 @@ class Drawable3D extends Drawable {
     final dir = (_transformedVertexes[_faces[faceNumber][1]] -
             _transformedVertexes[_faces[faceNumber][0]])
         .cross(
-      _transformedVertexes[_faces[faceNumber][2]] -
-          _transformedVertexes[_faces[faceNumber][0]],
-    );
+          _transformedVertexes[_faces[faceNumber][2]] -
+              _transformedVertexes[_faces[faceNumber][0]],
+        );
     final normal = dir.normalized();
     return normal;
   }
@@ -163,11 +166,10 @@ class Drawable2D extends Drawable {
         camera.pivot,
       );
       canvas.drawPoints(PointMode.polygon, projected, paint);
-      canvas.drawPoints(
-        PointMode.lines,
-        [projected.first, projected.last],
-        paint,
-      );
+      canvas.drawPoints(PointMode.lines, [
+        projected.first,
+        projected.last,
+      ], paint);
     }
   }
 }

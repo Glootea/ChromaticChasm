@@ -3,8 +3,10 @@ part of 'package:chromatic_chasm/game/states/game_state.dart';
 class LevelAppearState extends PlayerFlyOutsideLevel {
   final _startCameraPivot = Positionable(0, 0, -5000);
   late final Positionable targetCameraPivot = Positionable.all(0);
-  late final _stars =
-      List.generate(5, (index) => Star.createStationary(_level));
+  late final _stars = List.generate(
+    5,
+    (index) => Star.createStationary(_level),
+  );
   LevelAppearState(
     super.gameStateProvider,
     super.camera,
@@ -13,10 +15,11 @@ class LevelAppearState extends PlayerFlyOutsideLevel {
     super._player,
   );
   LevelAppearState.newCycle(GameStateProvider gameStateProvider, Level level)
-      : this(gameStateProvider, null, RunState(), level, Player(level));
+    : this(gameStateProvider, null, RunState(), level, Player(level));
 
   @override
   void init() {
+    _player.resetForNewLevel();
     _player.lifecycleState = PlayerFlyToLevel(_level);
     camera.lifecycleState = ObjectMoving(
       _startCameraPivot,

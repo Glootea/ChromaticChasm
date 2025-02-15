@@ -30,9 +30,10 @@ class GameOverState extends GameState {
 
   @override
   void onFireButtonPressed() {
-    gameStateProvider.currentState =
-        LevelAppearState.newCycle(gameStateProvider, Level.getRandomLevel())
-          ..init();
+    gameStateProvider.currentState = LevelAppearState.newCycle(
+      gameStateProvider,
+      Level.getRandomLevel(),
+    )..init();
   }
 
   @override

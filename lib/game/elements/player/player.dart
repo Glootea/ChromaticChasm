@@ -10,21 +10,22 @@ import 'package:flutter/material.dart';
 
 class Player extends StatefulTileGameObject {
   Player(Level level)
-      : this._(
-          TilePositionable(level, level.tiles.length ~/ 2, depthFraction: 0),
-        );
+    : this._(
+        TilePositionable(level, level.tiles.length ~/ 2, depthFraction: 0),
+      );
   Player._(TilePositionable tile)
-      : this.__(tile, PlayerSkin1().getDrawables(tile));
+    : this.__(tile, PlayerSkin1().getDrawables(tile));
   Player.__(TilePositionable tile, List<Drawable> drawables)
-      : super(tile, drawables, (drawables.length / 2).floor()) {
+    : super(tile, drawables, (drawables.length / 2).floor()) {
     super.lifecycleState = PlayerFlyToLevel(tile.level);
   }
 
   ///Time to move from one [tileStates] to another
   ///
   ///Should be set as time to move from center of the tile to the center of the next tile divided by [tileStates.length]
-  late final Duration _timeToMove =
-      Duration(milliseconds: Drawable.syncTime ~/ drawables.length);
+  late final Duration _timeToMove = Duration(
+    milliseconds: Drawable.syncTime ~/ drawables.length,
+  );
   static double playerSize = 7;
   // PlayerLifecycle lifecycleState;
 
@@ -46,20 +47,21 @@ class Player extends StatefulTileGameObject {
   ///Positive value means player is moving right, negative - left
   int _movementCount = 0;
 
-  final paint = Paint()
-    ..color = Colors.yellow
-    ..strokeWidth = Drawable.strokeWidth;
+  final paint =
+      Paint()
+        ..color = Colors.yellow
+        ..strokeWidth = Drawable.strokeWidth;
 
   @override
   void onFrame(Canvas canvas, Camera camera, DateTime frameTimestamp) {
     _updatePosition(frameTimestamp);
-    (drawables[state]
-          ..applyTransformation(
-            widthToScale: playerSize,
-            angleZ: (lifecycleState is PlayerFlyOutsideLevel)
-                ? (lifecycleState as PlayerFlyOutsideLevel).getAngle
-                : LevelTileHelper.getAngle(pivot),
-          ))
+    (drawables[state]..applyTransformation(
+          widthToScale: playerSize,
+          angleZ:
+              (lifecycleState is PlayerFlyOutsideLevel)
+                  ? (lifecycleState as PlayerFlyOutsideLevel).getAngle
+                  : LevelTileHelper.getAngle(pivot),
+        ))
         .show(canvas, camera, paint);
   }
 
@@ -74,8 +76,9 @@ class Player extends StatefulTileGameObject {
       return (straight < looped ? straight : -looped);
     }
 
-    int getCircularDistance() => (getCurcularTiles() * drawables.length * sign +
-        (_centralState - state));
+    int getCircularDistance() =>
+        (getCurcularTiles() * drawables.length * sign +
+            (_centralState - state));
     int getLinearDistance() =>
         (getLinearTiles() * drawables.length * sign + (_centralState - state));
 
@@ -90,11 +93,13 @@ class Player extends StatefulTileGameObject {
             if (_movementCount != 0) {
               state += _movementCount.sign;
               if (state == -1) {
-                setActiveTile = (level.activeTile + _movementCount.sign) %
+                setActiveTile =
+                    (level.activeTile + _movementCount.sign) %
                     level.tiles.length;
                 state = drawables.length - 1;
               } else if (state == drawables.length) {
-                setActiveTile = (level.activeTile + _movementCount.sign) %
+                setActiveTile =
+                    (level.activeTile + _movementCount.sign) %
                     level.tiles.length;
                 state = 0;
               }
@@ -104,9 +109,10 @@ class Player extends StatefulTileGameObject {
           }
           pivot.updatePosition(
             widthFraction: (state + 1) / (drawables.length + 1),
-            depthFraction: lifecycleState.runtimeType == PlayerFlyThroughLevel
-                ? (lifecycleState as PlayerFlyThroughLevel).timeFraction
-                : 0,
+            depthFraction:
+                lifecycleState.runtimeType == PlayerFlyThroughLevel
+                    ? (lifecycleState as PlayerFlyThroughLevel).timeFraction
+                    : 0,
           );
         }
       case PlayerFlyFromLevel _ || PlayerFlyToLevel _:
@@ -140,4 +146,6 @@ class Player extends StatefulTileGameObject {
     }
     setTargetTile = _targetTile + direction;
   }
+
+  void resetForNewLevel() => pivot.reset();
 }

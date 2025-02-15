@@ -2,17 +2,16 @@ part of 'package:chromatic_chasm/game/elements/enemies/enemy.dart';
 
 class Spider extends Enemy {
   Spider._(TilePositionable pivot)
-      : super._(
-          pivot,
-          SpiderDefaultDrawable(pivot)
-            ..applyTransformation(
-              angleZ: LevelTileHelper.getAngle(pivot),
-              widthToScale: LevelTileHelper.getTileWidth(pivot),
-            ),
-        );
+    : super._(
+        pivot,
+        SpiderDefaultDrawable(pivot)..applyTransformation(
+          angleZ: LevelTileHelper.getAngle(pivot),
+          widthToScale: LevelTileHelper.getTileWidth(pivot),
+        ),
+      );
 
   Spider(Level level, int tileNumber)
-      : this._(TilePositionable(level, tileNumber, depthFraction: 1));
+    : this._(TilePositionable(level, tileNumber, depthFraction: 1));
 
   @override
   void onFrame(Canvas canvas, Camera camera, DateTime frameTimestamp) {
@@ -20,9 +19,10 @@ class Spider extends Enemy {
     drawable.show(canvas, camera, _paint);
   }
 
-  static final Paint _paint = Paint()
-    ..color = Colors.red
-    ..strokeWidth = Drawable.strokeWidth;
+  static final Paint _paint =
+      Paint()
+        ..color = Colors.red
+        ..strokeWidth = Drawable.strokeWidth;
 
   /// Depth fraction of how much is traveled on one [Drawable.syncTime]
   @override
@@ -30,7 +30,8 @@ class Spider extends Enemy {
 
   @override
   void updatePosition(DateTime frameTimestamp) {
-    final depthFraction = pivot.depthFraction -
+    final depthFraction =
+        pivot.depthFraction -
         speed *
             (frameTimestamp.difference(lastFrameTimestamp).inMilliseconds /
                 Drawable.syncTime);

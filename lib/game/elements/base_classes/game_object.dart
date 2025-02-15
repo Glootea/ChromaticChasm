@@ -9,7 +9,7 @@ abstract class _GameObject {
   GameObjectLifecycle lifecycleState;
   DateTime lastFrameTimestamp = DateTime.now();
   _GameObject(this.pivot, {GameObjectLifecycle? lifecycle})
-      : lifecycleState = lifecycle ?? LiveLifecycle();
+    : lifecycleState = lifecycle ?? LiveLifecycle();
 
   void onFrame(Canvas canvas, Camera camera, DateTime frameTimestamp);
 }
@@ -19,7 +19,7 @@ abstract class _TileGameObject extends _GameObject {
   // ignore: overridden_fields
   final TilePositionable pivot;
   _TileGameObject(this.pivot, {GameObjectLifecycle? lifecycle})
-      : super(pivot, lifecycle: lifecycle);
+    : super(pivot, lifecycle: lifecycle);
 }
 
 abstract class StatefulTileGameObject extends _TileGameObject {
@@ -43,7 +43,7 @@ abstract class _GlobalGameObject extends _GameObject {
   // ignore: overridden_fields
   final Positionable pivot;
   _GlobalGameObject(this.pivot, {GameObjectLifecycle? lifecycle})
-      : super(pivot, lifecycle: lifecycle);
+    : super(pivot, lifecycle: lifecycle);
 }
 
 abstract class StatelessGlobalGameObject extends _GlobalGameObject {

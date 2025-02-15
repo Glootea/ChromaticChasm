@@ -13,28 +13,28 @@ import 'package:vector_math/vector_math.dart' show Vector3;
 
 class Star extends StatelessGlobalGameObject {
   Star.createStationary(Level level)
-      : this._createStationary(PositionableGenerator.aroundLevel(level));
+    : this._createStationary(PositionableGenerator.aroundLevel(level));
   Star._createStationary(Positionable pivot)
-      : super(
-          pivot,
-          Drawable3D(pivot, _vertices, _faces)
-            ..applyTransformation(
-              widthToScale: Random().nextDouble() * 3,
-              angleX: AngleGenerator.getRandomAngle,
-              angleY: AngleGenerator.getRandomAngle,
-              angleZ: AngleGenerator.getRandomAngle,
-            ),
-          lifecycle: ObjectStationary(),
-        );
+    : super(
+        pivot,
+        Drawable3D(pivot, _vertices, _faces)..applyTransformation(
+          widthToScale: Random().nextDouble() * 3,
+          angleX: AngleGenerator.getRandomAngle,
+          angleY: AngleGenerator.getRandomAngle,
+          angleZ: AngleGenerator.getRandomAngle,
+        ),
+        lifecycle: ObjectStationary(),
+      );
 
   Star.createMoving() : this._createMoving(Positionable.random() * 1000);
   Star._createMoving(Positionable startPivot)
-      : super(
-          startPivot,
-          Drawable3D(startPivot, _vertices, _faces),
-          lifecycle: FlyingLifecycle()
-            ..configureFlying(startPivot, Vector3.random().scaled(10.0)),
-        );
+    : super(
+        startPivot,
+        Drawable3D(startPivot, _vertices, _faces),
+        lifecycle:
+            FlyingLifecycle()
+              ..configureFlying(startPivot, Vector3.random().scaled(10.0)),
+      );
 
   @override
   void onFrame(Canvas canvas, Camera camera, DateTime frameTimestamp) {
@@ -46,9 +46,10 @@ class Star extends StatelessGlobalGameObject {
     drawable.show(canvas, camera, paint);
   }
 
-  final paint = Paint()
-    ..color = Colors.white
-    ..strokeWidth = Drawable.strokeWidthLight;
+  final paint =
+      Paint()
+        ..color = Colors.white
+        ..strokeWidth = Drawable.strokeWidthLight;
 
   static final List<Positionable> _vertices = [
     Positionable(0.0, 0.0, -1.0),
