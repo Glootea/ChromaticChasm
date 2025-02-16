@@ -33,6 +33,10 @@
     "newLevel": "New Level",
     "@newLevel": { "description": "New level name on level selection screen" },
     "removeChanges": "Remove changes",
-    "@removeChanges": { "description": "Remove changes button on level editor screen" }
+    "@removeChanges": { "description": "Remove changes button on level editor screen" },
+    "tryItOut": "Try it out",
+    "@tryItOut": { "description": "Try it out button on level builder screen to preview gameplay of created level" },
+    "createdLevelPreview": "Created Level Preview",
+    "@createdLevelPreview": { "description": "Title of created level preview screen" }
 
 }

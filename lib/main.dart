@@ -1,11 +1,11 @@
 import 'package:chromatic_chasm/database/database.dart';
-import 'package:chromatic_chasm/level_builder/level_selector/level_selector_screen.dart';
+import 'package:chromatic_chasm/start_menu/start_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/localization.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:provider/provider.dart';
 
 void main() {
+  final database = ChromaticChasmDatabase();
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -23,10 +23,7 @@ void main() {
       ],
       supportedLocales: [const Locale('en'), const Locale('ru')],
       locale: const Locale('ru'),
-      home: Provider(
-        create: (_) => ChromaticChasmDatabase(),
-        child: const LevelSelectorScreen(),
-      ),
+      home: StartMenu(database: database),
     ),
   );
 }

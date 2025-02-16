@@ -10,7 +10,7 @@ class LevelSelectorNotifier extends ChangeNotifier {
   List<LevelSelectionItem> levels = [];
 
   Future<void> getLevels() async {
-    levels = await _database.getLevels().then((v) => v.toList());
+    levels = await _database.getUserGeneratedLevels().then((v) => v.toList());
     _loading = false;
     notifyListeners();
   }
@@ -18,13 +18,13 @@ class LevelSelectorNotifier extends ChangeNotifier {
   void renameLevel(int index, String name) {
     levels[index].name = name;
     // notifyListeners();
-    _database.insertLevelBasicInfo(levels[index]);
+    _database.updateLevelInfo(levels[index]);
   }
 
   void toggleLevel(int index) {
     levels[index].activated = !levels[index].activated;
     notifyListeners();
-    _database.insertLevelBasicInfo(levels[index]);
+    _database.updateLevelInfo(levels[index]);
   }
 
   void deleteLevel(int index) {
@@ -33,12 +33,20 @@ class LevelSelectorNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addLevel(String levelName) {
-    levels.add(
-      LevelSelectionItem(name: levelName, activated: false, id: levels.length),
+  void addLevel(String levelName) async {
+    final level = LevelSelectionItem(
+      name: levelName,
+      activated: false,
+      id: levels.length,
     );
+    final id = await _database.insertLevelBasicInfo(level);
+    final updatedLevel = LevelSelectionItem(
+      name: levelName,
+      activated: false,
+      id: id,
+    );
+    levels.add(updatedLevel);
     notifyListeners();
-    _database.insertLevelBasicInfo(levels[levels.length - 1]);
   }
 }
 

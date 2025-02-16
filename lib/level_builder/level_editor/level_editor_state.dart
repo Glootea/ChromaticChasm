@@ -10,6 +10,11 @@ class LevelEditorState extends ChangeNotifier {
   final int _levelId;
 
   late Level _level;
+  Level get level => _level;
+  Level get levelForTesting {
+    _rebuildLevel();
+    return _level;
+  }
 
   List<LevelEditorPoint> _points = [];
   List<LevelEditorPoint> get points => _points;
@@ -36,7 +41,6 @@ class LevelEditorState extends ChangeNotifier {
     notifyListeners();
     _level = await _database.getLevel(_levelId);
     _circular = _level.circlular;
-    // _points = _level.tiles.indexed.map(_mapTile).toList();
     _loading = false;
     _scalePointsToDisplay();
     notifyListeners();
@@ -96,13 +100,12 @@ class LevelEditorState extends ChangeNotifier {
   Future<void> save() async {
     _saving = true;
     notifyListeners();
-    final points = _getScaledBackPoints().map((e) => e.toPositional).toList();
+    final points = _getScaledBackPoints();
     final updatedLevel = Level.fromPoints(
       id: _levelId,
       points: points,
       depth: depth,
       circlular: circular,
-      pivot: Positionable.zero(),
     );
     await _database.updateLevelContent(updatedLevel);
     _saving = false;
@@ -113,11 +116,10 @@ class LevelEditorState extends ChangeNotifier {
   void _rebuildLevel() {
     _level = Level.fromPoints(
       id: _levelId,
-      points: _points.map((p) => p.toPositional).toList(),
+      points: _getScaledBackPoints(),
       depth: _levelDepth,
       circlular: _circular,
     );
-    print(_level.tiles.first.pivot);
   }
 
   static const double _ocupiedArea = 0.6;
@@ -136,7 +138,6 @@ class LevelEditorState extends ChangeNotifier {
     }
     final scaleX = _screenSize.width / (maxX - minX);
     final scaleY = _screenSize.height / (maxY - minY);
-    print('Scaling');
     _points = List.generate(initialPoints.length, (i) {
       final point = initialPoints[i];
       return LevelEditorPoint(
@@ -158,7 +159,7 @@ class LevelEditorState extends ChangeNotifier {
     _scalePointsToDisplay();
   }
 
-  List<LevelEditorPoint> _getScaledBackPoints() {
+  List<Positionable> _getScaledBackPoints() {
     final initialPoints = points.map((p) => p.toPositional).toList();
     double maxX = 0, maxY = 0;
     double minX = double.maxFinite, minY = double.maxFinite;
@@ -168,24 +169,17 @@ class LevelEditorState extends ChangeNotifier {
       maxY = maxY > point.y ? maxY : point.y;
       minY = minY < point.y ? minY : point.y;
     }
-    final scaleX = _screenSize.width / (maxX - minX);
-    final scaleY = _screenSize.height / (maxY - minY);
+    final diffX = maxX - minX;
+    final diffY = maxY - minY;
 
     final levelPoints = List.generate(initialPoints.length, (i) {
       final point = initialPoints[i];
-      return LevelEditorPoint(
-        id: i,
-        offset: Offset(
-          (point.x - (_screenSize.width * (1 - _ocupiedArea) * 0.5)) /
-                  (scaleX * _ocupiedArea) +
-              minX,
-          (point.y - (_screenSize.height * (1 - _ocupiedArea) * 0.5)) /
-                  (scaleY * _ocupiedArea) +
-              minY,
-        ),
-        depth:
-            point.z -
-            50, // prevents adding level pivot depth to point on every save // TODO: separate local and global points coordinates better
+      return Positionable(
+        (((point.x - minX) / diffX) - 0.5) * Level.levelRadius * 1.8,
+        (((point.y - minY) / diffY) - 0.5) * Level.levelRadius * 1.8,
+        point.z - 100,
+        // prevents adding level pivot depth to point on every save
+        // TODO: separate local and global points coordinates better
       );
     });
 

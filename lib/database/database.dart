@@ -11,10 +11,13 @@ class ChromaticChasmDatabase {
   final _Database _database = _Database();
   ChromaticChasmDatabase();
 
-  Future<Iterable<LevelSelectionItem>> getLevels() async {
-    final levels = await _database.getLevels();
+  Future<Iterable<LevelSelectionItem>> getUserGeneratedLevels() async {
+    final levels = await _database.getUserGeneratedLevels();
     return levels.map((e) => e.toLevelSelectionItem());
   }
+
+  Future<List<int>> getActivatedLevelIds() async =>
+      _database.getActivatedLevelIds();
 
   Future<Level> getLevel(int id) async {
     final levelData = await _database.getLevelData(id);
@@ -25,7 +28,11 @@ class ChromaticChasmDatabase {
   Future<void> updateLevelContent(Level level) async =>
       _database.updateLevelContent(level.toEntity());
 
-  Future<void> insertLevelBasicInfo(LevelSelectionItem level) =>
+  Future<void> updateLevelInfo(LevelSelectionItem level) async {
+    _database.updateLevelInfo(level.toBasicLevelInfoData());
+  }
+
+  Future<int> insertLevelBasicInfo(LevelSelectionItem level) =>
       _database.insertLevel(level.toBasicLevelInfoData());
 
   Future<void> deleteLevel(LevelSelectionItem level) =>
@@ -37,7 +44,7 @@ class _Database extends _$_Database {
   _Database() : super(_openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 7;
 
   static QueryExecutor _openConnection() {
     return driftDatabase(
@@ -53,6 +60,26 @@ class _Database extends _$_Database {
       beforeOpen: (details) async {
         await customStatement('PRAGMA foreign_keys = ON;');
       },
+      onUpgrade: (m, from, to) async {
+        if (to == 7) {
+          await m.drop(levelContent);
+          await m.drop(basicLevelInfo);
+
+          await m.createAll();
+          final levels = [Level1(), Level2()];
+          for (final level in levels) {
+            await insertLevel(
+              BasicLevelInfoCompanion(
+                name: Value(level.runtimeType.toString()),
+                id: Value(level.id),
+                activated: const Value(true),
+                userGenerated: const Value(false),
+              ),
+            );
+            await updateLevelContent(level.toEntity());
+          }
+        }
+      },
     );
   }
 
@@ -60,17 +87,41 @@ class _Database extends _$_Database {
   Future<LevelContentData> getLevelData(int id) =>
       (select(levelContent)..where((tbl) => tbl.id.equals(id))).getSingle();
 
-  Future<void> insertLevel(BasicLevelInfoCompanion level) async {
-    await into(levelContent).insert(
-      Level.create(level.id.value).toEntity(),
-      mode: InsertMode.insertOrReplace,
+  Future<int> insertLevel(BasicLevelInfoCompanion level) async {
+    final createdLevel = Level.create(level.id.value);
+    final id = await into(basicLevelInfo).insert(
+      BasicLevelInfoCompanion.insert(
+        name: level.name.value,
+        userGenerated: level.userGenerated,
+        activated: level.activated,
+      ),
+      mode: InsertMode.insertOrFail,
     );
-    await into(basicLevelInfo).insert(level, mode: InsertMode.insertOrReplace);
+    await into(levelContent).insert(
+      LevelContentCompanion.insert(
+        circular: createdLevel.circlular,
+        depth: createdLevel.depth,
+        points: createdLevel.pointsToString(),
+        id: Value(id),
+      ),
+      mode: InsertMode.insertOrFail,
+    );
+    return id;
   }
 
   Future<void> updateLevelContent(LevelContentCompanion level) =>
-      into(levelContent).insert(level, mode: InsertMode.insertOrReplace);
+      update(levelContent).replace(level);
+
+  Future<void> updateLevelInfo(BasicLevelInfoCompanion level) =>
+      update(basicLevelInfo).replace(level);
 
   Future<void> deleteLevel(int id) =>
       (delete(basicLevelInfo)..where((tbl) => tbl.id.equals(id))).go();
+
+  Future<List<int>> getActivatedLevelIds() => (select(basicLevelInfo)..where(
+    (tbl) => tbl.activated.equals(true),
+  )).get().then((e) => e.map((e) => e.id).toList());
+
+  Future<List<BasicLevelInfoData>> getUserGeneratedLevels() =>
+      (select(basicLevelInfo)..where((tbl) => tbl.userGenerated)).get();
 }

@@ -6,9 +6,8 @@ class PlayingState extends GameState {
   final List<Enemy> enemies;
   final List<Shot> shots;
   final List<Star> stars;
+
   int _enemiesToSpawnCount = 5;
-  final letter = ModelLoader.getDrawable(Positionable(50, 50, 50), 'я')
-    ..applyTransformation(widthToScale: 10, angleZ: -pi / 2, angleY: -pi / 2);
 
   PlayingState(
     super.gameStateProvider,
@@ -56,20 +55,11 @@ class PlayingState extends GameState {
     _spawnEnemy();
     final frameTimestamp = DateTime.now();
     handleKeyboardMovement();
-    for (var star in stars) {
-      star.onFrame(canvas, camera, frameTimestamp);
-    }
     level.onFrame(canvas, camera, frameTimestamp);
-    enemyOnNewFrame(canvas, frameTimestamp);
-    shotOnNewFrame(canvas, frameTimestamp);
+    starsOnNewFrame(canvas, frameTimestamp);
+    enemiesOnNewFrame(canvas, frameTimestamp);
+    shotsOnNewFrame(canvas, frameTimestamp);
     player.onFrame(canvas, camera, frameTimestamp);
-    letter.show(
-      canvas,
-      camera,
-      Paint()
-        ..color = Colors.white
-        ..strokeWidth = Drawable.strokeWidthLight,
-    );
   }
 
   @override
@@ -84,7 +74,7 @@ class PlayingState extends GameState {
   ///All operation on shot, that need to be done during every frame
   ///
   ///Contains: disposeCheck, show
-  void shotOnNewFrame(Canvas canvas, DateTime frameTimestamp) {
+  void shotsOnNewFrame(Canvas canvas, DateTime frameTimestamp) {
     for (int i = 0; i < shots.length; i++) {
       final shot = shots[i];
       if (shot.disappear) {
@@ -99,7 +89,7 @@ class PlayingState extends GameState {
   ///All operation on enemy, that need to be done during every frame
   ///
   ///Contains: [shotHitCheck], [disposeCheck], [show]
-  void enemyOnNewFrame(Canvas canvas, DateTime frameTimestamp) {
+  void enemiesOnNewFrame(Canvas canvas, DateTime frameTimestamp) {
     for (int enemyNum = 0; enemyNum < enemies.length; enemyNum++) {
       final enemy = enemies[enemyNum];
       final shotHitNum = enemy.shotHitNumber(shots);
@@ -109,7 +99,7 @@ class PlayingState extends GameState {
         shots.removeAt(shotHitNum);
         continue;
       }
-      if (enemy.checkPlayerHit(player)) {
+      if (enemy.checkPlayerTookHit(player)) {
         enemies.removeAt(enemyNum);
         runState.removeLife();
         if (runState.lives == 0) {
@@ -133,6 +123,12 @@ class PlayingState extends GameState {
         continue;
       }
       enemy.onFrame(canvas, camera, frameTimestamp);
+    }
+  }
+
+  void starsOnNewFrame(Canvas canvas, DateTime frameTimestamp) {
+    for (var star in stars) {
+      star.onFrame(canvas, camera, frameTimestamp);
     }
   }
 

@@ -32,7 +32,6 @@ class GameOverState extends GameState {
   void onFireButtonPressed() {
     gameStateProvider.currentState = LevelAppearState.newCycle(
       gameStateProvider,
-      Level.getRandomLevel(),
     )..init();
   }
 

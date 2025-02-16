@@ -28,7 +28,7 @@ class PlayerFlyAwayState extends PlayerFlyOutsideLevel {
         gameStateProvider,
         (Camera(Positionable(0, 0, 0))),
         runState,
-        Level.getRandomLevel(),
+        gameStateProvider.getNextLevel(),
         _player,
       ),
     );

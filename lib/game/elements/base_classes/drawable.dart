@@ -130,10 +130,8 @@ class Drawable3D extends Drawable {
           camera.pivot,
         );
         canvas.drawPoints(PointMode.polygon, projected, paint);
-        canvas.drawPoints(PointMode.lines, [
-          projected.first,
-          projected.last,
-        ], paint);
+        final points = [projected.first, projected.last];
+        canvas.drawPoints(PointMode.lines, points, paint);
       }
     }
   }
@@ -166,10 +164,8 @@ class Drawable2D extends Drawable {
         camera.pivot,
       );
       canvas.drawPoints(PointMode.polygon, projected, paint);
-      canvas.drawPoints(PointMode.lines, [
-        projected.first,
-        projected.last,
-      ], paint);
+      final points = [projected.first, projected.last];
+      canvas.drawPoints(PointMode.lines, points, paint);
     }
   }
 }

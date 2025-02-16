@@ -32,6 +32,5 @@ extension ToLevelSelectionData on LevelSelectionItem {
         id: Value(id),
         name: name,
         activated: Value(activated),
-        content: id,
       );
 }

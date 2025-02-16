@@ -1,5 +1,6 @@
 import 'package:chromatic_chasm/game/elements/level/level.dart';
 import 'package:chromatic_chasm/level_builder/level_editor/level_editor_state.dart';
+import 'package:chromatic_chasm/level_builder/level_editor/level_preview_screen.dart';
 import 'package:chromatic_chasm/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -29,20 +30,49 @@ class _LevelEditorScreenState extends State<LevelEditorScreen> {
     final state = context.watch<LevelEditorState>();
     state.onScreenSizeChange(MediaQuery.sizeOf(context));
 
-    print(state.points);
     final key = GlobalKey();
     return state.loading
         ? const Center(child: CircularProgressIndicator())
         : Scaffold(
           key: key,
           endDrawer: const LevelEditorDrawer(),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              state.addPoint();
-              // setState(() {});
-            },
-            child: const Icon(Icons.add_outlined),
+          floatingActionButton: Stack(
+            children: [
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 32),
+                  child: FloatingActionButton.extended(
+                    heroTag: 'play',
+                    label: Text(context.localization.tryItOut),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => PreviewLevelScreen(
+                                level: state.levelForTesting,
+                              ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.play_arrow_outlined),
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: FloatingActionButton(
+                  heroTag: 'add',
+                  onPressed: () {
+                    state.addPoint();
+                  },
+                  child: const Icon(Icons.add_outlined),
+                ),
+              ),
+            ],
           ),
+
           appBar: AppBar(
             actions: [
               IconButton(
@@ -50,7 +80,7 @@ class _LevelEditorScreenState extends State<LevelEditorScreen> {
                 icon:
                     state.saving
                         ? const CircularProgressIndicator()
-                        : Icon(Icons.save_outlined),
+                        : const Icon(Icons.save_outlined),
               ),
               IconButton(
                 onPressed:
@@ -106,6 +136,7 @@ class _LevelEditorScreenState extends State<LevelEditorScreen> {
                     .map<Widget>(
                       (e) => LevelPoint(
                         point: e,
+                        onUpdatePosition: state.updatePoint,
                         onDepthChange: state.updateDepth,
                         onDelete: () => state.deletePoint(e),
                       ),
@@ -118,11 +149,13 @@ class _LevelEditorScreenState extends State<LevelEditorScreen> {
 
 class LevelPoint extends StatefulWidget {
   final LevelEditorPoint point;
+  final Function(LevelEditorPoint) onUpdatePosition;
   final Function(double) onDepthChange;
   final VoidCallback onDelete;
 
   const LevelPoint({
     required this.point,
+    required this.onUpdatePosition,
     required this.onDepthChange,
     required this.onDelete,
     super.key,
@@ -161,6 +194,7 @@ class _LevelPointState extends State<LevelPoint> {
                   onPanUpdate:
                       (details) => setState(() {
                         widget.point.offset += details.delta;
+                        widget.onUpdatePosition(widget.point);
                       }),
                   child: Center(
                     child: SizedBox(

@@ -1,10 +1,14 @@
-import 'package:chromatic_chasm/game/game_screen.dart';
+import 'package:chromatic_chasm/database/database.dart';
+import 'package:chromatic_chasm/game/game_screen/game_screen.dart';
+import 'package:chromatic_chasm/game/level_provider.dart';
 import 'package:chromatic_chasm/level_builder/level_selector/level_selector_screen.dart';
 import 'package:chromatic_chasm/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class StartMenu extends StatelessWidget {
-  const StartMenu({super.key});
+  final ChromaticChasmDatabase database;
+  const StartMenu({required this.database, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,11 +26,19 @@ class StartMenu extends StatelessWidget {
             ),
             const Expanded(flex: 2, child: SizedBox()),
             FilledButton(
-              onPressed:
-                  () => Navigator.push(
+              onPressed: () async {
+                final levelProvider = await LevelProvider.create(database);
+                if (context.mounted) {
+                  Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const GameScreen()),
-                  ),
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return GameScreen(levelProvider: levelProvider);
+                      },
+                    ),
+                  );
+                }
+              },
               child: Text(context.localization.play),
             ),
             const Expanded(child: SizedBox()),
@@ -40,7 +52,11 @@ class StartMenu extends StatelessWidget {
                   () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const LevelSelectorScreen(),
+                      builder:
+                          (context) => Provider.value(
+                            value: database,
+                            child: const LevelSelectorScreen(),
+                          ),
                     ),
                   ),
               child: Text(context.localization.levelBuilder),

@@ -16,7 +16,6 @@ import 'package:chromatic_chasm/game/game_state_provider.dart';
 import 'package:chromatic_chasm/game/helpers/easing.dart';
 import 'package:chromatic_chasm/game/helpers/throttler.dart';
 import 'package:chromatic_chasm/game/helpers/tile_helper.dart';
-import 'package:chromatic_chasm/game/model_loader.dart';
 import 'package:chromatic_chasm/game/run_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,6 +27,7 @@ part 'level_transition_states/player_fly_outside_level/level_disappear_state.dar
 part 'level_transition_states/player_fly_outside_level/player_fly_away_state.dart';
 part 'level_transition_states/player_fly_outside_level/player_fly_outside_level_abst.dart';
 part 'playing_state/playing_state.dart';
+part 'level_preview/level_preview_playing_state.dart';
 
 sealed class GameState {
   void init();

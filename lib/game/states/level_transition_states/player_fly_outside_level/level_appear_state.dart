@@ -14,7 +14,10 @@ class LevelAppearState extends PlayerFlyOutsideLevel {
     super._level,
     super._player,
   );
-  LevelAppearState.newCycle(GameStateProvider gameStateProvider, Level level)
+  LevelAppearState.newCycle(GameStateProvider gameStateProvider)
+    : this._newCycle(gameStateProvider, gameStateProvider.getNextLevel());
+
+  LevelAppearState._newCycle(GameStateProvider gameStateProvider, Level level)
     : this(gameStateProvider, null, RunState(), level, Player(level));
 
   @override

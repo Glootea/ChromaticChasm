@@ -16,7 +16,7 @@ part 'package:chromatic_chasm/game/elements/enemies/entities/spider/spider.dart'
 sealed class Enemy extends StatelessTileGameObject {
   Enemy._(super.pivot, super.drawable);
 
-  bool checkPlayerHit(Player player) {
+  bool checkPlayerTookHit(Player player) {
     final hit =
         pivot.level.activeTile == pivot.tileNumber &&
         pivot.depthFraction <= 0.02;

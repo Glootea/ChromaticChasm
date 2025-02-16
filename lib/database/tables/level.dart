@@ -4,18 +4,18 @@ class BasicLevelInfo extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
   BoolColumn get activated => boolean().withDefault(const Constant(true))();
-  IntColumn get content =>
+  BoolColumn get userGenerated => boolean().withDefault(const Constant(true))();
+}
+
+class LevelContent extends Table {
+  IntColumn get id =>
       integer().references(
-        LevelContent,
+        BasicLevelInfo,
         #id,
         onDelete: KeyAction.cascade,
         onUpdate: KeyAction.noAction,
         initiallyDeferred: true,
       )();
-}
-
-class LevelContent extends Table {
-  IntColumn get id => integer()();
   BoolColumn get circular => boolean()();
   RealColumn get depth => real()();
   TextColumn get points => text()();

@@ -116,6 +116,7 @@ class Level extends ComplexGlobalGameObject {
     }
   }
 
+  @Deprecated("Get levels from db")
   static Level getRandomLevel() => createLevel(Random().nextInt(2));
 
   Vector2 get levelAmplitude => _levelAmplitude ?? _setAndReturnLevelAmplitude;
@@ -131,11 +132,13 @@ class Level extends ComplexGlobalGameObject {
         if (point.y > maxY) maxY = point.y;
       }
     }
+
     _levelAmplitude = Vector2(maxX, maxY);
     return _levelAmplitude!;
   }
 
-  static double minDepth = 100;
-  static double maxDepth = 300;
-  static double defaultDepth = (minDepth + maxDepth) / 2;
+  static const double minDepth = 100;
+  static const double maxDepth = 300;
+  static const double defaultDepth = (minDepth + maxDepth) / 2;
+  static const double levelRadius = 100;
 }

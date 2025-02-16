@@ -4,7 +4,7 @@ part of 'package:chromatic_chasm/game/elements/level/level.dart';
 class Level1 extends Level {
   Level1()
     : super.fromPoints(
-        id: 0,
+        id: 1,
         points: [
           Positionable(-90, -40, 0),
           Positionable(-75, -20, 0),
@@ -29,7 +29,7 @@ class Level1 extends Level {
 class Level2 extends Level {
   Level2()
     : super.fromPoints(
-        id: 1,
+        id: 2,
         points: [
           Positionable(-0.01, -70, 0),
           Positionable(-30, -70, 0),
