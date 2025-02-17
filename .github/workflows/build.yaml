@@ -1,0 +1,133 @@
+name: Flutter Build
+
+on:
+  push:
+    branches:
+      - main
+      - sse
+  pull_request:
+    branches:
+      - main
+      - sse
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  build-android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "oracle"
+          java-version: "17"
+          cache: "gradle"
+
+      - name: Setup Android SDK
+        uses: amyu/setup-android@v4
+        with:
+          sdk-version: 35
+          cmake-version: 3.22.1
+          ndk-version: 25.1.8937393
+          build-tools-version: 34.0.0
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+          flutter-version: 3.29.0
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+  build-macos:
+    name: Build macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+          flutter-version: 3.29.0
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build macOS App
+        run: flutter build macos
+
+      - name: Upload macOS Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-app
+          path: build/macos/Build/Products/Release/*.app
+
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+          flutter-version: 3.29.0
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build Windows App
+        run: flutter build windows
+
+      - name: Upload Windows Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-app
+          path: build/windows/x64/runner/Release/
+
+  build-web:
+    name: Build Web
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+          flutter-version: 3.29.0
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build Web App
+        run: flutter build web
+
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CHROMATICCHASM }}
+          channelId: live
+          projectId: chromaticchasm
