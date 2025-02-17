@@ -44,12 +44,16 @@ class _Database extends _$_Database {
   _Database() : super(_openConnection());
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   static QueryExecutor _openConnection() {
     return driftDatabase(
       name: 'chromatic_chasm_db',
       native: const DriftNativeOptions(),
+      web: DriftWebOptions(
+        sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+        driftWorker: Uri.parse('drift_worker.dart.js'),
+      ),
     );
   }
 
@@ -60,8 +64,23 @@ class _Database extends _$_Database {
       beforeOpen: (details) async {
         await customStatement('PRAGMA foreign_keys = ON;');
       },
+      onCreate: (m) async {
+        await m.createAll();
+        final levels = [Level1(), Level2()];
+        for (final level in levels) {
+          await insertLevel(
+            BasicLevelInfoCompanion(
+              name: Value(level.runtimeType.toString()),
+              id: Value(level.id),
+              activated: const Value(true),
+              userGenerated: const Value(false),
+            ),
+          );
+          await updateLevelContent(level.toEntity());
+        }
+      },
       onUpgrade: (m, from, to) async {
-        if (to == 7) {
+        if (to == 8) {
           await m.drop(levelContent);
           await m.drop(basicLevelInfo);
 
