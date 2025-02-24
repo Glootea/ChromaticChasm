@@ -37,6 +37,17 @@
     "tryItOut": "Try it out",
     "@tryItOut": { "description": "Try it out button on level builder screen to preview gameplay of created level" },
     "createdLevelPreview": "Created Level Preview",
-    "@createdLevelPreview": { "description": "Title of created level preview screen" }
-
+    "@createdLevelPreview": { "description": "Title of created level preview screen" },
+    "copyToClipboard": "Copy to clipboard",
+    "@copyToClipboard": { "description": "Copy to clipboard button in share dialog" },
+    "copiedToClipboard": "Copied to clipboard",
+    "@copiedToClipboard": { "description": "Copied to clipboard message in snackbar" },
+    "shortenError": "There was an error shortening url",
+    "@shortenError": { "description": "Copied to clipboard message in snackbar" },
+    "shareLevel": "Share level",
+    "@shareLevel": { "description": "Share level button in share dialog" },
+    "shortenUrl": "Shorten url",
+    "@shortenUrl": { "description": "Shorten url switch in share dialog" },
+    "share": "Share",
+    "@share": { "description": "Share button in share dialog" }
 }

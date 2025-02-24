@@ -1,0 +1,9 @@
+[ {
+        "relation": [ "delegate_permission/common.handle_all_urls" ],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "com.glootea.chromaticChasm",
+            "sha256_cert_fingerprints":
+            [ "AC:AC:DE:81:D2:1C:6C:2F:1E:C2:5C:73:F7:9A:4D:1B:16:B9:7C:63:D4:9D:FE:64:50:2F:FA:92:53:DF:01:D2" ]
+        }
+    } ]

@@ -33,8 +33,13 @@ class Positionable extends Vector3 implements Transformable {
   factory Positionable.all(double a) {
     return Positionable.zero()..setValues(a, a, a);
   }
+
+  factory Positionable.fromList(List<double> list) =>
+      Positionable.zero()..setValues(list[0], list[1], list[2]);
   @override
   Positionable clone() => Positionable.zero()..setValues(x, y, z);
+
+  String format() => '$x,$y,$z';
 
   @override
   void applyTransformation({

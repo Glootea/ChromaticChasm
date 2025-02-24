@@ -37,5 +37,17 @@
     "tryItOut": "Сыграть на этом уровне",
     "@tryItOut": { "description": "Кнопка перехода к игре на созданном уровне в экране конструктора уровней" },
     "createdLevelPreview": "Предпросмотр созданного уровня",
-    "@createdLevelPreview": { "description": "Название экрана предпросмотра созданного уровня" }
+    "@createdLevelPreview": { "description": "Название экрана предпросмотра созданного уровня" },
+    "copyToClipboard": "Копировать в буфер обмена",
+    "@copyToClipboard": { "description": "Copy to clipboard button in share dialog" },
+    "copiedToClipboard": "Скопировано",
+    "@copiedToClipboard": { "description": "Copied to clipboard message in snackbar" },
+    "shortenError": "Ошибка при сокращении ссылки",
+    "@shortenError": { "description": "Copied to clipboard message in snackbar" },
+    "shareLevel": "Поделиться уровнем",
+    "@shareLevel": { "description": "Share level button in share dialog" },
+    "shortenUrl": "Сократить ссылку",
+    "@shortenUrl": { "description": "Shorten url switch in share dialog" },
+    "share": "Поделиться",
+    "@share": { "description": "Share button in share dialog" }
 }

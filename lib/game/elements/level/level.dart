@@ -55,22 +55,28 @@ class Level extends ComplexGlobalGameObject {
     circlular: true,
   );
 
+  /// TODO: fix last right is missing if level is not circular -> fixed? need testing
   String pointsToString() {
+    final last =
+        circlular ? '+${tiles.last.rightNearPointGlobal.format()}' : '';
     final points =
         tiles
             .map((tile) => tile.leftNearPointGlobal)
-            .map((point) => '${point.x};${point.y};${point.z}')
+            .map((point) => point.format())
             .toList();
-    return points.map((e) => e.toString()).join(';');
+    return points.map((e) => e.toString()).join('+') + last;
   }
 
   static List<Positionable> stringToPoints(String points) {
-    final numbers = points.split(';').map((e) => double.parse(e)).toList();
+    final numbers =
+        points
+            .split('+')
+            .map((e) => e.split(',').map((e) => double.parse(e)).toList())
+            .toList();
 
     final output = List.generate(
-      numbers.length ~/ 3,
-      (i) =>
-          Positionable(numbers[i * 3], numbers[i * 3 + 1], numbers[i * 3 + 2]),
+      numbers.length,
+      (i) => Positionable(numbers[i][0], numbers[i][1], numbers[i][2]),
       growable: false,
     );
     return output;

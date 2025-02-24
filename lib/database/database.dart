@@ -80,7 +80,7 @@ class _Database extends _$_Database {
         }
       },
       onUpgrade: (m, from, to) async {
-        if (to == 8) {
+        if (to == 8 && from != 8) {
           await m.drop(levelContent);
           await m.drop(basicLevelInfo);
 

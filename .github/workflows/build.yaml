@@ -123,7 +123,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Web App
-        run: flutter build web
+        run: flutter build web --wasm
 
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
