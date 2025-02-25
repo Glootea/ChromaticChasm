@@ -26,15 +26,16 @@ class LevelEditorState extends ChangeNotifier {
   bool get saving => _saving;
   bool _loading = false;
   bool get loading => _loading;
-  Size _screenSize;
+  Offset _leftUpperPoint;
+  Offset _rightLowerPoint;
 
   LevelEditorState({
     required ChromaticChasmDatabase database,
     required int levelId,
-    required Size screenSize,
   }) : _levelId = levelId,
        _database = database,
-       _screenSize = screenSize;
+       _leftUpperPoint = const Offset(0, 0),
+       _rightLowerPoint = const Offset(0, 0);
 
   Future<void> loadExistingPoints() async {
     _loading = true;
@@ -64,14 +65,6 @@ class LevelEditorState extends ChangeNotifier {
       depth: (first.depth + last.depth) / 2,
     );
     _points.add(point);
-    notifyListeners();
-    _rebuildLevel();
-  }
-
-  @Deprecated('Use delete point instead')
-  void removeLastPoint() {
-    if (points.length <= 3) return;
-    _points.removeLast();
     notifyListeners();
     _rebuildLevel();
   }
@@ -122,9 +115,15 @@ class LevelEditorState extends ChangeNotifier {
     );
   }
 
-  static const double _ocupiedArea = 0.6;
-
   void _scalePointsToDisplay() {
+    double edgeOffset = _leftUpperPoint.dx;
+    double scaleSingle({
+      required double value,
+      required double minValue,
+      required double scale,
+      double startOffset = 0,
+    }) => (value - minValue) * scale + edgeOffset;
+
     if (loading) return;
     final initialPoints =
         _level.tiles.indexed.map(_mapTile).map((p) => p.toPositional).toList();
@@ -136,26 +135,29 @@ class LevelEditorState extends ChangeNotifier {
       maxY = maxY > point.y ? maxY : point.y;
       minY = minY < point.y ? minY : point.y;
     }
-    final scaleX = _screenSize.width / (maxX - minX);
-    final scaleY = _screenSize.height / (maxY - minY);
+    final scaleX = ((_rightLowerPoint.dx - _leftUpperPoint.dx)) / (maxX - minX);
+    final scaleY = ((_rightLowerPoint.dy - _leftUpperPoint.dy)) / (maxY - minY);
     _points = List.generate(initialPoints.length, (i) {
       final point = initialPoints[i];
       return LevelEditorPoint(
         id: i,
         offset: Offset(
-          (point.x - minX) * scaleX * _ocupiedArea +
-              _screenSize.width * (1 - _ocupiedArea) * 0.5,
-          (point.y - minY) * scaleY * _ocupiedArea +
-              _screenSize.height * (1 - _ocupiedArea) * 0.5,
+          scaleSingle(value: point.x, minValue: minX, scale: scaleX),
+          scaleSingle(value: point.y, minValue: minY, scale: scaleY),
         ),
         depth: point.z,
       );
     });
   }
 
-  void onScreenSizeChange(Size size) {
-    if (size == _screenSize) return;
-    _screenSize = size;
+  /// leftUpperPoint.dx defines edge offset for all edges
+  void onScreenSizeChange(Offset leftUpperPoint, Offset rightLowePoint) {
+    if (leftUpperPoint == _leftUpperPoint &&
+        rightLowePoint == _rightLowerPoint) {
+      return;
+    }
+    _leftUpperPoint = leftUpperPoint;
+    _rightLowerPoint = rightLowePoint;
     _scalePointsToDisplay();
   }
 

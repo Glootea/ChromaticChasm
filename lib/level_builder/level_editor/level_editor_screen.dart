@@ -5,16 +5,6 @@ import 'package:chromatic_chasm/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-// @Deprecated('Used for testing')
-// LevelEditorScreen createMockLevelEditorScreen() => LevelEditorScreen(
-//   points: [
-//     LevelEditorPoint(id: 1, offset: Offset(50, 50), depth: 0),
-//     LevelEditorPoint(id: 1, offset: Offset(70, 50), depth: 0),
-//     LevelEditorPoint(id: 1, offset: Offset(100, 70), depth: 0),
-//   ],
-//   circular: true,
-// );
-
 class LevelEditorScreen extends StatefulWidget {
   final int levelId;
 
@@ -25,10 +15,22 @@ class LevelEditorScreen extends StatefulWidget {
 }
 
 class _LevelEditorScreenState extends State<LevelEditorScreen> {
+  final _edgeInset = 32.0;
+
   @override
   Widget build(BuildContext context) {
     final state = context.watch<LevelEditorState>();
-    state.onScreenSizeChange(MediaQuery.sizeOf(context));
+    final screenSize = MediaQuery.sizeOf(context);
+    final verticalInsets = MediaQuery.viewPaddingOf(context).top;
+    final availableHeight =
+        screenSize.height - verticalInsets - kToolbarHeight - _edgeInset;
+
+    final leftUpperPoint = Offset(_edgeInset, verticalInsets + _edgeInset);
+    final rightLowerPoint = Offset(
+      screenSize.width - _edgeInset,
+      availableHeight,
+    );
+    state.onScreenSizeChange(leftUpperPoint, rightLowerPoint);
 
     final key = GlobalKey();
     return state.loading
@@ -36,45 +38,17 @@ class _LevelEditorScreenState extends State<LevelEditorScreen> {
         : Scaffold(
           key: key,
           endDrawer: const LevelEditorDrawer(),
-          floatingActionButton: Stack(
-            children: [
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 32),
-                  child: FloatingActionButton.extended(
-                    heroTag: 'play',
-                    label: Text(context.localization.tryItOut),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) => PreviewLevelScreen(
-                                level: state.levelForTesting,
-                              ),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.play_arrow_outlined),
-                  ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: FloatingActionButton(
-                  heroTag: 'add',
-                  onPressed: () {
-                    state.addPoint();
-                  },
-                  child: const Icon(Icons.add_outlined),
-                ),
-              ),
-            ],
-          ),
 
           appBar: AppBar(
             actions: [
+              IconButton(
+                onPressed: () => state.addPoint(),
+                icon: const Icon(Icons.add_outlined),
+              ),
+              IconButton(
+                onPressed: () => _onPlayButtonPressed(context, state),
+                icon: const Icon(Icons.play_arrow_outlined),
+              ),
               IconButton(
                 onPressed: () => state.save(),
                 icon:
@@ -145,6 +119,14 @@ class _LevelEditorScreenState extends State<LevelEditorScreen> {
           ),
         );
   }
+
+  void _onPlayButtonPressed(BuildContext context, LevelEditorState state) =>
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PreviewLevelScreen(level: state.levelForTesting),
+        ),
+      );
 }
 
 class LevelPoint extends StatefulWidget {

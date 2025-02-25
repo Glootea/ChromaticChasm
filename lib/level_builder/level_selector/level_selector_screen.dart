@@ -9,15 +9,27 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 // TODO: выяснить, куда проподают уровни
-class LevelSelectorScreen extends StatelessWidget {
+class LevelSelectorScreen extends StatefulWidget {
   const LevelSelectorScreen({super.key});
 
   @override
+  State<LevelSelectorScreen> createState() => _LevelSelectorScreenState();
+}
+
+class _LevelSelectorScreenState extends State<LevelSelectorScreen> {
+  late final ChromaticChasmDatabase dataBase;
+  late final LevelSelectorNotifier levelSelectorNotifier;
+
+  @override
+  void initState() {
+    dataBase = context.read<ChromaticChasmDatabase>();
+    levelSelectorNotifier = LevelSelectorNotifier(database: dataBase)
+      ..getLevels();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final dataBase = context.read<ChromaticChasmDatabase>();
-    final LevelSelectorNotifier levelSelectorNotifier = LevelSelectorNotifier(
-      database: dataBase,
-    )..getLevels();
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -55,30 +67,7 @@ class LevelSelectorScreen extends StatelessWidget {
                               },
                             );
                           },
-                          onEdit: () {
-                            final levelId =
-                                levelSelectorNotifier.levels[index].id;
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (_) => ListenableProvider(
-                                      create:
-                                          (_) => LevelEditorState(
-                                            database: dataBase,
-                                            levelId: levelId,
-                                            screenSize: MediaQuery.sizeOf(
-                                              context,
-                                            ),
-                                          )..loadExistingPoints(),
-                                      child: LevelEditorScreen(
-                                        levelId: levelId,
-                                      ),
-                                    ),
-                              ),
-                            );
-                          },
+                          onEdit: () => _onEdit(context: context, index: index),
                           onRename:
                               (name) => levelSelectorNotifier.renameLevel(
                                 index,
@@ -100,6 +89,24 @@ class LevelSelectorScreen extends StatelessWidget {
         onPressed:
             () => levelSelectorNotifier.addLevel(context.localization.newLevel),
         child: const Icon(Icons.add_outlined),
+      ),
+    );
+  }
+
+  void _onEdit({required BuildContext context, required int index}) {
+    final levelId = levelSelectorNotifier.levels[index].id;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => ListenableProvider(
+              create:
+                  (_) =>
+                      LevelEditorState(database: dataBase, levelId: levelId)
+                        ..loadExistingPoints(),
+              child: LevelEditorScreen(levelId: levelId),
+            ),
       ),
     );
   }
@@ -136,51 +143,60 @@ class _LevelTileState extends State<LevelTile> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final children = [
+      [
+        Expanded(
+          child: TextField(
+            maxLines: 1,
+            decoration: const InputDecoration(border: InputBorder.none),
+            controller: controller,
+            onChanged: (value) {
+              widget.onRename(value);
+            },
+          ),
+        ),
+      ],
+      [
+        IconButton(
+          onPressed: widget.onEdit,
+          icon: const Icon(Icons.edit_outlined),
+        ),
+        IconButton(
+          onPressed: widget.onShare,
+          icon: const Icon(Icons.share_outlined),
+        ),
+        Checkbox(
+          value: widget.item.activated,
+          onChanged: (_) => widget.onToggleActive(),
+        ),
+        IconButton(
+          onPressed:
+              () => showDialog(
+                context: context,
+                builder: (_) => DeleteDialog(onDelete: widget.onDelete),
+              ),
+          icon: Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
+        ),
+      ],
+    ];
+
+    List<Widget> getSingleRow() => children.expand((e) => e).toList();
+    List<Row> getColumnRows() =>
+        children.map((rowChildren) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: rowChildren,
+          );
+        }).toList();
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                maxLines: 1,
-                decoration: const InputDecoration(border: InputBorder.none),
-                controller: controller,
-                onChanged: (value) {
-                  // controller.text = value;
-                  widget.onRename(value);
-                },
-              ),
-            ),
-            IconButton(
-              onPressed: widget.onEdit,
-              icon: const Icon(Icons.edit_outlined),
-            ),
-            IconButton(
-              onPressed: widget.onShare,
-              icon: const Icon(Icons.share_outlined),
-            ),
-            Checkbox(
-              value: widget.item.activated,
-              onChanged: (_) {
-                widget.onToggleActive();
-              },
-            ),
-            IconButton(
-              onPressed:
-                  () => showDialog(
-                    context: context,
-                    builder:
-                        (context) =>
-                            DeleteDialog(onDelete: () => widget.onDelete()),
-                  ),
-              icon: Icon(
-                Icons.delete,
-                color: Theme.of(context).colorScheme.error,
-              ),
-            ),
-          ],
-        ),
+        child:
+            size.width > size.height
+                ? Row(children: getSingleRow())
+                : Column(children: getColumnRows()),
       ),
     );
   }

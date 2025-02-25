@@ -9,10 +9,7 @@ class LevelProvider {
 
   static Future<LevelProvider> create(ChromaticChasmDatabase database) async {
     final activatedLevels = await database.getActivatedLevelIds();
-    final levels = await Future.wait(
-      activatedLevels.map((id) => database.getLevel(id)),
-    );
-    print(levels.map((e) => e.id).toList());
+    final levels = await Future.wait(activatedLevels.map(database.getLevel));
     return LevelProvider(levels: levels);
   }
 

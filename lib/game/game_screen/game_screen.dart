@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:chromatic_chasm/game/elements/base_classes/drawable.dart';
 import 'package:chromatic_chasm/game/game_screen/control_panel.dart';
 import 'package:chromatic_chasm/game/game_screen/game_display.dart';
@@ -16,14 +15,14 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
-  double get size => min(
-    MediaQuery.of(context).size.width,
-    MediaQuery.of(context).size.height - 270 - AppBar().preferredSize.height,
-  );
-  Size get gamePainterSize => Size(size, size);
-
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final isWideLayout = size.height - kToolbarHeight - 150 < size.width;
+
+    double gameScreenSize = isWideLayout ? size.width * 0.5 : size.width;
+    Size gamePainterSize = Size(gameScreenSize, gameScreenSize);
+
     return ChangeNotifierProvider(
       create:
           (context) =>
@@ -33,27 +32,24 @@ class _GameScreenState extends State<GameScreen> {
           builder: (context) {
             Drawable.setCanvasSize(gamePainterSize);
             final gameState = context.watch<GameStateProvider>().currentState;
+
+            final children = [
+              GameDisplayWithInfo(
+                gamePainterSize: gamePainterSize,
+                gameState: gameState,
+              ),
+              ControlPanel(gameState: gameState),
+            ];
+
             return Focus(
               autofocus: true,
               onKeyEvent: (node, event) => gameState.onKeyboardEvent(event),
               child: Scaffold(
                 appBar: AppBar(),
-                body: Stack(
-                  children: [
-                    Column(
-                      children: [
-                        GameDisplayWithInfo(
-                          gamePainterSize: gamePainterSize,
-                          gameState: gameState,
-                        ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.05,
-                        ),
-                        ControlPanel(gameState: gameState),
-                      ],
-                    ),
-                  ],
-                ),
+                body:
+                    isWideLayout
+                        ? Row(children: children)
+                        : Column(children: children),
               ),
             );
           },

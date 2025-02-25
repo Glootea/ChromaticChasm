@@ -44,7 +44,7 @@ class _Database extends _$_Database {
   _Database() : super(_openConnection());
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   static QueryExecutor _openConnection() {
     return driftDatabase(
@@ -57,6 +57,21 @@ class _Database extends _$_Database {
     );
   }
 
+  Future<void> _initLevels() async {
+    final levels = [Level1(), Level2()];
+    for (final level in levels) {
+      await insertLevel(
+        BasicLevelInfoCompanion(
+          name: Value(level.runtimeType.toString()),
+          id: Value(level.id),
+          activated: const Value(true),
+          userGenerated: const Value(false),
+        ),
+      );
+      await updateLevelContent(level.toEntity());
+    }
+  }
+
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
@@ -66,38 +81,14 @@ class _Database extends _$_Database {
       },
       onCreate: (m) async {
         await m.createAll();
-        final levels = [Level1(), Level2()];
-        for (final level in levels) {
-          await insertLevel(
-            BasicLevelInfoCompanion(
-              name: Value(level.runtimeType.toString()),
-              id: Value(level.id),
-              activated: const Value(true),
-              userGenerated: const Value(false),
-            ),
-          );
-          await updateLevelContent(level.toEntity());
-        }
+        await _initLevels();
       },
       onUpgrade: (m, from, to) async {
-        if (to == 8 && from != 8) {
-          await m.drop(levelContent);
-          await m.drop(basicLevelInfo);
-
-          await m.createAll();
-          final levels = [Level1(), Level2()];
-          for (final level in levels) {
-            await insertLevel(
-              BasicLevelInfoCompanion(
-                name: Value(level.runtimeType.toString()),
-                id: Value(level.id),
-                activated: const Value(true),
-                userGenerated: const Value(false),
-              ),
-            );
-            await updateLevelContent(level.toEntity());
-          }
-        }
+        await Future.wait([
+          delete(basicLevelInfo).go(),
+          delete(levelContent).go(),
+        ]);
+        _initLevels();
       },
     );
   }

@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:chromatic_chasm/game/elements/base_classes/game_object.dart';
 import 'package:chromatic_chasm/game/elements/base_classes/positionable.dart';
 import 'package:chromatic_chasm/game/elements/camera.dart';
@@ -121,9 +120,6 @@ class Level extends ComplexGlobalGameObject {
         return Level2();
     }
   }
-
-  @Deprecated("Get levels from db")
-  static Level getRandomLevel() => createLevel(Random().nextInt(2));
 
   Vector2 get levelAmplitude => _levelAmplitude ?? _setAndReturnLevelAmplitude;
   Vector2? _levelAmplitude;
