@@ -1,7 +1,5 @@
 import 'package:chromatic_chasm/database/database.dart';
-import 'package:chromatic_chasm/game/game_screen/game_screen.dart';
-import 'package:chromatic_chasm/game/level_provider.dart';
-import 'package:chromatic_chasm/level_builder/level_selector/level_selector_screen.dart';
+import 'package:chromatic_chasm/navigation/router_delegate.dart';
 import 'package:chromatic_chasm/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -26,18 +24,8 @@ class StartMenu extends StatelessWidget {
             ),
             const Expanded(flex: 2, child: SizedBox()),
             FilledButton(
-              onPressed: () async {
-                final levelProvider = await LevelProvider.create(database);
-                if (context.mounted) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return GameScreen(levelProvider: levelProvider);
-                      },
-                    ),
-                  );
-                }
+              onPressed: () {
+                context.read<ChromaticChasmRouterDelegate>().goToGameRoute();
               },
               child: Text(context.localization.play),
             ),
@@ -49,16 +37,11 @@ class StartMenu extends StatelessWidget {
             const Expanded(child: SizedBox()),
             FilledButton(
               onPressed:
-                  () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => Provider.value(
-                            value: database,
-                            child: const LevelSelectorScreen(),
-                          ),
-                    ),
-                  ),
+                  () =>
+                      context
+                          .read<ChromaticChasmRouterDelegate>()
+                          .goToLevelSelectorRoute(),
+
               child: Text(context.localization.levelBuilder),
             ),
             const Expanded(flex: 6, child: SizedBox()),

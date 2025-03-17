@@ -1,8 +1,7 @@
 import 'package:chromatic_chasm/database/database.dart';
 import 'package:chromatic_chasm/game/elements/level/level.dart';
-import 'package:chromatic_chasm/level_builder/level_editor/level_editor_screen.dart';
-import 'package:chromatic_chasm/level_builder/level_editor/level_editor_state.dart';
 import 'package:chromatic_chasm/level_builder/level_selector/level_selector_state.dart';
+import 'package:chromatic_chasm/navigation/router_delegate.dart';
 import 'package:chromatic_chasm/share/share_provider.dart';
 import 'package:chromatic_chasm/utils.dart';
 import 'package:flutter/material.dart';
@@ -95,20 +94,20 @@ class _LevelSelectorScreenState extends State<LevelSelectorScreen> {
 
   void _onEdit({required BuildContext context, required int index}) {
     final levelId = levelSelectorNotifier.levels[index].id;
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder:
-            (_) => ListenableProvider(
-              create:
-                  (_) =>
-                      LevelEditorState(database: dataBase, levelId: levelId)
-                        ..loadExistingPoints(),
-              child: LevelEditorScreen(levelId: levelId),
-            ),
-      ),
-    );
+    context.read<ChromaticChasmRouterDelegate>().goToLevelEditorRoute(levelId);
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder:
+    //         (_) => ListenableProvider(
+    //           create:
+    //               (_) =>
+    //                   LevelEditorState(database: dataBase, levelId: levelId)
+    //                     ..loadExistingPoints(),
+    //           child: LevelEditorScreen(levelId: levelId),
+    //         ),
+    //   ),
+    // );
   }
 }
 

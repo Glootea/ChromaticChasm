@@ -24,7 +24,7 @@ class LevelEditorState extends ChangeNotifier {
   bool get circular => _circular;
   bool _saving = false;
   bool get saving => _saving;
-  bool _loading = false;
+  bool _loading = true;
   bool get loading => _loading;
   Offset _leftUpperPoint;
   Offset _rightLowerPoint;

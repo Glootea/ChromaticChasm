@@ -32,7 +32,7 @@ class _PreviewLevelScreenState extends State<PreviewLevelScreen> {
           (context) => GameStateProvider.create(
             forcedLevel: widget.level,
             forcedState: (_, level) => LevelPreviewPlayingState(level),
-            levelProvider: LevelProvider(levels: [widget.level]),
+            levelProvider: LevelProvider.withLevel(widget.level),
           ),
       child: SafeArea(
         child: Builder(

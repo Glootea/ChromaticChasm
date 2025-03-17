@@ -6,20 +6,31 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class LevelEditorScreen extends StatefulWidget {
-  final int levelId;
-
-  const LevelEditorScreen({super.key, required this.levelId});
+  const LevelEditorScreen({super.key});
 
   @override
   State<LevelEditorScreen> createState() => _LevelEditorScreenState();
 }
 
 class _LevelEditorScreenState extends State<LevelEditorScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => context.read<LevelEditorState>().loadExistingPoints(),
+    );
+  }
+
   final _edgeInset = 32.0;
 
   @override
   Widget build(BuildContext context) {
     final state = context.watch<LevelEditorState>();
+    if (state.loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     final screenSize = MediaQuery.sizeOf(context);
     final verticalInsets = MediaQuery.viewPaddingOf(context).top;
     final availableHeight =
@@ -33,91 +44,88 @@ class _LevelEditorScreenState extends State<LevelEditorScreen> {
     state.onScreenSizeChange(leftUpperPoint, rightLowerPoint);
 
     final key = GlobalKey();
-    return state.loading
-        ? const Center(child: CircularProgressIndicator())
-        : Scaffold(
-          key: key,
-          endDrawer: const LevelEditorDrawer(),
-
-          appBar: AppBar(
-            actions: [
-              IconButton(
-                onPressed: () => state.addPoint(),
-                icon: const Icon(Icons.add_outlined),
-              ),
-              IconButton(
-                onPressed: () => _onPlayButtonPressed(context, state),
-                icon: const Icon(Icons.play_arrow_outlined),
-              ),
-              IconButton(
-                onPressed: () => state.save(),
-                icon:
-                    state.saving
-                        ? const CircularProgressIndicator()
-                        : const Icon(Icons.save_outlined),
-              ),
-              IconButton(
-                onPressed:
-                    () => (key.currentState as ScaffoldState).openEndDrawer(),
-                icon: const Icon(Icons.more_horiz_outlined),
-              ),
-            ],
-            leading: IconButton(
-              onPressed: () {
-                void exitScreen() {
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                }
-
-                showDialog(
-                  context: context,
-                  builder:
-                      (context) => AlertDialog(
-                        title: Text(context.localization.saveQuestion),
-                        actions: [
-                          TextButton(
-                            onPressed: exitScreen,
-                            child: Text(context.localization.removeChanges),
-                          ),
-                          FilledButton(
-                            onPressed: () async {
-                              await state.save();
-                              exitScreen();
-                            },
-                            child: Text(context.localization.save),
-                          ),
-                        ],
-                      ),
-                );
-              },
-              icon: const Icon(Icons.arrow_back_outlined),
-            ),
+    return Scaffold(
+      key: key,
+      endDrawer: const LevelEditorDrawer(),
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            onPressed: () => state.addPoint(),
+            icon: const Icon(Icons.add_outlined),
           ),
-          body: Stack(
-            fit: StackFit.expand,
-            children:
-                <Widget>[
-                  IgnorePointer(
-                    child: CustomPaint(
-                      painter: ConnectionsPainter(
-                        points: state.points,
-                        circular: state.circular,
+          IconButton(
+            onPressed: () => _onPlayButtonPressed(context, state),
+            icon: const Icon(Icons.play_arrow_outlined),
+          ),
+          IconButton(
+            onPressed: () => state.save(),
+            icon:
+                state.saving
+                    ? const CircularProgressIndicator()
+                    : const Icon(Icons.save_outlined),
+          ),
+          IconButton(
+            onPressed:
+                () => (key.currentState as ScaffoldState).openEndDrawer(),
+            icon: const Icon(Icons.more_horiz_outlined),
+          ),
+        ],
+        leading: IconButton(
+          onPressed: () {
+            void exitScreen() {
+              Navigator.pop(context);
+              Navigator.pop(context);
+            }
+
+            showDialog(
+              context: context,
+              builder:
+                  (context) => AlertDialog(
+                    title: Text(context.localization.saveQuestion),
+                    actions: [
+                      TextButton(
+                        onPressed: exitScreen,
+                        child: Text(context.localization.removeChanges),
                       ),
-                    ),
+                      FilledButton(
+                        onPressed: () async {
+                          await state.save();
+                          exitScreen();
+                        },
+                        child: Text(context.localization.save),
+                      ),
+                    ],
                   ),
-                ] +
-                state.points
-                    .map<Widget>(
-                      (e) => LevelPoint(
-                        point: e,
-                        onUpdatePosition: state.updatePoint,
-                        onDepthChange: state.updateDepth,
-                        onDelete: () => state.deletePoint(e),
-                      ),
-                    )
-                    .toList(),
-          ),
-        );
+            );
+          },
+          icon: const Icon(Icons.arrow_back_outlined),
+        ),
+      ),
+      body: Stack(
+        fit: StackFit.expand,
+        children:
+            <Widget>[
+              IgnorePointer(
+                child: CustomPaint(
+                  painter: ConnectionsPainter(
+                    points: state.points,
+                    circular: state.circular,
+                  ),
+                ),
+              ),
+            ] +
+            state.points
+                .map<Widget>(
+                  (e) => LevelPoint(
+                    point: e,
+                    onUpdatePosition: state.updatePoint,
+                    onDepthChange: state.updateDepth,
+                    onDelete: () => state.deletePoint(e),
+                  ),
+                )
+                .toList(),
+      ),
+    );
   }
 
   void _onPlayButtonPressed(BuildContext context, LevelEditorState state) =>
