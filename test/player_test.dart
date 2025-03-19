@@ -9,7 +9,7 @@ import 'package:chromatic_chasm/game/elements/player/player.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('Player: ', () {
+  group('Player:', () {
     final canvas = Canvas(PictureRecorder());
     final camera = Camera(Positionable(0, 0, 0));
     Drawable.setCanvasSize(const Size(100, 100));
@@ -18,8 +18,10 @@ void main() {
       final level = Level1();
       final player = Player(level)..lifecycleState = PlayerLive();
 
-      //start at center
-      assert(player.pivot.tileNumber == level.tiles.length ~/ 2);
+      assert(
+        player.pivot.tileNumber == level.tiles.length ~/ 2,
+        'Must start at center',
+      );
 
       player.setTargetTile = (level.tiles.length ~/ 2) - 2;
       int framesLeft = 100;
@@ -41,8 +43,10 @@ void main() {
       final level = Level2();
       final player = Player(level)..lifecycleState = PlayerLive();
 
-      //start at center
-      assert(player.pivot.tileNumber == level.tiles.length ~/ 2);
+      assert(
+        player.pivot.tileNumber == level.tiles.length ~/ 2,
+        'Must start at center',
+      );
 
       int targetTile = 0;
       player.setTargetTile = targetTile;
@@ -72,7 +76,7 @@ void main() {
         if (player.pivot.tileNumber == targetTile) break;
         assert(
           player.pivot.tileNumber != level.tiles.length ~/ 2,
-          'Long path must not be taken',
+          'Long path must not be taken as shorter/without full loop exists',
         );
       }
       if (framesLeft == 0) {

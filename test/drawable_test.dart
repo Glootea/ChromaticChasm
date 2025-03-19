@@ -5,7 +5,7 @@ import 'package:chromatic_chasm/game/elements/base_classes/positionable.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('Drawable: ', () {
+  group('Drawable:', () {
     Positionable pivot = Positionable(0, 0, 0);
     Drawable drawable = Drawable2D(
       pivot,

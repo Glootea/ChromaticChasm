@@ -9,7 +9,7 @@ import 'package:chromatic_chasm/game/elements/shot.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('Shot: ', () {
+  group('Shot:', () {
     final level = Level1();
     const tileNumber = 1;
     Shot shot = Shot(level, tileNumber);
@@ -35,7 +35,7 @@ void main() {
       final thirdDepthFraction = shot.pivot.depthFraction;
       assert(
         thirdDepthFraction > secondDepthFraction,
-        'Shot must fly towards end',
+        'Shot must fly towards end, be farer with each iteration',
       );
     });
     test('disappear on fly to end', () {
