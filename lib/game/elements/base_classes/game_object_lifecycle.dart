@@ -132,12 +132,12 @@ class PlayerFlyOutsideLevel extends PlayerLifecycle with TransitionLifeCycle {
     return timeFraction <= 0.5
         ? lerpDouble(
           startAngle,
-          0,
+          -pi / 2,
           EasingFunctions.easeInOutCubic(timeFraction) * 2,
         )!
         : lerpDouble(
-          0,
-          targetAngle,
+          -pi / 2,
+          targetAngle - pi / 2,
           EasingFunctions.easeInOutCubic(timeFraction) * 2 - 1,
         )!;
     // prevPivot.setFrom(_pivot);
