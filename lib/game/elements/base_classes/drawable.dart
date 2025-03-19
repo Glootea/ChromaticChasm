@@ -1,8 +1,8 @@
-import 'dart:math';
 import 'dart:ui';
 import 'package:chromatic_chasm/game/elements/base_classes/positionable.dart';
 import 'package:chromatic_chasm/game/elements/base_classes/transformable.dart';
 import 'package:chromatic_chasm/game/elements/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:vector_math/vector_math.dart';
 
 sealed class Drawable implements Transformable {
@@ -77,10 +77,11 @@ sealed class Drawable implements Transformable {
 
   ///Rotates all points around pivot by angle. If points are in local coordinates, [_pivot] = Positionable.zero()
   @override
+  @visibleForTesting
   List<Positionable> rotateX(double angle) =>
       _transformedVertexes =
           _transformedVertexes
-              .map((point) => point.rotateX(angle - pi / 2))
+              .map((point) => point.rotateX(angle))
               .expand((element) => element)
               .toList();
 
@@ -89,7 +90,7 @@ sealed class Drawable implements Transformable {
   List<Positionable> rotateY(double angle) =>
       _transformedVertexes =
           _transformedVertexes
-              .map((point) => point.rotateY(angle - pi / 2))
+              .map((point) => point.rotateY(angle))
               .expand((element) => element)
               .toList();
 
@@ -98,7 +99,7 @@ sealed class Drawable implements Transformable {
   List<Positionable> rotateZ(double angle) =>
       _transformedVertexes =
           _transformedVertexes
-              .map((point) => point.rotateZ(angle - pi / 2))
+              .map((point) => point.rotateZ(angle))
               .expand((element) => element)
               .toList();
 
