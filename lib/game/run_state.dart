@@ -3,12 +3,19 @@ import 'package:flutter/material.dart';
 class RunState extends ChangeNotifier {
   int score;
   int lives;
-
-  RunState({this.score = 0, this.lives = 3});
+  static const int _maxLifes = 3;
+  RunState({this.score = 0, this.lives = _maxLifes});
 
   void removeLife() {
     if (lives > 0) {
       lives--;
+      notifyListeners();
+    }
+  }
+
+  void addLife() {
+    if (lives < _maxLifes) {
+      lives++;
       notifyListeners();
     }
   }
