@@ -27,7 +27,7 @@ class PlayerFlyAwayState extends PlayerFlyOutsideLevel {
       LevelAppearState(
         gameStateProvider,
         (Camera(Positionable(0, 0, 0))),
-        runState,
+        runState..addLife(),
         gameStateProvider.getNextLevel(),
         _player,
       ),
