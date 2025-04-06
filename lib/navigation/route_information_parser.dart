@@ -9,12 +9,13 @@ class ChromaticChasmRouteInformationParser
     RouteInformation routeInformation,
   ) {
     final uri = routeInformation.uri;
-    print('parseRouteInformation: $uri');
-    return Future.value(PageName.fromString(uri).getRoute(uri));
+    print('parseRouteInformation: ${uri.path}');
+    return Future.value(PageName.fromUri(uri).getRoute(uri));
   }
 
   @override
-  RouteInformation? restoreRouteInformation(
-    ChromaticChasmRoute configuration,
-  ) => RouteInformation(uri: Uri.parse("/${configuration.path}"));
+  RouteInformation? restoreRouteInformation(ChromaticChasmRoute configuration) {
+    debugPrint('restoreRouteInformation: ${configuration.path}');
+    return RouteInformation(uri: Uri.parse(configuration.path));
+  }
 }

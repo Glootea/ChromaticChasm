@@ -1,25 +1,22 @@
-import 'package:chromatic_chasm/navigation/router_delegate.dart';
 import 'package:flutter/widgets.dart';
 
-class ChromaticChasmRouteInformationProvider extends RouteInformationProvider
-    with ChangeNotifier {
-  final ChromaticChasmRouterDelegate routerDelegate;
-
-  ChromaticChasmRouteInformationProvider(this.routerDelegate);
-
+class ChromaticChasmRouteInformationProvider
+    extends PlatformRouteInformationProvider {
   @override
-  RouteInformation get value => _value;
-  late RouteInformation _value = RouteInformation(
-    uri: Uri.parse(routerDelegate.currentConfiguration.path),
-  );
+  RouteInformation value = RouteInformation(uri: Uri.parse('/'));
+
+  ChromaticChasmRouteInformationProvider({
+    required super.initialRouteInformation,
+  });
 
   @override
   void routerReportsNewRouteInformation(
     RouteInformation routeInformation, {
     RouteInformationReportingType type = RouteInformationReportingType.none,
   }) {
-    _value = routeInformation;
-    notifyListeners();
-    super.routerReportsNewRouteInformation(routeInformation, type: type);
+    if (value == routeInformation) return;
+    value = routeInformation;
+    debugPrint('routerReportsNewRouteInformation: ${routeInformation.uri}');
+    super.routerReportsNewRouteInformation(routeInformation);
   }
 }

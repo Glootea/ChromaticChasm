@@ -1,5 +1,6 @@
 import 'package:chromatic_chasm/navigation/route.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ChromaticChasmRouterDelegate extends RouterDelegate<ChromaticChasmRoute>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<ChromaticChasmRoute> {
@@ -10,21 +11,31 @@ class ChromaticChasmRouterDelegate extends RouterDelegate<ChromaticChasmRoute>
   @override
   ChromaticChasmRoute currentConfiguration = StartRoute();
 
+  late final List<ChromaticChasmRoute> _routeStack = [currentConfiguration];
+
   @override
   Widget build(BuildContext context) {
-    return Navigator(
-      pages: [
-        ...StartRoute().getPages(context),
-        ...currentConfiguration.getPages(context),
-      ],
-      onDidRemovePage: (page) {},
+    return ChangeNotifierProvider.value(
+      value: this,
+      child: Navigator(
+        pages:
+            _routeStack
+                .map((e) => e.getPages(context))
+                .expand((e) => e)
+                .toList(),
+        onDidRemovePage: (_) {
+          _routeStack.removeLast();
+        },
+      ),
     );
   }
 
   @override
   Future<void> setNewRoutePath(ChromaticChasmRoute configuration) async {
-    print('New configuration: $configuration');
+    if (currentConfiguration == configuration) return;
+    debugPrint('setNewRoutePath: $configuration');
     currentConfiguration = configuration;
+    _routeStack.add(currentConfiguration);
     notifyListeners();
   }
 

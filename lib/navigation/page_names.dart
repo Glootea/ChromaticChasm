@@ -16,14 +16,14 @@ enum PageName {
   final String path;
 
   const PageName(this.path);
-  static PageName fromString(Uri uri) {
+  static PageName fromUri(Uri uri) {
     return PageName.values.firstWhere(
       (e) => e.path == uri.path,
       orElse: () => unknown,
     );
   }
 
-  ChromaticChasmRoute getRoute(Uri uri) => switch (PageName.fromString(uri)) {
+  ChromaticChasmRoute getRoute(Uri uri) => switch (PageName.fromUri(uri)) {
     PageName.start => StartRoute(),
     PageName.levelSelector => LevelSelectorRoute(uri),
     PageName.levelEditor => LevelEditorRoute(uri),

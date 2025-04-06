@@ -18,6 +18,12 @@ sealed class ChromaticChasmRoute {
   List<Page> getPages(BuildContext context);
 
   static isKnownPath(String path) => PageName.values.any((e) => e.path == path);
+
+  @override
+  bool operator ==(covariant ChromaticChasmRoute other) => other.path == path;
+
+  @override
+  int get hashCode => path.hashCode;
 }
 
 class StartRoute extends ChromaticChasmRoute {
@@ -57,7 +63,7 @@ class LevelEditorRoute extends ChromaticChasmRoute {
   List<Page> getPages(BuildContext context) {
     final database = context.read<ChromaticChasmDatabase>();
     return [
-      const MaterialPage(child: LevelSelectorScreen()),
+      // const MaterialPage(child: LevelSelectorScreen()),
       MaterialPage(
         child: ChangeNotifierProvider(
           create: (_) => LevelEditorState(database: database, levelId: levelId),
@@ -76,9 +82,19 @@ class GameRoute extends ChromaticChasmRoute {
     final levelProvider = LevelProvider();
     return [
       MaterialPage(
-        child: ChangeNotifierProvider(
-          create: (_) => GameStateProvider.create(levelProvider: levelProvider),
-          child: GameScreen(levelProvider: levelProvider),
+        child: FutureBuilder(
+          future: levelProvider.init(context.read<ChromaticChasmDatabase>()),
+          builder:
+              (context, snapshot) =>
+                  (snapshot.connectionState != ConnectionState.done)
+                      ? const Center(child: CircularProgressIndicator())
+                      : ChangeNotifierProvider(
+                        create:
+                            (_) => GameStateProvider.create(
+                              levelProvider: levelProvider,
+                            ),
+                        child: GameScreen(levelProvider: levelProvider),
+                      ),
         ),
       ),
     ];
